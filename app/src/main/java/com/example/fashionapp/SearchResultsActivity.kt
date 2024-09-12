@@ -34,6 +34,7 @@ import okhttp3.Callback
 import okhttp3.Request
 import okhttp3.Response
 import okio.IOException
+import org.json.JSONArray
 import org.json.JSONObject
 
 class SearchResultsActivity : ComponentActivity() {
@@ -45,8 +46,12 @@ class SearchResultsActivity : ComponentActivity() {
         val responseDataString = intent.getStringExtra("responseData") ?: ""
 
         // Parse the response data
-        val responseData = JSONObject(responseDataString)
-        val productsJsonArray = responseData.getJSONArray("products")
+        val responseData = try {
+            JSONObject(responseDataString)
+        } catch (e: Exception) {
+            null
+        }
+        val productsJsonArray = responseData?.getJSONArray("products") ?: JSONArray()
 
         // Convert the JSON array to a list of products
         val products = mutableListOf<Product>()
@@ -141,7 +146,7 @@ fun SearchResultsScreen(query: String, products: List<Product>) {
 //        SearchBar(searchQuery = searchText.text, context = context, placeholder = {Text(searchText.text)})
         Box(
                  modifier = Modifier
- //                    .fillMaxSize()
+                     .fillMaxWidth()
                      .padding(16.dp),
                  contentAlignment = Alignment.Center
          )
@@ -151,7 +156,7 @@ fun SearchResultsScreen(query: String, products: List<Product>) {
                  onValueChange = { searchText = it },
                  placeholder = { Text("$searchText") },
                  modifier = Modifier
-                     .fillMaxWidth(0.8f)
+                     .fillMaxWidth()
                      .padding(16.dp),
                  keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                  keyboardActions = KeyboardActions(
@@ -166,44 +171,47 @@ fun SearchResultsScreen(query: String, products: List<Product>) {
         // Products list
         LazyColumn {
             items(products) { product ->
-                ProductItem(product, Modifier
+                ProductItemBriefView(product, Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
-                    .clickable {
-                        val url = "https://husn.app/api/product/${product.index}"
-                        val request = Request.Builder()
-                            .url(url)
-                            .build()
+                    // .clickable {
+                    //     val url = "https://husn.app/api/product/${product.index}"
+                    //     val request = Request.Builder()
+                    //         .url(url)
+                    //         .build()
 
-                        client.newCall(request).enqueue(object : Callback {
-                            override fun onFailure(call: Call, e: IOException) {
-                                e.printStackTrace()
-                            }
+                    //     client.newCall(request).enqueue(object : Callback {
+                    //         override fun onFailure(call: Call, e: IOException) {
+                    //             e.printStackTrace()
+                    //         }
 
-                            override fun onResponse(call: Call, response: Response) {
-                                if (response.isSuccessful) {
-                                    val responseData = response.body?.string()
-                                    responseData?.let {
-                                        val intent = Intent(context, ProductDetailsActivity::class.java)
-                                        intent.putExtra("productData", it)
-                                        context.startActivity(intent)
-                                    }
-                                } else {
-                                    println("Request failed with status: ${response.code}")
-                                }
-                            }
-                        })
-                    })
+                    //         override fun onResponse(call: Call, response: Response) {
+                    //             if (response.isSuccessful) {
+                    //                 val responseData = response.body?.string()
+                    //                 responseData?.let {
+                    //                     val intent = Intent(context, ProductDetailsActivity::class.java)
+                    //                     intent.putExtra("productData", it)
+                    //                     context.startActivity(intent)
+                    //                 }
+                    //             } else {
+                    //                 println("Request failed with status: ${response.code}")
+                    //             }
+                    //         }
+                    //     })
+                    // }
+                    )
             }
         }
     }
 }
 
 @Composable
-fun ProductItem(product: Product, modifier: Modifier = Modifier) {
+fun ProductItemBriefView(product: Product, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
     Column(
         modifier = modifier
             .padding(8.dp)
+            .width(150.dp)
     ) {
         Image(
             painter = rememberAsyncImagePainter(product.searchImage),
@@ -211,6 +219,31 @@ fun ProductItem(product: Product, modifier: Modifier = Modifier) {
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1.0f) // Maintain aspect ratio
+                .clickable {
+                    val url = "https://husn.app/api/product/${product.index}"
+                    val request = Request.Builder()
+                        .url(url)
+                        .build()
+
+                    client.newCall(request).enqueue(object : Callback {
+                        override fun onFailure(call: Call, e: IOException) {
+                            e.printStackTrace()
+                        }
+
+                        override fun onResponse(call: Call, response: Response) {
+                            if (response.isSuccessful) {
+                                val responseData = response.body?.string()
+                                responseData?.let {
+                                    val intent = Intent(context, ProductDetailsActivity::class.java)
+                                    intent.putExtra("productData", it)
+                                    context.startActivity(intent)
+                                }
+                            } else {
+                                println("Request failed with status: ${response.code}")
+                            }
+                        }
+                    })
+                }
         )
         Spacer(modifier = Modifier.height(8.dp))
         Row(

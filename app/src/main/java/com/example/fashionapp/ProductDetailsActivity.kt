@@ -8,12 +8,18 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,7 +61,7 @@ class ProductDetailsActivity : ComponentActivity() {
         )
 
         val products = mutableListOf<Product>()
-        for (i in 0 until productsJsonArray.length()) {
+        for (i in 1 until productsJsonArray.length()) {  // Start loop from 1 to skip the first product
             val productJson = productsJsonArray.getJSONObject(i)
             val product = Product(
                 additionalInfo = productJson.optString("additionalInfo"),
@@ -160,18 +166,72 @@ fun PreviewProductDetailsScreen() {
 @Composable
 fun ProductDetailsScreen(currentProduct: Product, relatedProducts: List<Product>) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        // Search Bar
+        var searchQuery by remember { mutableStateOf("") }
+        val context = LocalContext.current
+        Box(
+            modifier = Modifier
+//                .fillMaxSize()
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text("Search...") },
+                modifier = Modifier
+                    .fillMaxWidth(0.8f),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                keyboardActions = KeyboardActions(
+                    onSearch = {
+                        sendSearchQuery(context, searchQuery)
+                    }
+                )
+            )
+        }
+
         // Display current product
-        // Text(text = "Current Product", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-        ProductItem(product = currentProduct)
+        ProductItemView(product = currentProduct)
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // Display related products
-        // Text(text = "Related Products", fontSize = 20.sp, fontWeight = FontWeight.Bold)
         LazyRow {
             items(relatedProducts) { product ->
-                ProductItem(product = product, modifier = Modifier.padding(horizontal = 8.dp))
+                ProductItemBriefView(product = product)
             }
+        }
+    }
+}
+
+
+@Composable
+fun ProductItemView(product: Product, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .padding(8.dp)
+    ) {
+        Image(
+            painter = rememberAsyncImagePainter(product.searchImage),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1.0f) // Maintain aspect ratio
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = "${product.brand}", color = Color.Gray, fontSize = 18.sp)
+            Text(text = "${"%.2f".format(product.rating)} ★", color = Color.Gray, fontSize = 16.sp)
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = "${product.additionalInfo}", color = Color.Gray, fontSize = 14.sp)
+            Text(text = "Rs ${product.price}", color = Color.Gray, fontSize = 14.sp)
         }
     }
 }
