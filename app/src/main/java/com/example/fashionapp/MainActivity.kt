@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,7 +47,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private val client = OkHttpClient()
+val client = OkHttpClient()
 fun sendSearchQuery(context: Context, query: String) {
     val url = "https://husn.app/api/query"
 
@@ -124,29 +125,69 @@ fun StyleSenseApp(context: Context) {
                 .padding(innerPadding)
         ) {
             // Search Bar
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    placeholder = { Text("denim jeans with knee pockets") },
-                    modifier = Modifier
-                        .fillMaxWidth(0.8f),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                    keyboardActions = KeyboardActions(
-                        onSearch = {
-                            sendSearchQuery(context, searchQuery)
-                        }
-                    )
-                )
-            }
+             Box(
+                 modifier = Modifier
+                     .fillMaxSize()
+                     .padding(16.dp),
+                 contentAlignment = Alignment.Center
+             ) {
+                 OutlinedTextField(
+                     value = searchQuery,
+                     onValueChange = { searchQuery = it },
+                     placeholder = { Text("denim jeans with knee pockets") },
+                     modifier = Modifier
+                         .fillMaxWidth(0.8f),
+                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                     keyboardActions = KeyboardActions(
+                         onSearch = {
+                             sendSearchQuery(context, searchQuery)
+                         }
+                     )
+                 )
+             }
+//            SearchBar(searchQuery = searchQuery, context = context, modifier = Modifier.fillMaxSize(), {Text("denim jeans with pockets")})
         }
     }
 }
+
+@Composable
+fun SearchBar(
+    searchQuery: String,
+    context: Context,
+    modifier: Modifier = Modifier,
+    placeholder: @Composable () -> Unit = { Text("") }
+) {
+    var searchText by remember { mutableStateOf(TextFieldValue(searchQuery)) }
+    Box(
+        modifier = modifier
+//             .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        OutlinedTextField(
+            value = searchText,
+            onValueChange = { searchText = it },
+//            placeholder = {
+//                Box(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    contentAlignment = Alignment.Center
+//                ) {
+//                    placeholder()
+//                }
+//            },
+            placeholder = placeholder,
+            modifier = Modifier
+                .fillMaxWidth(0.8f),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    sendSearchQuery(context, searchText.toString())
+                }
+            )
+        )
+    }
+}
+
 
 data class Product(
     val additionalInfo: String?,

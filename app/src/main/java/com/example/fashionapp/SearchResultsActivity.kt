@@ -1,10 +1,12 @@
 package com.example.fashionapp
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.MaterialTheme
@@ -14,14 +16,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.rememberAsyncImagePainter
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.Request
+import okhttp3.Response
+import okio.IOException
 import org.json.JSONObject
 
 class SearchResultsActivity : ComponentActivity() {
@@ -125,20 +137,30 @@ fun SearchResultsScreen(query: String, products: List<Product>) {
     ) {
         // Search Bar
         var searchText by remember { mutableStateOf(TextFieldValue(query)) }
+        val context = LocalContext.current
+//        SearchBar(searchQuery = searchText.text, context = context, placeholder = {Text(searchText.text)})
         Box(
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = searchText.text,
-                fontSize = 18.sp,
-                modifier = Modifier
-//                    .background(Color.LightGray)
-                    .padding(8.dp)
-            )
-        }
+                 modifier = Modifier
+ //                    .fillMaxSize()
+                     .padding(16.dp),
+                 contentAlignment = Alignment.Center
+         )
+         {
+             OutlinedTextField(
+                 value = searchText,
+                 onValueChange = { searchText = it },
+                 placeholder = { Text("$searchText") },
+                 modifier = Modifier
+                     .fillMaxWidth(0.8f)
+                     .padding(16.dp),
+                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                 keyboardActions = KeyboardActions(
+                     onSearch = {
+                         sendSearchQuery(context, searchText.text)
+                     }
+                 )
+             )
+         }
 
 
         // Products list
@@ -146,25 +168,36 @@ fun SearchResultsScreen(query: String, products: List<Product>) {
             items(products) { product ->
                 ProductItem(product, Modifier
                     .fillMaxWidth()
-                    .padding(8.dp))
+                    .padding(8.dp)
+                    .clickable {
+                        val url = "https://husn.app/api/product/${product.index}"
+                        val request = Request.Builder()
+                            .url(url)
+                            .build()
+
+                        client.newCall(request).enqueue(object : Callback {
+                            override fun onFailure(call: Call, e: IOException) {
+                                e.printStackTrace()
+                            }
+
+                            override fun onResponse(call: Call, response: Response) {
+                                if (response.isSuccessful) {
+                                    val responseData = response.body?.string()
+                                    responseData?.let {
+                                        val intent = Intent(context, ProductDetailsActivity::class.java)
+                                        intent.putExtra("productData", it)
+                                        context.startActivity(intent)
+                                    }
+                                } else {
+                                    println("Request failed with status: ${response.code}")
+                                }
+                            }
+                        })
+                    })
             }
         }
     }
 }
-
-// @Composable
-// fun ProductItem(product: Product, modifier: Modifier) {
-//     Column(
-//         modifier = modifier
-//             .padding(8.dp)
-//             .fillMaxWidth(),
-//         horizontalAlignment = Alignment.CenterHorizontally
-//     ) {
-//         // Replace with actual product UI (e.g., image, name, price)
-//         Text(text = product.productName, fontSize = 20.sp)
-//         Text(text = "\$${product.price}", fontSize = 16.sp)
-//     }
-// }
 
 @Composable
 fun ProductItem(product: Product, modifier: Modifier = Modifier) {
@@ -180,10 +213,20 @@ fun ProductItem(product: Product, modifier: Modifier = Modifier) {
                 .aspectRatio(1.0f) // Maintain aspect ratio
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = product.productName, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-        Text(text = "Brand: ${product.brand}", color = Color.Gray, fontSize = 14.sp)
-        Text(text = "$${product.price}", color = Color.Gray, fontSize = 14.sp)
-        Text(text = "Rating: ${product.rating}", color = Color.Gray, fontSize = 14.sp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = "${product.brand}", color = Color.Gray, fontSize = 18.sp)
+            Text(text = "${"%.2f".format(product.rating)} ★", color = Color.Gray, fontSize = 16.sp)
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = "${product.additionalInfo}", color = Color.Gray, fontSize = 14.sp)
+            Text(text = "Rs ${product.price}", color = Color.Gray, fontSize = 14.sp)
+        }
     }
 }
 
