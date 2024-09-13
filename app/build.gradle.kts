@@ -59,11 +59,13 @@ dependencies {
     // Jetpack Compose UI
     implementation("androidx.compose.ui:ui:1.5.0")
     implementation("androidx.compose.material:material:1.5.0")
+    debugImplementation("androidx.compose.ui:ui-tooling:1.5.0")
     implementation("androidx.compose.ui:ui-tooling-preview:1.5.0")
     implementation("androidx.activity:activity-compose:1.7.2")
 
     // Coil for Image Loading in Compose
     implementation("io.coil-kt:coil-compose:2.2.2")
+    implementation("io.coil-kt:coil-svg:2.2.2")
 
     // OkHttp for Networking
     implementation("com.squareup.okhttp3:okhttp:4.9.3")

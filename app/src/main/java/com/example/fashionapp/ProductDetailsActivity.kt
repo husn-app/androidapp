@@ -1,8 +1,12 @@
 package com.example.fashionapp
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,8 +17,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
@@ -34,7 +42,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import coil.ImageLoader
+import coil.decode.SvgDecoder
+import coil.request.ImageRequest
 import org.json.JSONObject
+import androidx.compose.ui.layout.ContentScale
+import java.io.InputStream
+
 
 class ProductDetailsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,9 +121,9 @@ class ProductDetailsActivity : ComponentActivity() {
 @Composable
 fun PreviewProductDetailsScreen() {
     val dummyCurrentProduct = Product(
-        additionalInfo = "Comfortable and stylish",
+        additionalInfo = "Comfortable and stylish and a veyr tremendous title",
         articleType = "Jeans",
-        brand = "Brand A",
+        brand = "Brand super duper big brand master blaster A",
         category = "Bottomwear",
         gender = "Men",
         index = 1,
@@ -190,7 +204,7 @@ fun ProductDetailsScreen(currentProduct: Product, relatedProducts: List<Product>
                 onValueChange = { searchQuery = it },
                 placeholder = { Text("Search...") },
                 modifier = Modifier
-                    .fillMaxWidth(0.8f),
+                    .fillMaxWidth(1f),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(
                     onSearch = {
@@ -214,12 +228,12 @@ fun ProductDetailsScreen(currentProduct: Product, relatedProducts: List<Product>
     }
 }
 
-
 @Composable
 fun ProductItemView(product: Product, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
-            .padding(8.dp)
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
             painter = rememberAsyncImagePainter(product.searchImage),
@@ -230,18 +244,72 @@ fun ProductItemView(product: Product, modifier: Modifier = Modifier) {
         )
         Spacer(modifier = Modifier.height(8.dp))
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(text = "${product.brand}", color = Color.Gray, fontSize = 18.sp)
-            Text(text = "${"%.2f".format(product.rating)} ★", color = Color.Gray, fontSize = 16.sp)
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(text = "${product.additionalInfo}", color = Color.Gray, fontSize = 14.sp)
-            Text(text = "Rs ${product.price}", color = Color.Gray, fontSize = 14.sp)
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .padding(horizontal = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        )
+            // verticalAlignment = Alignment.CenterVertically
+        {
+            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.Start) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+//                    horizontalArrangement = Arrangement.Start
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (product.rating > 0) {
+                        Text(text = "${"%.2f".format(product.rating)} ★", color = Color.Gray, fontSize = 16.sp)
+                        Spacer(modifier = Modifier.width(16.dp))
+                    }
+                    Text(text = "Rs ${product.price}", color = Color.Gray, fontSize = 16.sp)
+                }
+                Text(text = product.brand, color = Color.Gray, fontSize = 18.sp)
+                Text(text = "${product.additionalInfo}", color = Color.Gray, fontSize = 14.sp)
+            }
+            // Right-aligned clickable SVG icon that redirects to myntra.com/${product.landingPageUrl}
+            val context = LocalContext.current
+            DisplaySvgIconFromAssets(
+                fileName = "myntra-logo.svg",
+                modifier = Modifier
+                    .size(40.dp)
+                    .clickable {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://myntra.com/${product.landingPageUrl}"))
+                        context.startActivity(intent)
+                    }
+            )
+            // DisplaySvgIconFromAssets(fileName = "myntra-logo.svg", modifier = Modifier.weight(0.2f).aspectRatio(1.0f))
         }
     }
+}
+
+@Composable
+fun DisplaySvgIconFromAssets(fileName: String, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+
+    // Create an ImageLoader with SVG support
+    val imageLoader = ImageLoader.Builder(context)
+        .components {
+            add(SvgDecoder.Factory())
+        }
+        .build()
+
+    // Build the asset URI
+    val assetUri = "file:///android_asset/$fileName"
+
+    // Load the SVG file as a drawable into Coil
+    val painter = rememberAsyncImagePainter(
+        ImageRequest.Builder(context)
+            .data(assetUri)
+            .build(),
+        imageLoader = imageLoader
+    )
+
+    // Display the image
+    Image(
+        painter = painter,
+        contentDescription = null,
+        modifier = modifier,
+        contentScale = ContentScale.Fit
+    )
 }
