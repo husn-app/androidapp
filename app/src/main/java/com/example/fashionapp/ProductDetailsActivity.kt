@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -143,9 +144,9 @@ fun PreviewProductDetailsScreen() {
 
     val dummyRelatedProducts = listOf(
         Product(
-            additionalInfo = "Elegant and comfortable",
+            additionalInfo = "Elegant and comfortable and a hugely gigantic big piece of text",
             articleType = "Shirt",
-            brand = "Brand B",
+            brand = "Brand B sbse bada brand duniya ka brand",
             category = "Topwear",
             gender = "Women",
             index = 2,
@@ -163,9 +164,9 @@ fun PreviewProductDetailsScreen() {
             subCategory = "Formal Wear"
         ),
         Product(
-            additionalInfo = "Sporty and durable",
+            additionalInfo = "Sporty and durable and super elastic and next level shit",
             articleType = "Sneakers",
-            brand = "Brand C",
+            brand = "Brand C second sbse bada duniya ka bhot achha brand",
             category = "Footwear",
             gender = "Unisex",
             index = 3,
@@ -219,10 +220,17 @@ fun ProductDetailsScreen(currentProduct: Product, relatedProducts: List<Product>
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Display related products
         LazyRow {
             items(relatedProducts) { product ->
-                ProductItemBriefView(product = product)
+                // Pass a custom modifier to ensure height wraps content
+                ProductItemBriefView(
+                    product = product,
+                    textScale = 0.6f,
+                    modifier = Modifier
+                        .width(200.dp)  // Set the width as needed
+                        .wrapContentHeight()  // Ensure height adjusts to content
+//                        .padding(8.dp)
+                )
             }
         }
     }

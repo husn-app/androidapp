@@ -1,6 +1,7 @@
 package com.example.fashionapp
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -35,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -166,8 +169,7 @@ fun SearchResultsScreen(query: String, products: List<Product>) {
                  onValueChange = { searchText = it },
                  placeholder = { Text("$searchText") },
                  modifier = Modifier
-                     .fillMaxWidth()
-                     .padding(16.dp),
+                     .fillMaxWidth(),
                  keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                  keyboardActions = KeyboardActions(
                      onSearch = {
@@ -184,31 +186,6 @@ fun SearchResultsScreen(query: String, products: List<Product>) {
                 ProductItemBriefView(product, Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
-                    // .clickable {
-                    //     val url = "https://husn.app/api/product/${product.index}"
-                    //     val request = Request.Builder()
-                    //         .url(url)
-                    //         .build()
-
-                    //     client.newCall(request).enqueue(object : Callback {
-                    //         override fun onFailure(call: Call, e: IOException) {
-                    //             e.printStackTrace()
-                    //         }
-
-                    //         override fun onResponse(call: Call, response: Response) {
-                    //             if (response.isSuccessful) {
-                    //                 val responseData = response.body?.string()
-                    //                 responseData?.let {
-                    //                     val intent = Intent(context, ProductDetailsActivity::class.java)
-                    //                     intent.putExtra("productData", it)
-                    //                     context.startActivity(intent)
-                    //                 }
-                    //             } else {
-                    //                 println("Request failed with status: ${response.code}")
-                    //             }
-                    //         }
-                    //     })
-                    // }
                     )
             }
         }
@@ -216,12 +193,18 @@ fun SearchResultsScreen(query: String, products: List<Product>) {
 }
 
 @Composable
-fun ProductItemBriefView(product: Product, modifier: Modifier = Modifier) {
+fun ProductItemBriefView(
+    product: Product,
+    modifier: Modifier = Modifier,
+    textScale: Float = 1f  // Default scale factor
+) {
     val context = LocalContext.current
     Column(
-        modifier = modifier
-            .padding(8.dp)
-            .width(150.dp)
+        modifier = modifier,
+//            .clickable {
+//                // Optional: Handle entire item click if needed
+//            },
+            horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
             painter = rememberAsyncImagePainter(product.searchImage),
@@ -257,19 +240,66 @@ fun ProductItemBriefView(product: Product, modifier: Modifier = Modifier) {
         )
         Spacer(modifier = Modifier.height(8.dp))
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .padding(horizontal = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "${product.brand}", color = Color.Gray, fontSize = 18.sp)
-            Text(text = "${"%.2f".format(product.rating)} ★", color = Color.Gray, fontSize = 16.sp)
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(text = "${product.additionalInfo}", color = Color.Gray, fontSize = 14.sp)
-            Text(text = "Rs ${product.price}", color = Color.Gray, fontSize = 14.sp)
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (product.rating > 0) {
+                        Text(
+                            text = "${"%.2f".format(product.rating)} ★",
+                            color = Color.Gray,
+                            fontSize = (16.sp * textScale),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                    Text(
+                        text = "Rs ${product.price}",
+                        color = Color.Gray,
+                        fontSize = (16.sp * textScale),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                Text(
+                    text = product.brand,
+                    color = Color.Gray,
+                    fontSize = (18.sp * textScale),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = "${product.additionalInfo}",
+                    color = Color.Gray,
+                    fontSize = (14.sp * textScale),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            // Right-aligned clickable SVG icon that redirects to myntra.com/${product.landingPageUrl}
+            DisplaySvgIconFromAssets(
+                fileName = "myntra-logo.svg",
+                modifier = Modifier
+                    .size(24.dp) // Adjusted size for better layout fit
+                    .clickable {
+                        val intent = Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://myntra.com/${product.landingPageUrl}")
+                        )
+                        context.startActivity(intent)
+                    }
+            )
         }
     }
 }
-
