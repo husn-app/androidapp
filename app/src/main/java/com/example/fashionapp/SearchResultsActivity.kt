@@ -23,7 +23,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.MaterialTheme
+//import androidx.compose.material3.MaterialTheme
+import com.example.fashionapp.ui.theme.AppTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -94,7 +95,7 @@ class SearchResultsActivity : ComponentActivity() {
         }
 
         setContent {
-            MaterialTheme {
+            AppTheme {
                 SearchResultsScreen(query = query, products = products)
             }
         }

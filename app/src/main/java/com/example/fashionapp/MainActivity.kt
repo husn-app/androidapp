@@ -25,13 +25,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.fashionapp.ui.theme.FashionAppTheme
+import androidx.compose.ui.unit.sp
+import com.example.fashionapp.ui.theme.AppTheme
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -47,7 +51,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            FashionAppTheme {
+            AppTheme {
                 StyleSenseApp(this)
             }
         }
@@ -117,12 +121,28 @@ fun StyleSenseApp(context: Context) {
                 title = {
                     Text(
                         "Husn",
-                        color = Color.White
+                        color = Color.White,
+                        style = TextStyle(
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.25.sp
+                        )
                     )
                 },
+//                navigationIcon = {
+//                    IconButton(onClick = { /* Handle navigation icon click */ }) {
+//                        Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = Color.White)
+//                    }
+//                },
+//                actions = {
+//                    IconButton(onClick = { /* Handle favorite icon click */ }) {
+//                        Icon(Icons.Filled.Favorite, contentDescription = "Favorite", tint = Color.White)
+//                    }
+//                },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.Magenta
-                )
+                    containerColor = Color(0xFFBD8F07) // A more vibrant blue color
+                ),
+                modifier = Modifier.shadow(8.dp)
             )
         }
     ) { innerPadding ->
