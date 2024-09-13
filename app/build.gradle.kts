@@ -27,6 +27,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -85,5 +86,18 @@ dependencies {
 
     // AndroidX Test for Android-specific unit tests (optional but recommended for Android testing)
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")/**/
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
+
+    // BouncyCastle JSSE provider for OkHttp
+    implementation("org.bouncycastle:bctls-jdk15on:1.70")
+
+    // Conscrypt for better TLS support in OkHttp
+    implementation("org.conscrypt:conscrypt-android:2.5.2")
+
+    // OpenJSSE for modern TLS support in older Android versions
+    implementation("org.openjsse:openjsse:1.1.7")
+
+    implementation("org.conscrypt:conscrypt-android:2.5.2")
 }

@@ -19,3 +19,13 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+# Keep OkHttp's internal classes that handle TLS extensions, but ignore optional providers like BouncyCastle, Conscrypt, and OpenJSSE
+-dontwarn okhttp3.internal.platform.BouncyCastlePlatform
+-dontwarn okhttp3.internal.platform.ConscryptPlatform
+-dontwarn okhttp3.internal.platform.OpenJSSEPlatform
+# Ignore missing Conscrypt classes
+-dontwarn com.android.org.conscrypt.SSLParametersImpl
+-dontwarn org.apache.harmony.xnet.provider.jsse.SSLParametersImpl
+
+# If needed, also add this to ignore other Conscrypt-related missing classes
+-dontwarn org.conscrypt.**
