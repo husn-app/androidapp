@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -41,6 +42,15 @@ import okhttp3.Response
 import okio.IOException
 import org.json.JSONArray
 import org.json.JSONObject
+//import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.verticalScroll
+import kotlin.math.max
+
+//import androidx.compose.foundation.rememberScrollbarAdapter
 
 class SearchResultsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -146,13 +156,42 @@ fun SearchResultsScreen(query: String, products: List<Product>) {
         }
 
         // Products list
-        LazyColumn {
-            items(products) { product ->
-                ProductItemBriefView(product, Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
+//        LazyColumn {
+//            items(products) { product ->
+//                ProductItemBriefView(product, Modifier
+//                    .fillMaxWidth()
+//                    .padding(8.dp)
+//                    )
+//            }
+//        }
+        val listState = rememberLazyListState()
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // LazyColumn for product list
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(end = 12.dp) // Adding padding to leave space for scrollbar
+            ) {
+                items(products) { product ->
+                    ProductItemBriefView(
+                        product = product,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
                     )
+                }
             }
+
+            // Custom vertical scrollbar
+//            VerticalScrollbar(
+//                modifier = Modifier
+//                    .align(Alignment.CenterEnd)
+//                    .fillMaxHeight(),
+//                scrollState = listState
+//            )
         }
     }
 }
@@ -268,5 +307,46 @@ fun ProductItemBriefView(
                     }
             )
         }
+    }
+}
+
+@Composable
+fun VerticalScrollbar(
+    modifier: Modifier = Modifier,
+    scrollState: LazyListState
+) {
+    val totalItems = scrollState.layoutInfo.totalItemsCount
+    val firstVisibleItemIndex = scrollState.firstVisibleItemIndex
+    val visibleItemsCount = scrollState.layoutInfo.visibleItemsInfo.size
+
+    val proportion = if (totalItems > 0) {
+        visibleItemsCount.toFloat() / totalItems.toFloat()
+    } else {
+        1f
+    }
+
+    // Calculate thumb height and position
+    val thumbHeight = max(proportion * 300f, 24f) // Ensuring a minimum thumb size
+    val thumbOffsetFraction = if (totalItems > 0) {
+        firstVisibleItemIndex.toFloat() / totalItems.toFloat()
+    } else {
+        0f
+    }
+
+    // Multiply thumbOffsetFraction by a base dp value and convert it to Dp
+    val thumbOffset = thumbOffsetFraction * 300f // This is in pixels (Float)
+
+    Box(
+        modifier = modifier
+            .width(8.dp)
+            .background(Color.LightGray) // Background for scrollbar track
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(thumbHeight.dp) // Convert Float to Dp using dp
+                .offset(y = thumbOffset.dp) // Convert the offset to Dp explicitly
+                .background(Color.DarkGray) // Color for the thumb
+        )
     }
 }
