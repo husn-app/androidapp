@@ -10,7 +10,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-//import androidx.compose.foundation.layout.FlowColumnScopeInstance.align
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -111,11 +112,8 @@ fun PreviewStyleSenseApp() {
     StyleSenseApp(context = mockContext)
 }
 
-//@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StyleSenseApp(context: Context) {
-    var searchQuery by remember { mutableStateOf("") }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -193,7 +191,6 @@ fun StyleSenseApp(context: Context) {
                     modifier = Modifier
                         .clickable { sendSearchQuery(context, searchQueries[index]) }
 //                .padding(8.dp),
-//            color = Color.Blue,
                     , fontSize = 16.sp
                 )
             }
@@ -205,10 +202,8 @@ fun StyleSenseApp(context: Context) {
 fun SearchBar(
     query: String = "",
     context: Context = LocalContext.current
-//    modifier: Modifier = Modifier,
 ) {
     var searchText by remember { mutableStateOf(TextFieldValue(query)) }
-//    val context = LocalContext.current
 
     Box(
         modifier = Modifier
@@ -226,17 +221,19 @@ fun SearchBar(
                 }
             },
             modifier = Modifier
-                .fillMaxWidth(1f),
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp)),  // Apply rounded corners
+            shape = RoundedCornerShape(16.dp),  // Shape for the OutlinedTextField
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(
                 onSearch = {
                     sendSearchQuery(context, searchText.text)
                 }
-            )
+            ),
+            singleLine = true  // Ensure it's a single-line search bar
         )
     }
 }
-
 
 
 data class Product(
