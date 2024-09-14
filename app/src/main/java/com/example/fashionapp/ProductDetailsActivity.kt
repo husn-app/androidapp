@@ -10,12 +10,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -35,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,63 +60,25 @@ class ProductDetailsActivity : ComponentActivity() {
         val productDataString = intent.getStringExtra("productData") ?: ""
 
         // Parse the response data
-        val responseData: JSONObject
-        val currentProductJson: JSONObject
-        val productsJsonArray: JSONArray
+        var responseData: JSONObject = JSONObject()
+        var currentProductJson: JSONObject = JSONObject()
+        var productsJsonArray: JSONArray = JSONArray()
         try {
             responseData = JSONObject(productDataString)
             currentProductJson = responseData.getJSONObject("current_product")
             productsJsonArray = responseData.getJSONArray("products")
         } catch (e: Exception) {
             // Log the exception if needed
-            return
+            onBackPressedDispatcher.onBackPressed()
         }
 
         // Convert current product and products JSON array to Product objects
-        val currentProduct = Product(
-            additionalInfo = currentProductJson.optString("additionalInfo"),
-            articleType = currentProductJson.optString("articleType"),
-            brand = currentProductJson.getString("brand"),
-            category = currentProductJson.optString("category"),
-            gender = currentProductJson.optString("gender"),
-            index = currentProductJson.getInt("index"),
-            landingPageUrl = currentProductJson.getString("landingPageUrl"),
-            masterCategory = currentProductJson.optString("masterCategory"),
-            price = currentProductJson.getInt("price"),
-            primaryColour = currentProductJson.optString("primaryColour"),
-            product = currentProductJson.getString("product"),
-            productId = currentProductJson.optInt("productId"),
-            productName = currentProductJson.getString("productName"),
-            rating = currentProductJson.getDouble("rating").toFloat(),
-            ratingCount = currentProductJson.optInt("ratingCount"),
-            searchImage = currentProductJson.getString("searchImage"),
-            sizes = currentProductJson.optString("sizes"),
-            subCategory = currentProductJson.optString("subCategory")
-        )
+        val currentProduct = Product(currentProductJson)
 
         val products = mutableListOf<Product>()
         for (i in 1 until productsJsonArray.length()) {  // Start loop from 1 to skip the first product
             val productJson = productsJsonArray.getJSONObject(i)
-            val product = Product(
-                additionalInfo = productJson.optString("additionalInfo"),
-                articleType = productJson.optString("articleType"),
-                brand = productJson.getString("brand"),
-                category = productJson.optString("category"),
-                gender = productJson.optString("gender"),
-                index = productJson.getInt("index"),
-                landingPageUrl = productJson.getString("landingPageUrl"),
-                masterCategory = productJson.optString("masterCategory"),
-                price = productJson.getInt("price"),
-                primaryColour = productJson.optString("primaryColour"),
-                product = productJson.getString("product"),
-                productId = productJson.optInt("productId"),
-                productName = productJson.getString("productName"),
-                rating = productJson.getDouble("rating").toFloat(),
-                ratingCount = productJson.optInt("ratingCount"),
-                searchImage = productJson.getString("searchImage"),
-                sizes = productJson.optString("sizes"),
-                subCategory = productJson.optString("subCategory")
-            )
+            val product = Product(productJson)
             products.add(product)
         }
 
@@ -141,7 +106,7 @@ fun PreviewProductDetailsScreen() {
         product = "Denim Jeans",
         productId = 101,
         productName = "Blue Denim Jeans",
-        rating = 4.5f,
+        rating = 4.5,
         ratingCount = 150,
         searchImage = "https://example.com/image1.jpg",
         sizes = "M,L,XL",
@@ -163,7 +128,7 @@ fun PreviewProductDetailsScreen() {
             product = "Cotton Shirt",
             productId = 102,
             productName = "Red Cotton Shirt",
-            rating = 4.0f,
+            rating = 4.0,
             ratingCount = 200,
             searchImage = "https://example.com/image2.jpg",
             sizes = "S,M,L",
@@ -183,7 +148,7 @@ fun PreviewProductDetailsScreen() {
             product = "Running Shoes",
             productId = 103,
             productName = "Nike Air Max 270",
-            rating = 4.8f,
+            rating = 4.8,
             ratingCount = 300,
             searchImage = "https://example.com/image3.jpg",
             sizes = "8,9,10",
@@ -197,45 +162,33 @@ fun PreviewProductDetailsScreen() {
 @Composable
 fun ProductDetailsScreen(currentProduct: Product, relatedProducts: List<Product>) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        // Search Bar
-        var searchQuery by remember { mutableStateOf("") }
-        val context = LocalContext.current
         Box(
             modifier = Modifier
-//                .fillMaxSize()
-                .padding(16.dp),
+                .fillMaxWidth()  // Occupy full width but not full height
+                .wrapContentHeight(),  // Limit height to the SearchBar's height
             contentAlignment = Alignment.Center
         ) {
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                placeholder = { Text("Search...") },
-                modifier = Modifier
-                    .fillMaxWidth(1f),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(
-                    onSearch = {
-                        sendSearchQuery(context, searchQuery)
-                    }
-                )
-            )
+            SearchBar()  // Call SearchBar here
         }
-
         // Display current product
         ProductItemView(product = currentProduct)
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyRow {
+        val configuration = LocalConfiguration.current
+        val screenWidth = configuration.screenWidthDp.dp
+        val availableHeight = configuration.screenHeightDp.dp - 200.dp
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 8.dp),  // Add padding to the row
+            horizontalArrangement = Arrangement.spacedBy(8.dp)  // Spacing between items
+        ) {
             items(relatedProducts) { product ->
-                // Pass a custom modifier to ensure height wraps content
                 ProductItemBriefView(
                     product = product,
                     textScale = 0.6f,
                     modifier = Modifier
-                        .width(200.dp)  // Set the width as needed
-                        .wrapContentHeight()  // Ensure height adjusts to content
-//                        .padding(8.dp)
+                        .width(screenWidth / 2.5f)  // Responsive width, adjust based on screen size
+                        .wrapContentHeight()  // Let the height wrap to the content naturally
                 )
             }
         }
@@ -278,7 +231,7 @@ fun ProductItemView(product: Product, modifier: Modifier = Modifier) {
                     }
                     Text(text = "Rs ${product.price}", color = Color.Gray, fontSize = 12.sp)
                 }
-                Text(text = product.brand, color = Color.Gray, fontSize = 16.sp)
+                product.brand?.let { Text(text = it, color = Color.Gray, fontSize = 16.sp) }
                 Text(text = "${product.additionalInfo}", color = Color.Gray, fontSize = 12.sp)
             }
             // Right-aligned clickable SVG icon that redirects to myntra.com/${product.landingPageUrl}

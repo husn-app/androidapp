@@ -10,20 +10,18 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+//import androidx.compose.foundation.layout.FlowColumnScopeInstance.align
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,12 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.Role.Companion.Image
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -130,39 +123,49 @@ fun StyleSenseApp(context: Context) {
     ) {
         // Display beige-icon.png
         val imageModifier = Modifier
-            .size(200.dp)
+            .size(150.dp)
             .padding(bottom = 16.dp)
         Image(
             painter = rememberAsyncImagePainter(model = "file:///android_asset/beige-icon.png"),
             contentDescription = "Beige Icon",
             modifier = imageModifier
         )
-        // Search Bar
+
         Spacer(modifier = Modifier.height(250.dp))
+        // Search Bar
+
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .align(Alignment.CenterHorizontally),
+                .fillMaxWidth()  // Occupy full width but not full height
+                .wrapContentHeight(),  // Limit height to the SearchBar's height
             contentAlignment = Alignment.Center
-        )
-        //     .padding(16.dp),
-        // contentAlignment = Alignment.Center
-        {
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                placeholder = { Text("denim jeans with knee pockets") },
-                modifier = Modifier
-                    .fillMaxWidth(0.8f),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(
-                    onSearch = {
-                        sendSearchQuery(context, searchQuery)
-                    }
-                )
-            )
+        ) {
+            SearchBar(context = context)  // Call SearchBar here
         }
+//        Box(
+//            modifier = Modifier
+////                .fillMaxWidth()
+//                .padding(16.dp)
+//                .align(Alignment.CenterHorizontally),
+//            contentAlignment = Alignment.Center
+//        )
+//        //     .padding(16.dp),
+//        // contentAlignment = Alignment.Center
+//        {
+//            OutlinedTextField(
+//                value = searchQuery,
+//                onValueChange = { searchQuery = it },
+//                placeholder = { Text("denim jeans with knee pockets") },
+//                modifier = Modifier
+//                    .fillMaxWidth(0.8f),
+//                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+//                keyboardActions = KeyboardActions(
+//                    onSearch = {
+//                        sendSearchQuery(context, searchQuery)
+//                    }
+//                )
+//            )
+//        }
 
         Column(
             modifier = Modifier
@@ -171,21 +174,17 @@ fun StyleSenseApp(context: Context) {
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val linkModifier = Modifier
-                .clickable { sendSearchQuery(context, "Christmas dinner set") }
-//                    .padding(8.dp)
-
             val linkTexts = listOf(
-                "Christmas dinner set",
+                "Christmas dinner dress",
                 "Red Corset",
                 "Parachute jeans with Pleats",
-                "Jumpsuit for diwali"
+                "Jumpsuit for diwali",
             )
             val searchQueries = listOf(
-                "Christmas dinner set",
+                "Christmas dinner dress",
                 "Sexy Red Corset",
                 "Parachute jeans with Pleats",
-                "Jumpsuit for diwali"
+                "Jumpsuit for diwali",
             )
 
             linkTexts.forEachIndexed { index, linkText ->
@@ -204,28 +203,34 @@ fun StyleSenseApp(context: Context) {
 
 @Composable
 fun SearchBar(
-    searchQuery: String,
-    context: Context,
-    modifier: Modifier = Modifier,
-    placeholder: @Composable () -> Unit = { Text("") }
+    query: String = "",
+    context: Context = LocalContext.current
+//    modifier: Modifier = Modifier,
 ) {
-    var searchText by remember { mutableStateOf(TextFieldValue(searchQuery)) }
+    var searchText by remember { mutableStateOf(TextFieldValue(query)) }
+//    val context = LocalContext.current
+
     Box(
-        modifier = modifier
-//             .fillMaxSize()
+        modifier = Modifier
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
         OutlinedTextField(
             value = searchText,
             onValueChange = { searchText = it },
-            placeholder = placeholder,
+            placeholder = {
+                if (query.isEmpty()) {
+                    Text("Search...")
+                } else {
+                    Text(query)
+                }
+            },
             modifier = Modifier
-                .fillMaxWidth(0.8f),
+                .fillMaxWidth(1f),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(
                 onSearch = {
-                    sendSearchQuery(context, searchText.toString())
+                    sendSearchQuery(context, searchText.text)
                 }
             )
         )
@@ -233,23 +238,45 @@ fun SearchBar(
 }
 
 
+
 data class Product(
-    val additionalInfo: String?,
-    val articleType: String?,
-    val brand: String,
-    val category: String?,
-    val gender: String?,
-    val index: Int,
-    val landingPageUrl: String,
-    val masterCategory: String?,
-    val price: Int,
-    val primaryColour: String?,
-    val product: String,
-    val productId: Int?,
-    val productName: String,
-    val rating: Float,
-    val ratingCount: Int?,
-    val searchImage: String,
-    val sizes: String?,
-    val subCategory: String?
-)
+    val additionalInfo: String? = "",
+    val articleType: String? = "",
+    val brand: String? = "",
+    val category: String? = "",
+    val gender: String? = "",
+    val index: Int? = 0,
+    val landingPageUrl: String? = "",
+    val masterCategory: String? = "",
+    val price: Int? = 0,
+    val primaryColour: String? = "",
+    val product: String? = "",
+    val productId: Int? = 0,
+    val productName: String? = "",
+    val rating: Double = 0.0,
+    val ratingCount: Int? = 0,
+    val searchImage: String? = "",
+    val sizes: String? = "",
+    val subCategory: String? = ""
+) {
+    constructor(json: JSONObject) : this(
+        additionalInfo = json.optString("additionalInfo", ""),
+        articleType = json.optString("articleType", ""),
+        brand = json.optString("brand", ""),
+        category = json.optString("category", ""),
+        gender = json.optString("gender", ""),
+        index = json.optInt("index", 0),
+        landingPageUrl = json.optString("landingPageUrl", ""),
+        masterCategory = json.optString("masterCategory", ""),
+        price = json.optInt("price", 0),
+        primaryColour = json.optString("primaryColour", ""),
+        product = json.optString("product", ""),
+        productId = json.optInt("productId", 0),
+        productName = json.optString("productName", ""),
+        rating = json.optDouble("rating", 0.0),
+        ratingCount = json.optInt("ratingCount", 0),
+        searchImage = json.optString("searchImage", ""),
+        sizes = json.optString("sizes", ""),
+        subCategory = json.optString("subCategory", "")
+    )
+}

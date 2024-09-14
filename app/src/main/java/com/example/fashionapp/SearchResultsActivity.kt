@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
@@ -61,36 +62,21 @@ class SearchResultsActivity : ComponentActivity() {
 
         // Parse the response data
         val responseData = try {
-            JSONObject(responseDataString)
+            JSONObject(sanitizeJson(responseDataString))
         } catch (e: Exception) {
+
+             println("Error parsing response data: ${e.message}")
+             onBackPressedDispatcher.onBackPressed()
             null
+
         }
         val productsJsonArray = responseData?.getJSONArray("products") ?: JSONArray()
-
+        println("parsed productsJsonArray $productsJsonArray")
         // Convert the JSON array to a list of products
         val products = mutableListOf<Product>()
         for (i in 0 until productsJsonArray.length()) {
             val productJson = productsJsonArray.getJSONObject(i)
-            val product = Product(
-                additionalInfo = productJson.optString("additionalInfo"),
-                articleType = productJson.optString("articleType"),
-                brand = productJson.getString("brand"),
-                category = productJson.optString("category"),
-                gender = productJson.optString("gender"),
-                index = productJson.getInt("index"),
-                landingPageUrl = productJson.getString("landingPageUrl"),
-                masterCategory = productJson.optString("masterCategory"),
-                price = productJson.getInt("price"),
-                primaryColour = productJson.optString("primaryColour"),
-                product = productJson.getString("product"),
-                productId = productJson.optInt("productId"),
-                productName = productJson.getString("productName"),
-                rating = productJson.getDouble("rating").toFloat(),
-                ratingCount = productJson.optInt("ratingCount"),
-                searchImage = productJson.getString("searchImage"),
-                sizes = productJson.optString("sizes"),
-                subCategory = productJson.optString("subCategory")
-            )
+            val product = Product(productJson)
             products.add(product)
         }
 
@@ -99,6 +85,12 @@ class SearchResultsActivity : ComponentActivity() {
                 SearchResultsScreen(query = query, products = products)
             }
         }
+    }
+
+    // Helper function to sanitize the input JSON string
+    private fun sanitizeJson(jsonString: String): String {
+        // Implement sanitization logic here (e.g., remove or replace NaN)
+        return jsonString.replace("NaN", "0") // Replace NaN with default numeric value (e.g., 0)
     }
 }
 
@@ -120,7 +112,7 @@ fun PreviewSearchResultsScreen() {
             product = "Denim Jeans",
             productId = 101,
             productName = "Blue Denim Jeans",
-            rating = 4.5f,
+            rating = 4.5,
             ratingCount = 150,
             searchImage = "https://example.com/image1.jpg",
             sizes = "M,L,XL",
@@ -140,7 +132,7 @@ fun PreviewSearchResultsScreen() {
             product = "Cotton Shirt",
             productId = 102,
             productName = "Red Cotton Shirt",
-            rating = 4.0f,
+            rating = 4.0,
             ratingCount = 200,
             searchImage = "https://example.com/image2.jpg",
             sizes = "S,M,L",
@@ -154,32 +146,14 @@ fun SearchResultsScreen(query: String, products: List<Product>) {
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
-        // Search Bar
-        var searchText by remember { mutableStateOf(TextFieldValue(query)) }
-        val context = LocalContext.current
-//        SearchBar(searchQuery = searchText.text, context = context, placeholder = {Text(searchText.text)})
         Box(
-                 modifier = Modifier
-                     .fillMaxWidth()
-                     .padding(16.dp),
-                 contentAlignment = Alignment.Center
-         )
-         {
-             OutlinedTextField(
-                 value = searchText,
-                 onValueChange = { searchText = it },
-                 placeholder = { Text("$searchText") },
-                 modifier = Modifier
-                     .fillMaxWidth(),
-                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                 keyboardActions = KeyboardActions(
-                     onSearch = {
-                         sendSearchQuery(context, searchText.text)
-                     }
-                 )
-             )
-         }
-
+            modifier = Modifier
+                .fillMaxWidth()  // Occupy full width but not full height
+                .wrapContentHeight(),  // Limit height to the SearchBar's height
+            contentAlignment = Alignment.Center
+        ) {
+            SearchBar(query = query)  // Call SearchBar here
+        }
 
         // Products list
         LazyColumn {
@@ -210,7 +184,7 @@ fun ProductItemBriefView(
         Image(
             painter = rememberAsyncImagePainter(product.searchImage),
             contentDescription = null,
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
                 .aspectRatio(1.0f) // Maintain aspect ratio
                 .clickable {
@@ -248,7 +222,7 @@ fun ProductItemBriefView(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = modifier.weight(1f),
                 horizontalAlignment = Alignment.Start
             ) {
                 Row(
@@ -273,13 +247,15 @@ fun ProductItemBriefView(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                Text(
-                    text = product.brand,
-                    color = Color.Gray,
-                    fontSize = (18.sp * textScale),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                product.brand?.let {
+                    Text(
+                        text = it,
+                        color = Color.Gray,
+                        fontSize = (18.sp * textScale),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
                 Text(
                     text = "${product.additionalInfo}",
                     color = Color.Gray,
