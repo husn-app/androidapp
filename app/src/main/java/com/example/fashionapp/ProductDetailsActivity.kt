@@ -45,6 +45,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.decode.SvgDecoder
 import coil.request.ImageRequest
 import com.example.fashionapp.ui.theme.AppTheme
+import org.json.JSONArray
 import org.json.JSONObject
 
 
@@ -56,9 +57,17 @@ class ProductDetailsActivity : ComponentActivity() {
         val productDataString = intent.getStringExtra("productData") ?: ""
 
         // Parse the response data
-        val responseData = JSONObject(productDataString)
-        val currentProductJson = responseData.getJSONObject("current_product")
-        val productsJsonArray = responseData.getJSONArray("products")
+        val responseData: JSONObject
+        val currentProductJson: JSONObject
+        val productsJsonArray: JSONArray
+        try {
+            responseData = JSONObject(productDataString)
+            currentProductJson = responseData.getJSONObject("current_product")
+            productsJsonArray = responseData.getJSONArray("products")
+        } catch (e: Exception) {
+            // Log the exception if needed
+            return
+        }
 
         // Convert current product and products JSON array to Product objects
         val currentProduct = Product(
@@ -265,12 +274,12 @@ fun ProductItemView(product: Product, modifier: Modifier = Modifier) {
                 ) {
                     if (product.rating > 0) {
                         Text(text = "${"%.2f".format(product.rating)} ★", color = Color.Gray, fontSize = 16.sp)
-                        Spacer(modifier = Modifier.width(16.dp))
+                        Spacer(modifier = Modifier.width(14.dp))
                     }
-                    Text(text = "Rs ${product.price}", color = Color.Gray, fontSize = 16.sp)
+                    Text(text = "Rs ${product.price}", color = Color.Gray, fontSize = 12.sp)
                 }
-                Text(text = product.brand, color = Color.Gray, fontSize = 18.sp)
-                Text(text = "${product.additionalInfo}", color = Color.Gray, fontSize = 14.sp)
+                Text(text = product.brand, color = Color.Gray, fontSize = 16.sp)
+                Text(text = "${product.additionalInfo}", color = Color.Gray, fontSize = 12.sp)
             }
             // Right-aligned clickable SVG icon that redirects to myntra.com/${product.landingPageUrl}
             val context = LocalContext.current

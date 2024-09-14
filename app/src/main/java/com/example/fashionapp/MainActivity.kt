@@ -5,11 +5,17 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -28,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -35,6 +42,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
 import com.example.fashionapp.ui.theme.AppTheme
 import okhttp3.Call
 import okhttp3.Callback
@@ -110,69 +118,86 @@ fun PreviewStyleSenseApp() {
     StyleSenseApp(context = mockContext)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+//@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StyleSenseApp(context: Context) {
     var searchQuery by remember { mutableStateOf("") }
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        "Husn",
-                        color = Color.White,
-                        style = TextStyle(
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.25.sp
-                        )
-                    )
-                },
-//                navigationIcon = {
-//                    IconButton(onClick = { /* Handle navigation icon click */ }) {
-//                        Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = Color.White)
-//                    }
-//                },
-//                actions = {
-//                    IconButton(onClick = { /* Handle favorite icon click */ }) {
-//                        Icon(Icons.Filled.Favorite, contentDescription = "Favorite", tint = Color.White)
-//                    }
-//                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFBD8F07) // A more vibrant blue color
-                ),
-                modifier = Modifier.shadow(8.dp)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 16.dp)
+    ) {
+        // Display beige-icon.png
+        val imageModifier = Modifier
+            .size(200.dp)
+            .padding(bottom = 16.dp)
+        Image(
+            painter = rememberAsyncImagePainter(model = "file:///android_asset/beige-icon.png"),
+            contentDescription = "Beige Icon",
+            modifier = imageModifier
+        )
+        // Search Bar
+        Spacer(modifier = Modifier.height(250.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .align(Alignment.CenterHorizontally),
+            contentAlignment = Alignment.Center
+        )
+        //     .padding(16.dp),
+        // contentAlignment = Alignment.Center
+        {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text("denim jeans with knee pockets") },
+                modifier = Modifier
+                    .fillMaxWidth(0.8f),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                keyboardActions = KeyboardActions(
+                    onSearch = {
+                        sendSearchQuery(context, searchQuery)
+                    }
+                )
             )
         }
-    ) { innerPadding ->
+
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+                .fillMaxWidth(),
+//                    .padding(top = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Search Bar
-             Box(
-                 modifier = Modifier
-                     .fillMaxSize()
-                     .padding(16.dp),
-                 contentAlignment = Alignment.Center
-             ) {
-                 OutlinedTextField(
-                     value = searchQuery,
-                     onValueChange = { searchQuery = it },
-                     placeholder = { Text("denim jeans with knee pockets") },
-                     modifier = Modifier
-                         .fillMaxWidth(0.8f),
-                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                     keyboardActions = KeyboardActions(
-                         onSearch = {
-                             sendSearchQuery(context, searchQuery)
-                         }
-                     )
-                 )
-             }
-//            SearchBar(searchQuery = searchQuery, context = context, modifier = Modifier.fillMaxSize(), {Text("denim jeans with pockets")})
+            val linkModifier = Modifier
+                .clickable { sendSearchQuery(context, "Christmas dinner set") }
+//                    .padding(8.dp)
+
+            val linkTexts = listOf(
+                "Christmas dinner set",
+                "Red Corset",
+                "Parachute jeans with Pleats",
+                "Jumpsuit for diwali"
+            )
+            val searchQueries = listOf(
+                "Christmas dinner set",
+                "Sexy Red Corset",
+                "Parachute jeans with Pleats",
+                "Jumpsuit for diwali"
+            )
+
+            linkTexts.forEachIndexed { index, linkText ->
+                Text(
+                    text = linkText,
+                    modifier = Modifier
+                        .clickable { sendSearchQuery(context, searchQueries[index]) }
+//                .padding(8.dp),
+//            color = Color.Blue,
+                    , fontSize = 16.sp
+                )
+            }
         }
     }
 }
@@ -194,14 +219,6 @@ fun SearchBar(
         OutlinedTextField(
             value = searchText,
             onValueChange = { searchText = it },
-//            placeholder = {
-//                Box(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    contentAlignment = Alignment.Center
-//                ) {
-//                    placeholder()
-//                }
-//            },
             placeholder = placeholder,
             modifier = Modifier
                 .fillMaxWidth(0.8f),
