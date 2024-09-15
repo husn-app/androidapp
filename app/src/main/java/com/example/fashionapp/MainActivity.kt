@@ -10,7 +10,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,9 +33,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -113,6 +119,48 @@ fun PreviewStyleSenseApp() {
 }
 
 @Composable
+fun HusnLogo(modifier: Modifier = Modifier){
+    // Display beige-icon.png
+//    val imageModifier = modifier
+//        .size(100.dp)
+//        .padding(bottom = 16.dp)
+//    Image(
+//        painter = rememberAsyncImagePainter(model = "file:///android_asset/beige-icon2.png"),
+//        contentDescription = "Beige Icon",
+//        modifier = modifier
+////            .height(200.dp)
+//            .size(150.dp)
+////            .fillMaxWidth() // Makes the image take up the full width of the container
+////            .aspectRatio(1f)
+//            .padding(bottom = 4.dp)
+//    )
+//    Row {
+//        Text("Husn", modifier = Modifier.size(50.dp).padding(12.dp).aspectRatio(1f))
+//    }
+    Row(
+//        modifier = Modifier.padding(8.dp) // Adds padding around the Row
+    ) {
+        val context = LocalContext.current
+        Text(
+            text = "Husn",
+            fontSize = 24.sp, // Set a large font size
+            fontWeight = FontWeight.Bold, // Bold font weight
+            modifier = Modifier
+                .padding(16.dp) // Padding around the text
+                .clickable {
+                    val intent = Intent(context, MainActivity::class.java)
+                    context.startActivity(intent)
+                },
+            textAlign = TextAlign.Center
+        )
+//            color = Color.DarkGray,
+        //     textAlign = TextAlign.Center,
+        //     modifier = Modifier.padding(16.dp) // Padding around the text
+        // )
+    }
+}
+
+@Composable
 fun StyleSenseApp(context: Context) {
     Column(
         modifier = Modifier
@@ -120,19 +168,20 @@ fun StyleSenseApp(context: Context) {
             .padding(top = 16.dp)
     ) {
         // Display beige-icon.png
-        val imageModifier = Modifier
-            .size(150.dp)
-            .padding(bottom = 16.dp)
-        Image(
-            painter = rememberAsyncImagePainter(model = "file:///android_asset/beige-icon.png"),
-            contentDescription = "Beige Icon",
-            modifier = imageModifier
-        )
+//        val imageModifier = Modifier
+//            .size(150.dp)
+//            .padding(bottom = 16.dp)
+//        Image(
+//            painter = rememberAsyncImagePainter(model = "file:///android_asset/beige-icon.png"),
+//            contentDescription = "Beige Icon",
+//            modifier = imageModifier
+//        )
+        HusnLogo()
 
         Spacer(modifier = Modifier.height(250.dp))
         // Search Bar
 
-            SearchBar(context = context)  // Call SearchBar here
+        SearchBar(context = context)  // Call SearchBar here
 
 //        Box(
 //            modifier = Modifier
@@ -158,7 +207,7 @@ fun StyleSenseApp(context: Context) {
 //                )
 //            )
 //        }
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         Column(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -212,15 +261,22 @@ fun SearchBar(
             onValueChange = { searchText = it },
             placeholder = {
                 if (query.isEmpty()) {
-                    Text("Search...")
+                    Text("Search...", color = Color.Black)
                 } else {
-                    Text(query)
+                    Text(query, color = Color.Black)
                 }
             },
             modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .clip(RoundedCornerShape(16.dp)),  // Apply rounded corners
-            shape = RoundedCornerShape(16.dp),  // Shape for the OutlinedTextField
+                .fillMaxWidth(0.9f)
+                .clip(RoundedCornerShape(24.dp)),  // Apply rounded corners
+            shape = RoundedCornerShape(24.dp),  // Shape for the OutlinedTextField
+//            colors = TextFieldDefaults.outlinedTextFieldColors(
+//                containerColor = Color.White,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                disabledContainerColor = Color.White
+            ),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(
                 onSearch = {

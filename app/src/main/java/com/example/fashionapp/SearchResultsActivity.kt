@@ -47,7 +47,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import kotlin.math.max
 
 //import androidx.compose.foundation.rememberScrollbarAdapter
@@ -137,59 +141,141 @@ fun PreviewSearchResultsScreen() {
             searchImage = "https://example.com/image2.jpg",
             sizes = "S,M,L",
             subCategory = "Formal Wear"
+        ),
+        Product(
+            additionalInfo = "Elegant and comfortable",
+            articleType = "Shirt",
+            brand = "Brand B",
+            category = "Topwear",
+            gender = "Women",
+            index = 2,
+            landingPageUrl = "dresses/sera/sera-black-bodycon-mini-dress/16404534/buy",
+            masterCategory = "Apparel",
+            price = 1299,
+            primaryColour = "Red",
+            product = "Cotton Shirt",
+            productId = 102,
+            productName = "Red Cotton Shirt",
+            rating = 4.0,
+            ratingCount = 200,
+            searchImage = "https://example.com/image2.jpg",
+            sizes = "S,M,L",
+            subCategory = "Formal Wear"
         )
     )
     SearchResultsScreen(query = "Sample Query", products = dummyProducts)
 }
 @Composable
-fun SearchResultsScreen(query: String, products: List<Product>) {
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: Product? = null, ProductItemView: @Composable ((product: Product) -> Unit)? = null) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(top = 8.dp)
     ) {
-//        Box(
-//            modifier = Modifier
-//                .fillMaxWidth()  // Occupy full width but not full height
-//                .wrapContentHeight()  // Limit height to the SearchBar's height
-//            .padding(end = 12.dp), // Adding padding to leave space for scrollbar
-//            contentAlignment = Alignment.Center
-//        ) {
-            SearchBar(query = query, modifier = Modifier.padding(end = 12.dp))  // Call SearchBar here
-//        }
-        Spacer(modifier = Modifier.height(16.dp))
-        // Products list
-//        LazyColumn {
-//            items(products) { product ->
-//                ProductItemBriefView(product, Modifier
-//                    .fillMaxWidth()
-//                    .padding(8.dp)
-//                    )
-//            }
-//        }
-        val listState = rememberLazyListState()
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(end = 12.dp) // Adding padding to leave space for scrollbar
-        ) {
-            items(products) { product ->
-                ProductItemBriefView(
-                    product = product,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                )
+//        HusnLogo()
+////        Box(
+////            modifier = Modifier
+////                .fillMaxWidth()  // Occupy full width but not full height
+////                .wrapContentHeight()  // Limit height to the SearchBar's height
+////            .padding(end = 12.dp), // Adding padding to leave space for scrollbar
+////            contentAlignment = Alignment.Center
+////        ) {
+//        SearchBar(query = query)  // Call SearchBar here
+////        SearchBar()
+////        }
+//
+//        Spacer(modifier = Modifier.height(12.dp))
+//        // Products list
+//        ProductsListView(products)
+        item {
+            HusnLogo()
+        }
+
+        // Display the search bar
+        item {
+            SearchBar(query = query)
+            Spacer(modifier = Modifier.height(8.dp)) // Optional: add spacing after the search bar
+        }
+        if(ProductItemView != null && currentProduct != null){
+            item{
+                ProductItemView(currentProduct)
             }
         }
 
-            // Custom vertical scrollbar
-//            VerticalScrollbar(
-//                modifier = Modifier
-//                    .align(Alignment.CenterEnd)
-//                    .fillMaxHeight(),
-//                scrollState = listState
-//            )
-//        }
+        itemsIndexed(products.chunked(2)) { index, productPair ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                // Display the first product in the row
+                ProductItemBriefView(
+                    product = productPair[0],
+                    modifier = Modifier
+                        .weight(1f) // Ensure the first product takes up half the space
+                        .padding(end = 8.dp) // Add spacing between the two products
+//                            .padding(start = 8.dp)
+                )
+
+                // Display the second product in the row if available
+                if (productPair.size > 1) {
+                    ProductItemBriefView(
+                        product = productPair[1],
+                        modifier = Modifier
+                            .weight(1f) // Ensure the second product takes up half the space
+                            .padding(end = 8.dp) // Add spacing between the two products
+                    )
+                } else {
+                    // Add an empty Box to take up the second half of the row
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 8.dp) // Add spacing between the two products
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ProductsListView(products: List<Product>){
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        // Group items into pairs and handle them in rows
+        itemsIndexed(products.chunked(2)) { index, productPair ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                // Display the first product in the row
+                ProductItemBriefView(
+                    product = productPair[0],
+                    modifier = Modifier
+                        .weight(1f) // Ensure the first product takes up half the space
+                        .padding(end = 8.dp) // Add spacing between the two products
+//                            .padding(start = 8.dp)
+                )
+
+                // Display the second product in the row if available
+                if (productPair.size > 1) {
+                    ProductItemBriefView(
+                        product = productPair[1],
+                        modifier = Modifier
+                            .weight(1f) // Ensure the second product takes up half the space
+                            .padding(end = 8.dp) // Add spacing between the two products
+                    )
+                } else {
+                    // Add an empty Box to take up the second half of the row
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 8.dp) // Add spacing between the two products
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -201,18 +287,21 @@ fun ProductItemBriefView(
 ) {
     val context = LocalContext.current
     Column(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth()
+//        modifier = modifier,
 //            .clickable {
 //                // Optional: Handle entire item click if needed
 //            },
-            horizontalAlignment = Alignment.CenterHorizontally
+//            horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
             painter = rememberAsyncImagePainter(product.searchImage),
             contentDescription = null,
             modifier = Modifier
+//                .width(256.dp)
                 .fillMaxWidth()
-                .aspectRatio(1.0f) // Maintain aspect ratio
+                .aspectRatio(0.75f) // Maintain aspect ratio
+                .clip(RoundedCornerShape(16.dp))
                 .clickable {
                     val url = "https://husn.app/api/product/${product.index}"
                     val request = Request.Builder()
@@ -238,112 +327,74 @@ fun ProductItemBriefView(
                         }
                     })
                 }
+//                contentScale = ContentScale.Crop
         )
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .padding(horizontal = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                horizontalAlignment = Alignment.Start
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    if (product.rating > 0) {
+        Spacer(modifier = Modifier.height(4.dp))
+//        Row(
+//            modifier = Modifier
+//                .fillMaxWidth(0.8f)
+//                .padding(horizontal = 1.dp),
+//            horizontalArrangement = Arrangement.SpaceBetween,
+//            verticalAlignment = Alignment.CenterVertically
+//        ) {
+//            Column(
+//                modifier = Modifier.weight(1f),
+//                horizontalAlignment = Alignment.Start
+//            ) {
+//                Row(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    verticalAlignment = Alignment.CenterVertically,
+//                ) {
+//                    if (product.rating > 0) {
+//                        Text(
+//                            text = "${"%.2f".format(product.rating)} ★",
+//                            color = Color.Gray,
+//                            fontSize = (6.sp * textScale),
+//                            maxLines = 1,
+//                            overflow = TextOverflow.Ellipsis
+//                        )
+//                        Spacer(modifier = Modifier.width(8.dp))
+//                    }
+//                    Text(
+//                        text = "Rs ${product.price}",
+//                        color = Color.Gray,
+//                        fontSize = (6.sp * textScale),
+//                        maxLines = 1,
+//                        overflow = TextOverflow.Ellipsis
+//                    )
+//                }
+                Column(horizontalAlignment = Alignment.Start) {
+                    product.brand?.let {
                         Text(
-                            text = "${"%.2f".format(product.rating)} ★",
+                            text = it,
                             color = Color.Gray,
                             fontSize = (12.sp * textScale),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
                     }
                     Text(
-                        text = "Rs ${product.price}",
+                        text = "${product.additionalInfo}",
                         color = Color.Gray,
-                        fontSize = (12.sp * textScale),
+                        fontSize = (8.sp * textScale),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                product.brand?.let {
-                    Text(
-                        text = it,
-                        color = Color.Gray,
-                        fontSize = (16.sp * textScale),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-                Text(
-                    text = "${product.additionalInfo}",
-                    color = Color.Gray,
-                    fontSize = (12.sp * textScale),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
+//            }
             // Right-aligned clickable SVG icon that redirects to myntra.com/${product.landingPageUrl}
-            DisplaySvgIconFromAssets(
-                fileName = "myntra-logo.svg",
-                modifier = Modifier
-                    .size(24.dp) // Adjusted size for better layout fit
-                    .clickable {
-                        val intent = Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse("https://myntra.com/${product.landingPageUrl}")
-                        )
-                        context.startActivity(intent)
-                    }
-            )
-        }
-    }
-}
-
-@Composable
-fun VerticalScrollbar(
-    modifier: Modifier = Modifier,
-    scrollState: LazyListState
-) {
-    val totalItems = scrollState.layoutInfo.totalItemsCount
-    val firstVisibleItemIndex = scrollState.firstVisibleItemIndex
-    val visibleItemsCount = scrollState.layoutInfo.visibleItemsInfo.size
-
-    val proportion = if (totalItems > 0) {
-        visibleItemsCount.toFloat() / totalItems.toFloat()
-    } else {
-        1f
-    }
-
-    // Calculate thumb height and position
-    val thumbHeight = max(proportion * 300f, 24f) // Ensuring a minimum thumb size
-    val thumbOffsetFraction = if (totalItems > 0) {
-        firstVisibleItemIndex.toFloat() / totalItems.toFloat()
-    } else {
-        0f
-    }
-
-    // Multiply thumbOffsetFraction by a base dp value and convert it to Dp
-    val thumbOffset = thumbOffsetFraction * 300f // This is in pixels (Float)
-
-    Box(
-        modifier = modifier
-            .width(8.dp)
-            .background(Color.LightGray) // Background for scrollbar track
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(thumbHeight.dp) // Convert Float to Dp using dp
-                .offset(y = thumbOffset.dp) // Convert the offset to Dp explicitly
-                .background(Color.DarkGray) // Color for the thumb
-        )
+//            DisplaySvgIconFromAssets(
+//                fileName = "myntra-logo.svg",
+//                modifier = Modifier
+//                    .size(24.dp) // Adjusted size for better layout fit
+//                    .clickable {
+//                        val intent = Intent(
+//                            Intent.ACTION_VIEW,
+//                            Uri.parse("https://myntra.com/${product.landingPageUrl}")
+//                        )
+//                        context.startActivity(intent)
+//                    }
+//            )
+//        }
     }
 }

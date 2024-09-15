@@ -22,10 +22,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -74,7 +76,10 @@ class ProductDetailsActivity : ComponentActivity() {
 
         setContent {
             AppTheme {
-                ProductDetailsScreen(currentProduct = currentProduct, relatedProducts = products)
+//                ProductDetailsScreen(currentProduct = currentProduct, relatedProducts = products)
+                SearchResultsScreen(query = "", products = products, currentProduct = currentProduct, ProductItemView = { product ->  // Passing the ProductItemView as a lambda
+                    ProductItemView(product = product)  // Call your ProductItemView composable here
+                })
             }
         }
     }
@@ -146,7 +151,10 @@ fun PreviewProductDetailsScreen() {
         )
     )
 
-    ProductDetailsScreen(currentProduct = dummyCurrentProduct, relatedProducts = dummyRelatedProducts)
+//    ProductDetailsScreen(currentProduct = dummyCurrentProduct, relatedProducts = dummyRelatedProducts)
+    SearchResultsScreen(query = "", products = dummyRelatedProducts, currentProduct = dummyCurrentProduct, ProductItemView = { product ->  // Passing the ProductItemView as a lambda
+        ProductItemView(product = product)  // Call your ProductItemView composable here
+    })
 }
 
 @Composable
@@ -165,26 +173,27 @@ fun ProductDetailsScreen(currentProduct: Product, relatedProducts: List<Product>
         // Display current product
         ProductItemView(product = currentProduct)
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
+        ProductsListView(relatedProducts)
 
-        val configuration = LocalConfiguration.current
-        val screenWidth = configuration.screenWidthDp.dp
-        val availableHeight = configuration.screenHeightDp.dp - 200.dp
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 8.dp),  // Add padding to the row
-            horizontalArrangement = Arrangement.spacedBy(8.dp)  // Spacing between items
-        ) {
-            items(relatedProducts) { product ->
-                ProductItemBriefView(
-                    product = product,
-                    textScale = 0.6f,
-                    modifier = Modifier
-                        .height(availableHeight)
-                        .width(screenWidth / 2.5f)  // Responsive width, adjust based on screen size
-                        .wrapContentHeight()  // Let the height wrap to the content naturally
-                )
-            }
-        }
+//        val configuration = LocalConfiguration.current
+//        val screenWidth = configuration.screenWidthDp.dp
+//        val availableHeight = configuration.screenHeightDp.dp - 200.dp
+//        LazyRow(
+//            contentPadding = PaddingValues(horizontal = 8.dp),  // Add padding to the row
+//            horizontalArrangement = Arrangement.spacedBy(8.dp)  // Spacing between items
+//        ) {
+//            items(relatedProducts) { product ->
+//                ProductItemBriefView(
+//                    product = product,
+//                    textScale = 0.6f,
+//                    modifier = Modifier
+//                        .height(availableHeight)
+//                        .width(screenWidth / 2.5f)  // Responsive width, adjust based on screen size
+//                        .wrapContentHeight()  // Let the height wrap to the content naturally
+//                )
+//            }
+//        }
     }
 }
 
@@ -200,13 +209,14 @@ fun ProductItemView(product: Product, modifier: Modifier = Modifier) {
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(1.0f) // Maintain aspect ratio
+                .aspectRatio(0.75f) // Maintain aspect ratio
+                .clip(RoundedCornerShape(16.dp))
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         Row(
             modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .padding(horizontal = 8.dp),
+                .fillMaxWidth(0.9f)
+                .padding(horizontal = 4.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         )
@@ -219,13 +229,13 @@ fun ProductItemView(product: Product, modifier: Modifier = Modifier) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (product.rating > 0) {
-                        Text(text = "${"%.2f".format(product.rating)} ★", color = Color.Gray, fontSize = 12.sp)
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(text = "${"%.2f".format(product.rating)} ★", color = Color.Gray, fontSize = 8.sp)
+                        Spacer(modifier = Modifier.width(8.dp))
                     }
-                    Text(text = "Rs ${product.price}", color = Color.Gray, fontSize = 12.sp)
+                    Text(text = "Rs ${product.price}", color = Color.Gray, fontSize = 8.sp)
                 }
-                product.brand?.let { Text(text = it, color = Color.Gray, fontSize = 16.sp) }
-                Text(text = "${product.additionalInfo}", color = Color.Gray, fontSize = 12.sp)
+                product.brand?.let { Text(text = it, color = Color.Gray, fontSize = 12.sp) }
+                Text(text = "${product.additionalInfo}", color = Color.Gray, fontSize = 8.sp)
             }
             // Right-aligned clickable SVG icon that redirects to myntra.com/${product.landingPageUrl}
             val context = LocalContext.current
