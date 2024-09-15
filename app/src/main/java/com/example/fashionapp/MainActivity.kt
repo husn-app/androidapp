@@ -132,14 +132,8 @@ fun StyleSenseApp(context: Context) {
         Spacer(modifier = Modifier.height(250.dp))
         // Search Bar
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()  // Occupy full width but not full height
-                .wrapContentHeight(),  // Limit height to the SearchBar's height
-            contentAlignment = Alignment.Center
-        ) {
             SearchBar(context = context)  // Call SearchBar here
-        }
+
 //        Box(
 //            modifier = Modifier
 ////                .fillMaxWidth()
@@ -164,7 +158,7 @@ fun StyleSenseApp(context: Context) {
 //                )
 //            )
 //        }
-
+        Spacer(modifier = Modifier.height(12.dp))
         Column(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -201,15 +195,18 @@ fun StyleSenseApp(context: Context) {
 @Composable
 fun SearchBar(
     query: String = "",
-    context: Context = LocalContext.current
+    context: Context = LocalContext.current,
+    modifier: Modifier = Modifier
 ) {
     var searchText by remember { mutableStateOf(TextFieldValue(query)) }
-
     Box(
-        modifier = Modifier
-            .padding(16.dp),
+        modifier = modifier
+            .fillMaxWidth()  // Occupy full width but not full height
+            .wrapContentHeight(),  // Limit height to the SearchBar's height
         contentAlignment = Alignment.Center
     ) {
+//        SearchBar()  // Call SearchBar here
+//    }
         OutlinedTextField(
             value = searchText,
             onValueChange = { searchText = it },
@@ -221,7 +218,7 @@ fun SearchBar(
                 }
             },
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth(0.8f)
                 .clip(RoundedCornerShape(16.dp)),  // Apply rounded corners
             shape = RoundedCornerShape(16.dp),  // Shape for the OutlinedTextField
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),

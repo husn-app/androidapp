@@ -146,15 +146,16 @@ fun SearchResultsScreen(query: String, products: List<Product>) {
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()  // Occupy full width but not full height
-                .wrapContentHeight(),  // Limit height to the SearchBar's height
-            contentAlignment = Alignment.Center
-        ) {
-            SearchBar(query = query)  // Call SearchBar here
-        }
-
+//        Box(
+//            modifier = Modifier
+//                .fillMaxWidth()  // Occupy full width but not full height
+//                .wrapContentHeight()  // Limit height to the SearchBar's height
+//            .padding(end = 12.dp), // Adding padding to leave space for scrollbar
+//            contentAlignment = Alignment.Center
+//        ) {
+            SearchBar(query = query, modifier = Modifier.padding(end = 12.dp))  // Call SearchBar here
+//        }
+        Spacer(modifier = Modifier.height(16.dp))
         // Products list
 //        LazyColumn {
 //            items(products) { product ->
@@ -165,25 +166,21 @@ fun SearchResultsScreen(query: String, products: List<Product>) {
 //            }
 //        }
         val listState = rememberLazyListState()
-        Box(
-            modifier = Modifier.fillMaxSize()
+        LazyColumn(
+            state = listState,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(end = 12.dp) // Adding padding to leave space for scrollbar
         ) {
-            // LazyColumn for product list
-            LazyColumn(
-                state = listState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(end = 12.dp) // Adding padding to leave space for scrollbar
-            ) {
-                items(products) { product ->
-                    ProductItemBriefView(
-                        product = product,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp)
-                    )
-                }
+            items(products) { product ->
+                ProductItemBriefView(
+                    product = product,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                )
             }
+        }
 
             // Custom vertical scrollbar
 //            VerticalScrollbar(
@@ -192,7 +189,7 @@ fun SearchResultsScreen(query: String, products: List<Product>) {
 //                    .fillMaxHeight(),
 //                scrollState = listState
 //            )
-        }
+//        }
     }
 }
 
@@ -213,7 +210,7 @@ fun ProductItemBriefView(
         Image(
             painter = rememberAsyncImagePainter(product.searchImage),
             contentDescription = null,
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1.0f) // Maintain aspect ratio
                 .clickable {
@@ -246,23 +243,23 @@ fun ProductItemBriefView(
         Row(
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .padding(horizontal = 10.dp),
+                .padding(horizontal = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
-                modifier = modifier.weight(1f),
+                modifier = Modifier.weight(1f),
                 horizontalAlignment = Alignment.Start
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (product.rating > 0) {
                         Text(
                             text = "${"%.2f".format(product.rating)} ★",
                             color = Color.Gray,
-                            fontSize = (16.sp * textScale),
+                            fontSize = (12.sp * textScale),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -271,7 +268,7 @@ fun ProductItemBriefView(
                     Text(
                         text = "Rs ${product.price}",
                         color = Color.Gray,
-                        fontSize = (16.sp * textScale),
+                        fontSize = (12.sp * textScale),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -280,7 +277,7 @@ fun ProductItemBriefView(
                     Text(
                         text = it,
                         color = Color.Gray,
-                        fontSize = (18.sp * textScale),
+                        fontSize = (16.sp * textScale),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -288,7 +285,7 @@ fun ProductItemBriefView(
                 Text(
                     text = "${product.additionalInfo}",
                     color = Color.Gray,
-                    fontSize = (14.sp * textScale),
+                    fontSize = (12.sp * textScale),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )

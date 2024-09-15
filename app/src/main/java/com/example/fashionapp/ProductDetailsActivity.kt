@@ -50,11 +50,11 @@ class ProductDetailsActivity : ComponentActivity() {
         val productDataString = intent.getStringExtra("productData") ?: ""
 
         // Parse the response data
-        var responseData: JSONObject = JSONObject()
+//        var responseData: JSONObject = JSONObject()
         var currentProductJson: JSONObject = JSONObject()
         var productsJsonArray: JSONArray = JSONArray()
         try {
-            responseData = JSONObject(productDataString)
+            var responseData = JSONObject(productDataString)
             currentProductJson = responseData.getJSONObject("current_product")
             productsJsonArray = responseData.getJSONArray("products")
         } catch (e: Exception) {
@@ -151,15 +151,17 @@ fun PreviewProductDetailsScreen() {
 
 @Composable
 fun ProductDetailsScreen(currentProduct: Product, relatedProducts: List<Product>) {
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()  // Occupy full width but not full height
-                .wrapContentHeight(),  // Limit height to the SearchBar's height
-            contentAlignment = Alignment.Center
+    Column(modifier = Modifier.fillMaxSize().padding(12.dp),
+        verticalArrangement = Arrangement.SpaceEvenly
         ) {
+//        Box(
+//            modifier = Modifier
+//                .fillMaxWidth()  // Occupy full width but not full height
+//                .wrapContentHeight(),  // Limit height to the SearchBar's height
+//            contentAlignment = Alignment.Center
+//        ) {
             SearchBar()  // Call SearchBar here
-        }
+//        }
         // Display current product
         ProductItemView(product = currentProduct)
 
@@ -177,6 +179,7 @@ fun ProductDetailsScreen(currentProduct: Product, relatedProducts: List<Product>
                     product = product,
                     textScale = 0.6f,
                     modifier = Modifier
+                        .height(availableHeight)
                         .width(screenWidth / 2.5f)  // Responsive width, adjust based on screen size
                         .wrapContentHeight()  // Let the height wrap to the content naturally
                 )
@@ -203,7 +206,7 @@ fun ProductItemView(product: Product, modifier: Modifier = Modifier) {
         Row(
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .padding(horizontal = 10.dp),
+                .padding(horizontal = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         )
@@ -216,8 +219,8 @@ fun ProductItemView(product: Product, modifier: Modifier = Modifier) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (product.rating > 0) {
-                        Text(text = "${"%.2f".format(product.rating)} ★", color = Color.Gray, fontSize = 16.sp)
-                        Spacer(modifier = Modifier.width(14.dp))
+                        Text(text = "${"%.2f".format(product.rating)} ★", color = Color.Gray, fontSize = 12.sp)
+                        Spacer(modifier = Modifier.width(12.dp))
                     }
                     Text(text = "Rs ${product.price}", color = Color.Gray, fontSize = 12.sp)
                 }
@@ -253,6 +256,7 @@ fun DisplaySvgIconFromAssets(fileName: String, modifier: Modifier = Modifier) {
 
     // Build the asset URI
     val assetUri = "file:///android_asset/$fileName"
+//    val assetUri = R.drawable.myntra_logo // This also works.
 
     // Load the SVG file as a drawable into Coil
     val painter = rememberAsyncImagePainter(
