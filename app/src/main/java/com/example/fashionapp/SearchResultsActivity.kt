@@ -53,13 +53,13 @@ class SearchResultsActivity : ComponentActivity() {
             JSONObject(sanitizeJson(responseDataString))
         } catch (e: Exception) {
 
-             println("Error parsing response data: ${e.message}")
+             //println("Error parsing response data: ${e.message}")
              onBackPressedDispatcher.onBackPressed()
             null
 
         }
         val productsJsonArray = responseData?.getJSONArray("products") ?: JSONArray()
-        println("parsed productsJsonArray $productsJsonArray")
+//        //println("parsed productsJsonArray $productsJsonArray")
         // Convert the JSON array to a list of products
         val products = mutableListOf<Product>()
         for (i in 0 until productsJsonArray.length()) {
@@ -225,7 +225,7 @@ fun ProductItemBriefView(
                                     context.startActivity(intent)
                                 }
                             } else {
-                                println("Request failed with status: ${response.code}")
+                                //println("Request failed with status: ${response.code}")
                             }
                         }
                     })

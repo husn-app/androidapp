@@ -100,9 +100,9 @@ fun sendSearchQuery(context: Context, query: String) {
                     intent.putExtra("responseData", it)
                     context.startActivity(intent)
                 }
-                println(responseData)
+//                ////println(responseData)
             } else {
-                println("Request failed with status: ${response.code}")
+                //println("Request failed with status: ${response.code}")
             }
         }
     })
