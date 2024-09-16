@@ -1,13 +1,11 @@
 package com.example.fashionapp
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,16 +15,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
@@ -42,19 +38,7 @@ import okhttp3.Response
 import okio.IOException
 import org.json.JSONArray
 import org.json.JSONObject
-//import androidx.compose.foundation.VerticalScrollbar
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import kotlin.math.max
 
-//import androidx.compose.foundation.rememberScrollbarAdapter
 
 class SearchResultsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,90 +85,13 @@ class SearchResultsActivity : ComponentActivity() {
 @Composable
 @Preview(showBackground = true)
 fun PreviewSearchResultsScreen() {
-    val dummyProducts = listOf(
-        Product(
-            additionalInfo = "Comfortable and stylish",
-            articleType = "Jeans",
-            brand = "Brand A",
-            category = "Bottomwear",
-            gender = "Men",
-            index = 1,
-            landingPageUrl = "dresses/tokyo+talkies/tokyo-talkies-abstract-printed-sheath-mini-dress/21627304/buy",
-            masterCategory = "Apparel",
-            price = 1999,
-            primaryColour = "Blue",
-            product = "Denim Jeans",
-            productId = 101,
-            productName = "Blue Denim Jeans",
-            rating = 4.5,
-            ratingCount = 150,
-            searchImage = "https://example.com/image1.jpg",
-            sizes = "M,L,XL",
-            subCategory = "Casual Wear"
-        ),
-        Product(
-            additionalInfo = "Elegant and comfortable",
-            articleType = "Shirt",
-            brand = "Brand B",
-            category = "Topwear",
-            gender = "Women",
-            index = 2,
-            landingPageUrl = "dresses/sera/sera-black-bodycon-mini-dress/16404534/buy",
-            masterCategory = "Apparel",
-            price = 1299,
-            primaryColour = "Red",
-            product = "Cotton Shirt",
-            productId = 102,
-            productName = "Red Cotton Shirt",
-            rating = 4.0,
-            ratingCount = 200,
-            searchImage = "https://example.com/image2.jpg",
-            sizes = "S,M,L",
-            subCategory = "Formal Wear"
-        ),
-        Product(
-            additionalInfo = "Elegant and comfortable",
-            articleType = "Shirt",
-            brand = "Brand B",
-            category = "Topwear",
-            gender = "Women",
-            index = 2,
-            landingPageUrl = "dresses/sera/sera-black-bodycon-mini-dress/16404534/buy",
-            masterCategory = "Apparel",
-            price = 1299,
-            primaryColour = "Red",
-            product = "Cotton Shirt",
-            productId = 102,
-            productName = "Red Cotton Shirt",
-            rating = 4.0,
-            ratingCount = 200,
-            searchImage = "https://example.com/image2.jpg",
-            sizes = "S,M,L",
-            subCategory = "Formal Wear"
-        )
-    )
-    SearchResultsScreen(query = "Sample Query", products = dummyProducts)
+    SearchResultsScreen(query = "Sample Query", products = getDummyProductsList())
 }
 @Composable
 fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: Product? = null, ProductItemView: @Composable ((product: Product) -> Unit)? = null) {
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(top = 8.dp)
     ) {
-//        HusnLogo()
-////        Box(
-////            modifier = Modifier
-////                .fillMaxWidth()  // Occupy full width but not full height
-////                .wrapContentHeight()  // Limit height to the SearchBar's height
-////            .padding(end = 12.dp), // Adding padding to leave space for scrollbar
-////            contentAlignment = Alignment.Center
-////        ) {
-//        SearchBar(query = query)  // Call SearchBar here
-////        SearchBar()
-////        }
-//
-//        Spacer(modifier = Modifier.height(12.dp))
-//        // Products list
-//        ProductsListView(products)
         item {
             HusnLogo()
         }
@@ -288,11 +195,6 @@ fun ProductItemBriefView(
     val context = LocalContext.current
     Column(
         modifier = modifier.fillMaxWidth()
-//        modifier = modifier,
-//            .clickable {
-//                // Optional: Handle entire item click if needed
-//            },
-//            horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
             painter = rememberAsyncImagePainter(product.searchImage),
@@ -303,7 +205,8 @@ fun ProductItemBriefView(
                 .aspectRatio(0.75f) // Maintain aspect ratio
                 .clip(RoundedCornerShape(16.dp))
                 .clickable {
-                    val url = "https://husn.app/api/product/${product.index}"
+                    val baseUrl = context.getString(R.string.husn_base_url)
+                    val url = "$baseUrl/api/product/${product.index}"
                     val request = Request.Builder()
                         .url(url)
                         .build()
@@ -330,57 +233,24 @@ fun ProductItemBriefView(
 //                contentScale = ContentScale.Crop
         )
         Spacer(modifier = Modifier.height(4.dp))
-//        Row(
-//            modifier = Modifier
-//                .fillMaxWidth(0.8f)
-//                .padding(horizontal = 1.dp),
-//            horizontalArrangement = Arrangement.SpaceBetween,
-//            verticalAlignment = Alignment.CenterVertically
-//        ) {
-//            Column(
-//                modifier = Modifier.weight(1f),
-//                horizontalAlignment = Alignment.Start
-//            ) {
-//                Row(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    verticalAlignment = Alignment.CenterVertically,
-//                ) {
-//                    if (product.rating > 0) {
-//                        Text(
-//                            text = "${"%.2f".format(product.rating)} ★",
-//                            color = Color.Gray,
-//                            fontSize = (6.sp * textScale),
-//                            maxLines = 1,
-//                            overflow = TextOverflow.Ellipsis
-//                        )
-//                        Spacer(modifier = Modifier.width(8.dp))
-//                    }
-//                    Text(
-//                        text = "Rs ${product.price}",
-//                        color = Color.Gray,
-//                        fontSize = (6.sp * textScale),
-//                        maxLines = 1,
-//                        overflow = TextOverflow.Ellipsis
-//                    )
-//                }
-                Column(horizontalAlignment = Alignment.Start) {
-                    product.brand?.let {
-                        Text(
-                            text = it,
-                            color = Color.Gray,
-                            fontSize = (12.sp * textScale),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                    Text(
-                        text = "${product.additionalInfo}",
-                        color = Color.Gray,
-                        fontSize = (8.sp * textScale),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+        Column(horizontalAlignment = Alignment.Start) {
+            product.brand?.let {
+                Text(
+                    text = it,
+                    color = Color.Gray,
+                    fontSize = (12.sp * textScale),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            Text(
+                text = "${product.additionalInfo}",
+                color = Color.Gray,
+                fontSize = (8.sp * textScale),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
 //            }
             // Right-aligned clickable SVG icon that redirects to myntra.com/${product.landingPageUrl}
 //            DisplaySvgIconFromAssets(

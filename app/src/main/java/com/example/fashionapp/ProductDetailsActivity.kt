@@ -7,9 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -19,9 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -52,7 +46,6 @@ class ProductDetailsActivity : ComponentActivity() {
         val productDataString = intent.getStringExtra("productData") ?: ""
 
         // Parse the response data
-//        var responseData: JSONObject = JSONObject()
         var currentProductJson: JSONObject = JSONObject()
         var productsJsonArray: JSONArray = JSONArray()
         try {
@@ -87,72 +80,8 @@ class ProductDetailsActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewProductDetailsScreen() {
-    val dummyCurrentProduct = Product(
-        additionalInfo = "Comfortable and stylish and a veyr tremendous title",
-        articleType = "Jeans",
-        brand = "Brand super duper big brand master blaster A",
-        category = "Bottomwear",
-        gender = "Men",
-        index = 1,
-        landingPageUrl = "dresses/tokyo+talkies/tokyo-talkies-abstract-printed-sheath-mini-dress/21627304/buy",
-        masterCategory = "Apparel",
-        price = 1999,
-        primaryColour = "Blue",
-        product = "Denim Jeans",
-        productId = 101,
-        productName = "Blue Denim Jeans",
-        rating = 4.5,
-        ratingCount = 150,
-        searchImage = "https://example.com/image1.jpg",
-        sizes = "M,L,XL",
-        subCategory = "Casual Wear"
-    )
-
-    val dummyRelatedProducts = listOf(
-        Product(
-            additionalInfo = "Elegant and comfortable and a hugely gigantic big piece of text",
-            articleType = "Shirt",
-            brand = "Brand B sbse bada brand duniya ka brand",
-            category = "Topwear",
-            gender = "Women",
-            index = 2,
-            landingPageUrl = "dresses/sera/sera-black-bodycon-mini-dress/16404534/buy",
-            masterCategory = "Apparel",
-            price = 1299,
-            primaryColour = "Red",
-            product = "Cotton Shirt",
-            productId = 102,
-            productName = "Red Cotton Shirt",
-            rating = 4.0,
-            ratingCount = 200,
-            searchImage = "https://example.com/image2.jpg",
-            sizes = "S,M,L",
-            subCategory = "Formal Wear"
-        ),
-        Product(
-            additionalInfo = "Sporty and durable and super elastic and next level shit",
-            articleType = "Sneakers",
-            brand = "Brand C second sbse bada duniya ka bhot achha brand",
-            category = "Footwear",
-            gender = "Unisex",
-            index = 3,
-            landingPageUrl = "shoes/nike/nike-air-max-270/12345678/buy",
-            masterCategory = "Footwear",
-            price = 7999,
-            primaryColour = "Black",
-            product = "Running Shoes",
-            productId = 103,
-            productName = "Nike Air Max 270",
-            rating = 4.8,
-            ratingCount = 300,
-            searchImage = "https://example.com/image3.jpg",
-            sizes = "8,9,10",
-            subCategory = "Sports Wear"
-        )
-    )
-
 //    ProductDetailsScreen(currentProduct = dummyCurrentProduct, relatedProducts = dummyRelatedProducts)
-    SearchResultsScreen(query = "", products = dummyRelatedProducts, currentProduct = dummyCurrentProduct, ProductItemView = { product ->  // Passing the ProductItemView as a lambda
+    SearchResultsScreen(query = "", products = getDummyProductsList(), currentProduct = getDummyProduct(), ProductItemView = { product ->  // Passing the ProductItemView as a lambda
         ProductItemView(product = product)  // Call your ProductItemView composable here
     })
 }
@@ -162,14 +91,7 @@ fun ProductDetailsScreen(currentProduct: Product, relatedProducts: List<Product>
     Column(modifier = Modifier.fillMaxSize().padding(12.dp),
         verticalArrangement = Arrangement.SpaceEvenly
         ) {
-//        Box(
-//            modifier = Modifier
-//                .fillMaxWidth()  // Occupy full width but not full height
-//                .wrapContentHeight(),  // Limit height to the SearchBar's height
-//            contentAlignment = Alignment.Center
-//        ) {
             SearchBar()  // Call SearchBar here
-//        }
         // Display current product
         ProductItemView(product = currentProduct)
 
@@ -229,10 +151,10 @@ fun ProductItemView(product: Product, modifier: Modifier = Modifier) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (product.rating > 0) {
-                        Text(text = "${"%.2f".format(product.rating)} ★", color = Color.Gray, fontSize = 8.sp)
+                        Text(text = "${"%.2f".format(product.rating)} ★", color = Color.Gray, fontSize = 10.sp)
                         Spacer(modifier = Modifier.width(8.dp))
                     }
-                    Text(text = "Rs ${product.price}", color = Color.Gray, fontSize = 8.sp)
+                    Text(text = "Rs ${product.price}", color = Color.Gray, fontSize = 10.sp)
                 }
                 product.brand?.let { Text(text = it, color = Color.Gray, fontSize = 12.sp) }
                 Text(text = "${product.additionalInfo}", color = Color.Gray, fontSize = 8.sp)

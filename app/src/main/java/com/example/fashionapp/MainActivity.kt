@@ -5,19 +5,16 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -42,7 +39,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
 import com.example.fashionapp.ui.theme.AppTheme
 import okhttp3.Call
 import okhttp3.Callback
@@ -68,7 +64,8 @@ class MainActivity : ComponentActivity() {
 
 val client = OkHttpClient()
 fun sendSearchQuery(context: Context, query: String) {
-    val url = "https://husn.app/api/query"
+    val baseUrl = context.getString(R.string.husn_base_url)
+    val url = "$baseUrl/api/query"
 
     // Create a JSON object to hold the request body
     val jsonObject = JSONObject()
@@ -121,22 +118,6 @@ fun PreviewStyleSenseApp() {
 @Composable
 fun HusnLogo(modifier: Modifier = Modifier){
     // Display beige-icon.png
-//    val imageModifier = modifier
-//        .size(100.dp)
-//        .padding(bottom = 16.dp)
-//    Image(
-//        painter = rememberAsyncImagePainter(model = "file:///android_asset/beige-icon2.png"),
-//        contentDescription = "Beige Icon",
-//        modifier = modifier
-////            .height(200.dp)
-//            .size(150.dp)
-////            .fillMaxWidth() // Makes the image take up the full width of the container
-////            .aspectRatio(1f)
-//            .padding(bottom = 4.dp)
-//    )
-//    Row {
-//        Text("Husn", modifier = Modifier.size(50.dp).padding(12.dp).aspectRatio(1f))
-//    }
     Row(
 //        modifier = Modifier.padding(8.dp) // Adds padding around the Row
     ) {
@@ -153,10 +134,6 @@ fun HusnLogo(modifier: Modifier = Modifier){
                 },
             textAlign = TextAlign.Center
         )
-//            color = Color.DarkGray,
-        //     textAlign = TextAlign.Center,
-        //     modifier = Modifier.padding(16.dp) // Padding around the text
-        // )
     }
 }
 
@@ -167,15 +144,6 @@ fun StyleSenseApp(context: Context) {
             .fillMaxSize()
             .padding(top = 16.dp)
     ) {
-        // Display beige-icon.png
-//        val imageModifier = Modifier
-//            .size(150.dp)
-//            .padding(bottom = 16.dp)
-//        Image(
-//            painter = rememberAsyncImagePainter(model = "file:///android_asset/beige-icon.png"),
-//            contentDescription = "Beige Icon",
-//            modifier = imageModifier
-//        )
         HusnLogo()
 
         Spacer(modifier = Modifier.height(250.dp))
@@ -183,30 +151,6 @@ fun StyleSenseApp(context: Context) {
 
         SearchBar(context = context)  // Call SearchBar here
 
-//        Box(
-//            modifier = Modifier
-////                .fillMaxWidth()
-//                .padding(16.dp)
-//                .align(Alignment.CenterHorizontally),
-//            contentAlignment = Alignment.Center
-//        )
-//        //     .padding(16.dp),
-//        // contentAlignment = Alignment.Center
-//        {
-//            OutlinedTextField(
-//                value = searchQuery,
-//                onValueChange = { searchQuery = it },
-//                placeholder = { Text("denim jeans with knee pockets") },
-//                modifier = Modifier
-//                    .fillMaxWidth(0.8f),
-//                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-//                keyboardActions = KeyboardActions(
-//                    onSearch = {
-//                        sendSearchQuery(context, searchQuery)
-//                    }
-//                )
-//            )
-//        }
         Spacer(modifier = Modifier.height(16.dp))
         Column(
             modifier = Modifier
@@ -248,6 +192,10 @@ fun SearchBar(
     modifier: Modifier = Modifier
 ) {
     var searchText by remember { mutableStateOf(TextFieldValue(query)) }
+//    val textColor = MaterialTheme.colorScheme.onSurface // For the text color
+    val textColor = Color.Black
+    val backgroundColor = Color.White
+
     Box(
         modifier = modifier
             .fillMaxWidth()  // Occupy full width but not full height
@@ -261,9 +209,9 @@ fun SearchBar(
             onValueChange = { searchText = it },
             placeholder = {
                 if (query.isEmpty()) {
-                    Text("Search...", color = Color.Black)
+                    Text("Search...", color = textColor)
                 } else {
-                    Text(query, color = Color.Black)
+                    Text(query, color = textColor)
                 }
             },
             modifier = Modifier
@@ -273,9 +221,11 @@ fun SearchBar(
 //            colors = TextFieldDefaults.outlinedTextFieldColors(
 //                containerColor = Color.White,
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                disabledContainerColor = Color.White
+                focusedContainerColor = backgroundColor,
+                unfocusedContainerColor = backgroundColor,
+                disabledContainerColor = backgroundColor,
+                focusedTextColor = textColor, // Text color when focused
+                unfocusedTextColor = textColor
             ),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(

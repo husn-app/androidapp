@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Husn</string>
+    <string name="husn_base_url">https://baatuni.azurewebsites.net</string>
 </resources>
