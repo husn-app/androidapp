@@ -1,4 +1,4 @@
-package com.example.fashionapp
+package com.husn.fashionapp
 
 import android.content.Context
 import android.content.Intent
@@ -39,7 +39,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.fashionapp.ui.theme.AppTheme
+import com.husn.fashionapp.ui.theme.AppTheme
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -64,8 +64,8 @@ class MainActivity : ComponentActivity() {
 
 val client = OkHttpClient()
 fun sendSearchQuery(context: Context, query: String) {
-    val baseUrl = context.getString(R.string.husn_base_url)
-    val url = "$baseUrl/api/query"
+//    val baseUrl = context.getString(R.string.husn_base_url)
+    val url = "https://husn.app//api/query"
 
     // Create a JSON object to hold the request body
     val jsonObject = JSONObject()

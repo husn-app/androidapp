@@ -1,6 +1,6 @@
 // Theme.kt
 //package com.yourappname.ui.theme
-package com.example.fashionapp.ui.theme
+package com.husn.fashionapp.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*

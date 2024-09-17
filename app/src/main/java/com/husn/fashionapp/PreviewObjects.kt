@@ -1,4 +1,4 @@
-package com.example.fashionapp
+package com.husn.fashionapp
 
 import androidx.compose.runtime.Composable
 

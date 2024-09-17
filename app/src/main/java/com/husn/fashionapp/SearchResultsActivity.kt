@@ -1,4 +1,4 @@
-package com.example.fashionapp
+package com.husn.fashionapp
 
 import android.content.Intent
 import android.os.Bundle
@@ -30,7 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
-import com.example.fashionapp.ui.theme.AppTheme
+import com.husn.fashionapp.ui.theme.AppTheme
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
@@ -205,8 +205,8 @@ fun ProductItemBriefView(
                 .aspectRatio(0.75f) // Maintain aspect ratio
                 .clip(RoundedCornerShape(16.dp))
                 .clickable {
-                    val baseUrl = context.getString(R.string.husn_base_url)
-                    val url = "$baseUrl/api/product/${product.index}"
+//                    val baseUrl = context.getString(R.string.husn_base_url)
+                    val url = "https://husn.app/api/product/${product.index}"
                     val request = Request.Builder()
                         .url(url)
                         .build()

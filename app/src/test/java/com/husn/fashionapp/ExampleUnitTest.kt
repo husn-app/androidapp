@@ -1,4 +1,4 @@
-package com.example.fashionapp
+package com.husn.fashionapp
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

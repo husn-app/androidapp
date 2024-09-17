@@ -1,6 +1,5 @@
-package com.example.fashionapp.ui.theme
+package com.husn.fashionapp.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

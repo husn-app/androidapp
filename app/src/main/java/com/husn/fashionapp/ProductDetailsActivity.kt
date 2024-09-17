@@ -1,4 +1,4 @@
-package com.example.fashionapp
+package com.husn.fashionapp
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -33,7 +33,7 @@ import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import coil.decode.SvgDecoder
 import coil.request.ImageRequest
-import com.example.fashionapp.ui.theme.AppTheme
+import com.husn.fashionapp.ui.theme.AppTheme
 import org.json.JSONArray
 import org.json.JSONObject
 

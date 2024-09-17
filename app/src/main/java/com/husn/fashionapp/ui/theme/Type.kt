@@ -1,4 +1,4 @@
-package com.example.fashionapp.ui.theme
+package com.husn.fashionapp.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
