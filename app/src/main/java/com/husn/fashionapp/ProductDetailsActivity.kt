@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+//import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +19,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -137,8 +141,8 @@ fun ProductItemView(product: Product, modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(4.dp))
         Row(
             modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .padding(horizontal = 4.dp),
+                .fillMaxWidth(1f)
+                .padding(horizontal = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         )
@@ -151,13 +155,20 @@ fun ProductItemView(product: Product, modifier: Modifier = Modifier) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (product.rating > 0) {
-                        Text(text = "${"%.2f".format(product.rating)} ★", color = Color.Gray, fontSize = 10.sp)
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = "${"%.2f".format(product.rating)}", color = Color.Gray, fontSize = 12.sp)
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Icon(
+                            imageVector = Icons.Filled.Star,
+                            contentDescription = "Rating",
+                            tint = Color(0xFFDEB887),  //Burlywood
+                            modifier = Modifier.width(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
                     }
-                    Text(text = "Rs ${product.price}", color = Color.Gray, fontSize = 10.sp)
+                    Text(text = "Rs ${product.price}", color = Color.Gray, fontSize = 12.sp)
                 }
-                product.brand?.let { Text(text = it, color = Color.Gray, fontSize = 12.sp) }
-                Text(text = "${product.additionalInfo}", color = Color.Gray, fontSize = 8.sp)
+                product.brand?.let { Text(text = it, color = Color.Gray, fontSize = 16.sp) }
+                Text(text = "${product.additionalInfo}", color = Color.Gray, fontSize = 12.sp)
             }
             // Right-aligned clickable SVG icon that redirects to myntra.com/${product.landingPageUrl}
             val context = LocalContext.current

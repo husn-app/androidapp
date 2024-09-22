@@ -11,8 +11,8 @@ android {
         applicationId = "com.husn.fashionapp"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -62,6 +62,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling:1.5.0")
     implementation("androidx.compose.ui:ui-tooling-preview:1.5.0")
     implementation("androidx.activity:activity-compose:1.7.2")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
 
     // Coil for Image Loading in Compose
     implementation("io.coil-kt:coil-compose:2.2.2")

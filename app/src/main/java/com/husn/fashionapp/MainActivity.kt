@@ -1,11 +1,13 @@
 package com.husn.fashionapp
 
+//import androidx.appcompat.app.AppCompatActivity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,10 +21,12 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,7 +35,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -49,11 +55,14 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.husn.fashionapp.ui.theme.AppTheme
 
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             AppTheme {
                 StyleSenseApp(this)
@@ -116,33 +125,11 @@ fun PreviewStyleSenseApp() {
 }
 
 @Composable
-fun HusnLogo(modifier: Modifier = Modifier){
-    // Display beige-icon.png
-    Row(
-//        modifier = Modifier.padding(8.dp) // Adds padding around the Row
-    ) {
-        val context = LocalContext.current
-        Text(
-            text = "Husn",
-            fontSize = 24.sp, // Set a large font size
-            fontWeight = FontWeight.Bold, // Bold font weight
-            modifier = Modifier
-                .padding(16.dp) // Padding around the text
-                .clickable {
-                    val intent = Intent(context, MainActivity::class.java)
-                    context.startActivity(intent)
-                },
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
-@Composable
 fun StyleSenseApp(context: Context) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 16.dp)
+            .padding(top = 8.dp)
     ) {
         HusnLogo()
 
@@ -183,100 +170,4 @@ fun StyleSenseApp(context: Context) {
             }
         }
     }
-}
-
-@Composable
-fun SearchBar(
-    query: String = "",
-    context: Context = LocalContext.current,
-    modifier: Modifier = Modifier
-) {
-    var searchText by remember { mutableStateOf(TextFieldValue(query)) }
-//    val textColor = MaterialTheme.colorScheme.onSurface // For the text color
-    val textColor = Color.Black
-    val backgroundColor = Color.White
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()  // Occupy full width but not full height
-            .wrapContentHeight(),  // Limit height to the SearchBar's height
-        contentAlignment = Alignment.Center
-    ) {
-//        SearchBar()  // Call SearchBar here
-//    }
-        OutlinedTextField(
-            value = searchText,
-            onValueChange = { searchText = it },
-            placeholder = {
-                if (query.isEmpty()) {
-                    Text("Search...", color = textColor)
-                } else {
-                    Text(query, color = textColor)
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .clip(RoundedCornerShape(24.dp)),  // Apply rounded corners
-            shape = RoundedCornerShape(24.dp),  // Shape for the OutlinedTextField
-//            colors = TextFieldDefaults.outlinedTextFieldColors(
-//                containerColor = Color.White,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = backgroundColor,
-                unfocusedContainerColor = backgroundColor,
-                disabledContainerColor = backgroundColor,
-                focusedTextColor = textColor, // Text color when focused
-                unfocusedTextColor = textColor
-            ),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-            keyboardActions = KeyboardActions(
-                onSearch = {
-                    sendSearchQuery(context, searchText.text)
-                }
-            ),
-            singleLine = true  // Ensure it's a single-line search bar
-        )
-    }
-}
-
-
-data class Product(
-    val additionalInfo: String? = "",
-    val articleType: String? = "",
-    val brand: String? = "",
-    val category: String? = "",
-    val gender: String? = "",
-    val index: Int? = 0,
-    val landingPageUrl: String? = "",
-    val masterCategory: String? = "",
-    val price: Int? = 0,
-    val primaryColour: String? = "",
-    val product: String? = "",
-    val productId: Int? = 0,
-    val productName: String? = "",
-    val rating: Double = 0.0,
-    val ratingCount: Int? = 0,
-    val searchImage: String? = "",
-    val sizes: String? = "",
-    val subCategory: String? = ""
-) {
-    constructor(json: JSONObject) : this(
-        additionalInfo = json.optString("additionalInfo", ""),
-        articleType = json.optString("articleType", ""),
-        brand = json.optString("brand", ""),
-        category = json.optString("category", ""),
-        gender = json.optString("gender", ""),
-        index = json.optInt("index", 0),
-        landingPageUrl = json.optString("landingPageUrl", ""),
-        masterCategory = json.optString("masterCategory", ""),
-        price = json.optInt("price", 0),
-        primaryColour = json.optString("primaryColour", ""),
-        product = json.optString("product", ""),
-        productId = json.optInt("productId", 0),
-        productName = json.optString("productName", ""),
-        rating = json.optDouble("rating", 0.0),
-        ratingCount = json.optInt("ratingCount", 0),
-        searchImage = json.optString("searchImage", ""),
-        sizes = json.optString("sizes", ""),
-        subCategory = json.optString("subCategory", "")
-    )
 }
