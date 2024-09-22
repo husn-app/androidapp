@@ -28,17 +28,11 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.husn.fashionapp" />
+                  <option name="mobileSdkAppId" value="1:307272477895:android:ff89c5a0f03293688522e2" />
+                  <option name="projectId" value="fashionapp-83610a07" />
+                  <option name="projectNumber" value="307272477895" />
                 </ConnectionSetting>
-              </option>
-              <option name="failureTypes">
-                <list>
-                  <option value="FATAL" />
-                  <option value="ANR" />
-                </list>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
               <option name="timeIntervalDays" value="THIRTY_DAYS" />
