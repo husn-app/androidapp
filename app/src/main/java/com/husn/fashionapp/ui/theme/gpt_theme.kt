@@ -13,7 +13,7 @@ val TextColor = Color(0xFF333333)
 
 // Light and dark theme color schemes
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF835905),
+    primary = Color(0xFF6C6463),
     onPrimary = Color.White,
     secondary = Color(0xFFBDB76B),
     onSecondary = Color.White,
@@ -24,7 +24,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFF8C7851),
+    primary = Color(0xFF6C6463),
     onPrimary = Color.Black,
     secondary = Color(0xFFBDB76B),
     onSecondary = Color.Black,

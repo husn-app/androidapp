@@ -21,12 +21,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -240,16 +240,16 @@ fun ProductItemBriefView(
             product.brand?.let {
                 Text(
                     text = it,
-                    color = Color.Gray,
-                    fontSize = (16.sp * textScale),
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = (12.sp * textScale),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
             }
             Text(
                 text = "${product.additionalInfo}",
-                color = Color.Gray,
-                fontSize = (12.sp * textScale),
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = (8.sp * textScale),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
