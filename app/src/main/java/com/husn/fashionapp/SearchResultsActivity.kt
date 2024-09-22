@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.husn.fashionapp.ui.theme.AppTheme
 import okhttp3.Call
 import okhttp3.Callback
@@ -196,6 +198,7 @@ fun ProductItemBriefView(
     textScale: Float = 1f  // Default scale factor
 ) {
     val context = LocalContext.current
+    val firebaseAnalytics = remember { FirebaseAnalytics.getInstance(context) }
     Column(
         modifier = modifier.fillMaxWidth()
     ) {
@@ -209,6 +212,13 @@ fun ProductItemBriefView(
                 .clip(RoundedCornerShape(16.dp))
                 .clickable {
 //                    val baseUrl = context.getString(R.string.husn_base_url)
+                    val bundle = Bundle().apply {
+                        putString(FirebaseAnalytics.Param.ITEM_ID, product.index.toString())
+                        putString(FirebaseAnalytics.Param.ITEM_NAME, product.brand)
+                        putString(FirebaseAnalytics.Param.CONTENT_TYPE, "product")
+                    }
+                    firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
+
                     val url = "https://husn.app/api/product/${product.index}"
                     val request = Request.Builder()
                         .url(url)

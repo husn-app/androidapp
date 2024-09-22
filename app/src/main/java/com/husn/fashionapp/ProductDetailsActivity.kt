@@ -25,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +39,7 @@ import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import coil.decode.SvgDecoder
 import coil.request.ImageRequest
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.husn.fashionapp.ui.theme.AppTheme
 import org.json.JSONArray
 import org.json.JSONObject
@@ -173,11 +175,19 @@ fun ProductItemView(product: Product, modifier: Modifier = Modifier) {
             }
             // Right-aligned clickable SVG icon that redirects to myntra.com/${product.landingPageUrl}
             val context = LocalContext.current
+            val firebaseAnalytics = remember { FirebaseAnalytics.getInstance(context) }
             DisplaySvgIconFromAssets(
                 fileName = "myntra-logo.svg",
                 modifier = Modifier
                     .size(40.dp)
                     .clickable {
+                        val bundle = Bundle().apply {
+                            putString(FirebaseAnalytics.Param.ITEM_ID, product.index.toString())
+                            putString(FirebaseAnalytics.Param.ITEM_NAME, "Myntra Logo")
+                            putString(FirebaseAnalytics.Param.CONTENT_TYPE, "logo")
+                        }
+                        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, bundle)
+
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://myntra.com/${product.landingPageUrl}"))
                         context.startActivity(intent)
                     }
