@@ -182,8 +182,8 @@ fun ProductItemView(product: Product, modifier: Modifier = Modifier) {
                     .size(40.dp)
                     .clickable {
                         val bundle = Bundle().apply {
-                            putString(FirebaseAnalytics.Param.ITEM_ID, product.index.toString())
-                            putString(FirebaseAnalytics.Param.ITEM_NAME, "Myntra Logo")
+                            putString(FirebaseAnalytics.Param.ITEM_ID, product.index?.toString())
+                            putString(FirebaseAnalytics.Param.ITEM_NAME, product.productName)
                             putString(FirebaseAnalytics.Param.CONTENT_TYPE, "logo")
                         }
                         firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, bundle)

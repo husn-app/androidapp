@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "307272477895",
+    "project_id": "fashionapp-83610a07",
+    "storage_bucket": "fashionapp-83610a07.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:307272477895:android:ff89c5a0f03293688522e2",
+        "android_client_info": {
+          "package_name": "com.husn.fashionapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4R3m2wP77opuLfrFKGD8fwwt83RktFEc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
