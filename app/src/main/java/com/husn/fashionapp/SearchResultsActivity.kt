@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose/**/.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -64,12 +64,9 @@ class SearchResultsActivity : ComponentActivity() {
 
         }
         val productsJsonArray = responseData?.getJSONArray("products") ?: JSONArray()
-//        //println("parsed productsJsonArray $productsJsonArray")
         val products = mutableListOf<Product>()
         for (i in 0 until productsJsonArray.length()) {
-            val productJson = productsJsonArray.getJSONObject(i)
-            val product = Product(productJson)
-            products.add(product)
+            products.add(Product(productsJsonArray.getJSONObject(i)))
         }
 
         setContent {
@@ -119,7 +116,7 @@ fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: 
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 // Display the first product in the row
-                ProductItemBriefView(
+                ProductItemBriefView(/**/
                     product = productPair[0],
                     modifier = Modifier
                         .weight(1f) // Ensure the first product takes up half the space
@@ -203,7 +200,7 @@ fun ProductItemBriefView(
         modifier = modifier.fillMaxWidth()
     ) {
         Image(
-            painter = rememberAsyncImagePainter(product.searchImage),
+            painter = rememberAsyncImagePainter(product.primaryImage),
             contentDescription = null,
             modifier = Modifier
 //                .width(256.dp)
@@ -247,21 +244,19 @@ fun ProductItemBriefView(
         )
         Spacer(modifier = Modifier.height(4.dp))
         Column(horizontalAlignment = Alignment.Start) {
-            product.brand?.let {
-                Text(
-                    text = it,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontSize = (12.sp * textScale),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
             Text(
-                text = "${product.additionalInfo}",
+                text = product.brand,
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = (12.sp * textScale),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = product.productName.replace(product.brand, ""),
                 color = MaterialTheme.colorScheme.primary,
                 fontSize = (8.sp * textScale),
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
         }
 //            }

@@ -104,25 +104,6 @@ fun ProductDetailsScreen(currentProduct: Product, relatedProducts: List<Product>
 
         Spacer(modifier = Modifier.height(12.dp))
         ProductsListView(relatedProducts)
-
-//        val configuration = LocalConfiguration.current
-//        val screenWidth = configuration.screenWidthDp.dp
-//        val availableHeight = configuration.screenHeightDp.dp - 200.dp
-//        LazyRow(
-//            contentPadding = PaddingValues(horizontal = 8.dp),  // Add padding to the row
-//            horizontalArrangement = Arrangement.spacedBy(8.dp)  // Spacing between items
-//        ) {
-//            items(relatedProducts) { product ->
-//                ProductItemBriefView(
-//                    product = product,
-//                    textScale = 0.6f,
-//                    modifier = Modifier
-//                        .height(availableHeight)
-//                        .width(screenWidth / 2.5f)  // Responsive width, adjust based on screen size
-//                        .wrapContentHeight()  // Let the height wrap to the content naturally
-//                )
-//            }
-//        }
     }
 }
 
@@ -134,7 +115,7 @@ fun ProductItemView(product: Product, modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = rememberAsyncImagePainter(product.searchImage),
+            painter = rememberAsyncImagePainter(product.primaryImage),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
@@ -158,7 +139,7 @@ fun ProductItemView(product: Product, modifier: Modifier = Modifier) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (product.rating > 0) {
-                        Text(text = "${"%.2f".format(product.rating)}", color = Color.Black, fontSize = 8.sp)
+                        Text(text = "%.2f".format(product.rating), color = Color.Black, fontSize = 8.sp)
                         Spacer(modifier = Modifier.width(2.dp))
                         Icon(
                             imageVector = Icons.Filled.Star,
@@ -170,10 +151,10 @@ fun ProductItemView(product: Product, modifier: Modifier = Modifier) {
                     }
                     Text(text = "Rs ${product.price}", color = Color.Black, fontSize = 8.sp)
                 }
-                product.brand?.let { Text(text = it, color = MaterialTheme.colorScheme.primary, fontSize = 12.sp) }
-                Text(text = "${product.additionalInfo}", color = MaterialTheme.colorScheme.primary, fontSize = 8.sp)
+                Text(text = product.brand, color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)
+                Text(text = product.productName.replace(product.brand, ""), color = MaterialTheme.colorScheme.primary, fontSize = 8.sp)
             }
-            // Right-aligned clickable SVG icon that redirects to myntra.com/${product.landingPageUrl}
+            // Right-aligned clickable SVG icon that redirects to myntra.com/${product.productUrl}
             val context = LocalContext.current
             val firebaseAnalytics = remember { FirebaseAnalytics.getInstance(context) }
             DisplaySvgIconFromAssets(
@@ -182,13 +163,13 @@ fun ProductItemView(product: Product, modifier: Modifier = Modifier) {
                     .size(40.dp)
                     .clickable {
                         val bundle = Bundle().apply {
-                            putString(FirebaseAnalytics.Param.ITEM_ID, product.index?.toString())
+                            putString(FirebaseAnalytics.Param.ITEM_ID, product.index.toString())
                             putString(FirebaseAnalytics.Param.ITEM_NAME, product.productName)
                             putString(FirebaseAnalytics.Param.CONTENT_TYPE, "logo")
                         }
                         firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, bundle)
 
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://myntra.com/${product.landingPageUrl}"))
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(product.productUrl))
                         context.startActivity(intent)
                     }
             )

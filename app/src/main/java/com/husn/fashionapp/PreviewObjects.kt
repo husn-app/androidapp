@@ -6,64 +6,40 @@ import androidx.compose.runtime.Composable
 fun getDummyProductsList(): List<Product> {
     val dummyProducts = listOf(
         Product(
-            additionalInfo = "Comfortable and stylish",
-            articleType = "Jeans",
-            brand = "Brand A",
-            category = "Bottomwear",
-            gender = "Men",
-            index = 1,
-            landingPageUrl = "dresses/tokyo+talkies/tokyo-talkies-abstract-printed-sheath-mini-dress/21627304/buy",
-            masterCategory = "Apparel",
-            price = 1999,
-            primaryColour = "Blue",
-            product = "Denim Jeans",
             productId = "101",
             productName = "Blue Denim Jeans",
+            brand = "Brand A",
+            primaryImage = "https://example.com/image1.jpg",
+            sizes = "M,L,XL",
+            gender = "Men",
+            price = 1999,
             rating = 4.5,
             ratingCount = 150,
-            searchImage = "https://example.com/image1.jpg",
-            sizes = "M,L,XL",
-            subCategory = "Casual Wear"
+            index = 1
         ),
         Product(
-            additionalInfo = "Elegant and comfortable",
-            articleType = "Shirt",
-            brand = "Brand B",
-            category = "Topwear",
-            gender = "Women",
-            index = 2,
-            landingPageUrl = "dresses/sera/sera-black-bodycon-mini-dress/16404534/buy",
-            masterCategory = "Apparel",
-            price = 1299,
-            primaryColour = "Red",
-            product = "Cotton Shirt",
             productId = "102",
             productName = "Red Cotton Shirt",
+            brand = "Brand B",
+            primaryImage = "https://example.com/image2.jpg",
+            sizes = "S,M,L",
+            gender = "Women",
+            price = 1299,
             rating = 4.0,
             ratingCount = 200,
-            searchImage = "https://example.com/image2.jpg",
-            sizes = "S,M,L",
-            subCategory = "Formal Wear"
+            index = 2
         ),
         Product(
-            additionalInfo = "Elegant and comfortable",
-            articleType = "Shirt",
-            brand = "Brand B",
-            category = "Topwear",
-            gender = "Women",
-            index = 2,
-            landingPageUrl = "dresses/sera/sera-black-bodycon-mini-dress/16404534/buy",
-            masterCategory = "Apparel",
-            price = 1299,
-            primaryColour = "Red",
-            product = "Cotton Shirt",
             productId = "102",
             productName = "Red Cotton Shirt",
+            brand = "Brand B",
+            primaryImage = "https://example.com/image2.jpg",
+            sizes = "S,M,L",
+            gender = "Women",
+            price = 1299,
             rating = 4.0,
             ratingCount = 200,
-            searchImage = "https://example.com/image2.jpg",
-            sizes = "S,M,L",
-            subCategory = "Formal Wear"
+            index = 2
         )
     )
     return dummyProducts
@@ -72,23 +48,15 @@ fun getDummyProductsList(): List<Product> {
 @Composable
 fun getDummyProduct(): Product{
     return Product(
-        additionalInfo = "Comfortable and stylish and a veyr tremendous title",
-        articleType = "Jeans",
-        brand = "Brand super duper big brand master blaster A",
-        category = "Bottomwear",
-        gender = "Men",
-        index = 1,
-        landingPageUrl = "dresses/tokyo+talkies/tokyo-talkies-abstract-printed-sheath-mini-dress/21627304/buy",
-        masterCategory = "Apparel",
-        price = 1999,
-        primaryColour = "Blue",
-        product = "Denim Jeans",
         productId = "101",
         productName = "Blue Denim Jeans",
+        brand = "Brand super duper big brand master blaster A",
+        primaryImage = "https://example.com/image1.jpg",
+        sizes = "M,L,XL",
+        gender = "Men",
+        price = 1999,
         rating = 4.5,
         ratingCount = 150,
-        searchImage = "https://example.com/image1.jpg",
-        sizes = "M,L,XL",
-        subCategory = "Casual Wear"
+        index = 1
     )
 }
