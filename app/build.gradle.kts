@@ -65,6 +65,7 @@ dependencies {
     implementation(libs.play.services.measurement.api)
     implementation(libs.firebase.crashlytics)
     implementation(libs.androidx.browser)
+    implementation(libs.androidx.preference.ktx)
     debugImplementation("androidx.compose.ui:ui-tooling:1.5.0")
     implementation("androidx.compose.ui:ui-tooling-preview:1.5.0")
     implementation("androidx.activity:activity-compose:1.7.2")

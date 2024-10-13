@@ -49,6 +49,8 @@ import okhttp3.Request
 import okhttp3.Response
 import okio.IOException
 import androidx.compose.runtime.staticCompositionLocalOf
+import android.content.SharedPreferences
+import androidx.preference.PreferenceManager
 
 @Composable
 fun SetStatusBarColor() {
@@ -61,10 +63,6 @@ fun SetStatusBarColor() {
             darkIcons = useDarkIcons
         )
     }
-}
-
-interface SignInCallback {
-    fun onSignInClicked()
 }
 
 val LocalSignInHelper = staticCompositionLocalOf<SignInHelper?> { null }
@@ -101,40 +99,54 @@ fun HusnLogo(modifier: Modifier = Modifier){
         val signInText = if (isUserSignedIn) "Sign out" else "Sign in"
         val signInHelper = LocalSignInHelper.current
         println("husn_logo:$isUserSignedIn\n $signInText \n $signInHelper")
+
         Text(text=signInText, fontSize = 20.sp, modifier = Modifier.padding(16.dp).clickable {
             if (isUserSignedIn) {
                 AuthManager.signOut()
+                signInHelper?.signOut()
             } else {
                 signInHelper?.signIn()
             }
+        })
+
+        if(isUserSignedIn) {
+            Text(text = "wishlist", fontSize = 20.sp, modifier = Modifier.padding(16.dp).clickable {
+                val baseUrl = context.getString(R.string.husn_base_url)
+                val url = "$baseUrl/wishlist_android"
+                var sessionCookie = getSessionCookieFromStorage(context) ?: ""
+                println("wishlist_session_cookie: $sessionCookie")
+
+                val request = Request.Builder()
+                    .url(url)
+                    .addHeader("Cookie", sessionCookie)
+                    .addHeader("platform", "android")
+                    .build()
+
+                client.newCall(request).enqueue(object : Callback {
+                    override fun onFailure(call: Call, e: IOException) {
+                        e.printStackTrace()
+                    }
+
+                    override fun onResponse(call: Call, response: Response) {
+                        if (response.isSuccessful) {
+                            val session = response.header("Set-Cookie")
+                            saveSessionCookie(session, context)
+
+                            val responseData = response.body?.string()
+                            responseData?.let {
+                                // Start a new activity with the search result data
+                                val intent = Intent(context, SearchResultsActivity::class.java)
+                                intent.putExtra("query", "")
+                                intent.putExtra("responseData", it)
+                                context.startActivity(intent)
+                            }
+                        } else {
+                            println("wishlist_response failed with status: ${response.code}\n${response.body}")
+                        }
+                    }
+                })
+            })
         }
-//            val baseUrl = context.getString(R.string.husn_base_url)
-//            val url = "$baseUrl/login_mobile"
-//            var sessionCookie = getSessionCookieFromStorage(context) ?: ""
-//            println("Sign in: $sessionCookie")
-//
-//            val request = Request.Builder()
-//                .url(url)
-//                .addHeader("Cookie", sessionCookie)
-//                .addHeader("platform", "android")
-//                .build()
-//
-//            client.newCall(request).enqueue(object : Callback {
-//                override fun onFailure(call: Call, e: IOException) {
-//                    e.printStackTrace()
-//                }
-//
-//                override fun onResponse(call: Call, response: Response) {
-//                    if (response.isSuccessful) {
-//                        val responseData = response.body?.string()
-//                        println("response_body:$responseData")
-//                    } else {
-//                        //println("Request failed with status: ${response.code}")
-//                    }
-//                }
-//            })
-//            }
-        )
     }
 }
 
@@ -194,6 +206,23 @@ fun SearchBar(
     }
 }
 
+//object SessionManager {
+//    private const val KEY_SESSION_COOKIE = "session_cookie"
+//    private lateinit var sharedPreferences: SharedPreferences
+//
+//    fun initialize(context: Context) { // Call this once in your Application class
+//        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+//    }
+//
+//    fun saveSessionCookie(cookie: String?) {
+//        sharedPreferences.edit().putString(KEY_SESSION_COOKIE, cookie).apply()
+//    }
+//
+//    fun getSessionCookie(): String? {
+//        return sharedPreferences.getString(KEY_SESSION_COOKIE, null)
+//    }
+//}
+
 fun saveSessionCookie(cookie: String?, context: Context) {
     if(cookie == null)
         return
@@ -208,3 +237,9 @@ fun getSessionCookieFromStorage(context: Context): String? {
     return sharedPreferences.getString("session_cookie", null)  // Return the session cookie or null if not found
 }
 
+fun clearSessionCookie(context: Context) {
+    val sharedPreferences = context.getSharedPreferences("SessionPref", Context.MODE_PRIVATE)
+    val editor = sharedPreferences.edit()
+    editor.remove("session_cookie") // Remove the cookie specifically
+    editor.apply()
+}

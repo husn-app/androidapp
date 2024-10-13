@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity(){
             signInHelper.handleSignInResult(result.data)
         }
 
-        signInHelper = SignInHelper(this, signInLauncher)
+        signInHelper = SignInHelper(this, signInLauncher, this)
 
         setContent {
             AppTheme {
@@ -81,10 +81,12 @@ val client = OkHttpClient()
 fun sendSearchQuery(context: Context, query: String) {
     val baseUrl = context.getString(R.string.husn_base_url)
     val url = "$baseUrl/api/query?query=${URLEncoder.encode(query, "UTF-8")}"
-
+    var sessionCookie = getSessionCookieFromStorage(context) ?: ""
     // Build the POST request
     val request = Request.Builder()
         .url(url)
+        .addHeader("platform", "android")
+        .addHeader("Cookie", sessionCookie)
         .get()
         .build()
 
@@ -99,10 +101,10 @@ fun sendSearchQuery(context: Context, query: String) {
             // Handle success
             if (response.isSuccessful) {
                 val session = response.header("Set-Cookie")
-                println("response_header:$session")
+                println("sendSearchQuery response_header:$session")
                 saveSessionCookie(session, context)
+
                 val responseData = response.body?.string()
-                // Do something with the response data
                 responseData?.let {
                     // Start a new activity with the search result data
                     val intent = Intent(context, SearchResultsActivity::class.java)
@@ -110,7 +112,6 @@ fun sendSearchQuery(context: Context, query: String) {
                     intent.putExtra("responseData", it)
                     context.startActivity(intent)
                 }
-//                ////println(responseData)
             } else {
                 //println("Request failed with status: ${response.code}")
             }

@@ -61,7 +61,7 @@ class SearchResultsActivity : ComponentActivity() {
             signInHelper.handleSignInResult(result.data)
         }
 
-        signInHelper = SignInHelper(this, signInLauncher)
+        signInHelper = SignInHelper(this, signInLauncher, this)
 
 
         // Retrieve the search query and response data from the intent
@@ -242,6 +242,7 @@ fun ProductItemBriefView(
                     val request = Request.Builder()
                         .url(url)
                         .addHeader("Cookie", sessionCookie)
+                        .addHeader("platform", "android")
                         .build()
 
                     client.newCall(request).enqueue(object : Callback {

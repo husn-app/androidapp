@@ -7,5 +7,7 @@ Android frontend
 
 - **Cookie**
 
-- **platform**: Identify request made from web or android.
+- **platform**: Assign to "android". Used to Identify request made from web or android.
 
+### Response
+- Call saveSessionCookie on every response from backend.
