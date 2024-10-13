@@ -28,6 +28,7 @@
         </activity>
         <activity android:name="com.husn.fashionapp.SearchResultsActivity" />
         <activity android:name="com.husn.fashionapp.ProductDetailsActivity" />
+        <activity android:name="com.husn.fashionapp.WishlistActivity" />
     </application>
 
 </manifest>

@@ -135,8 +135,7 @@ fun HusnLogo(modifier: Modifier = Modifier){
                             val responseData = response.body?.string()
                             responseData?.let {
                                 // Start a new activity with the search result data
-                                val intent = Intent(context, SearchResultsActivity::class.java)
-                                intent.putExtra("query", "")
+                                val intent = Intent(context, WishlistActivity::class.java)
                                 intent.putExtra("responseData", it)
                                 context.startActivity(intent)
                             }

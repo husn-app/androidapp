@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 //import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -25,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +48,7 @@ import org.json.JSONObject
 
 
 class ProductDetailsActivity : ComponentActivity() {
+    private lateinit var signInHelper: SignInHelper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -74,12 +77,25 @@ class ProductDetailsActivity : ComponentActivity() {
             products.add(product)
         }
 
+        val signInLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            signInHelper.handleSignInResult(result.data)
+        }
+
+        signInHelper = SignInHelper(this, signInLauncher, this)
+
         setContent {
             AppTheme {
-//                ProductDetailsScreen(currentProduct = currentProduct, relatedProducts = products)
-                SearchResultsScreen(query = "", products = products, currentProduct = currentProduct, ProductItemView = { product ->  // Passing the ProductItemView as a lambda
-                    ProductItemView(product = product)  // Call your ProductItemView composable here
-                })
+                CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
+                    SearchResultsScreen(
+                        query = "",
+                        products = products,
+                        currentProduct = currentProduct,
+                        MainProductView = { product ->  // Passing the MainProductView as a lambda
+                            MainProductView(product = product)  // Call your MainProductView composable here
+                        })
+                }
             }
         }
     }
@@ -87,28 +103,13 @@ class ProductDetailsActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewProductDetailsScreen() {
-//    ProductDetailsScreen(currentProduct = dummyCurrentProduct, relatedProducts = dummyRelatedProducts)
-    SearchResultsScreen(query = "", products = getDummyProductsList(), currentProduct = getDummyProduct(), ProductItemView = { product ->  // Passing the ProductItemView as a lambda
-        ProductItemView(product = product)  // Call your ProductItemView composable here
+    SearchResultsScreen(query = "", products = getDummyProductsList(), currentProduct = getDummyProduct(), MainProductView = { product ->  // Passing the MainProductView as a lambda
+        MainProductView(product = product)  // Call your MainProductView composable here
     })
 }
 
 @Composable
-fun ProductDetailsScreen(currentProduct: Product, relatedProducts: List<Product>) {
-    Column(modifier = Modifier.fillMaxSize().padding(12.dp),
-        verticalArrangement = Arrangement.SpaceEvenly
-        ) {
-            SearchBar()  // Call SearchBar here
-        // Display current product
-        ProductItemView(product = currentProduct)
-
-        Spacer(modifier = Modifier.height(12.dp))
-        ProductsListView(relatedProducts)
-    }
-}
-
-@Composable
-fun ProductItemView(product: Product, modifier: Modifier = Modifier) {
+fun MainProductView(product: Product, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .padding(8.dp),

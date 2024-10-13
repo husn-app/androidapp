@@ -1,6 +1,6 @@
 package com.husn.fashionapp
 
-//import androidx.appcompat.app.AppCompatActivity
+
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose/**/.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -63,7 +62,6 @@ class SearchResultsActivity : ComponentActivity() {
 
         signInHelper = SignInHelper(this, signInLauncher, this)
 
-
         // Retrieve the search query and response data from the intent
         val query = intent.getStringExtra("query") ?: ""
         val responseDataString = intent.getStringExtra("responseData") ?: ""
@@ -95,7 +93,6 @@ class SearchResultsActivity : ComponentActivity() {
 
     // Helper function to sanitize the input JSON string
     private fun sanitizeJson(jsonString: String): String {
-        // Implement sanitization logic here (e.g., remove or replace NaN)
         return jsonString.replace("NaN", "0") // Replace NaN with default numeric value (e.g., 0)
     }
 }
@@ -106,7 +103,7 @@ fun PreviewSearchResultsScreen() {
     SearchResultsScreen(query = "Sample Query", products = getDummyProductsList())
 }
 @Composable
-fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: Product? = null, ProductItemView: @Composable ((product: Product) -> Unit)? = null, searchBarFraction: Float = 0.96f) {
+fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: Product? = null, MainProductView: @Composable ((product: Product) -> Unit)? = null, searchBarFraction: Float = 0.96f) {
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(top = 8.dp)
     ) {
@@ -119,9 +116,9 @@ fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: 
             SearchBar(query = query, searchBarFraction = searchBarFraction)
             Spacer(modifier = Modifier.height(8.dp)) // Optional: add spacing after the search bar
         }
-        if(ProductItemView != null && currentProduct != null){
+        if(MainProductView != null && currentProduct != null){
             item{
-                ProductItemView(currentProduct)
+                MainProductView(currentProduct)
             }
         }
 
@@ -252,6 +249,9 @@ fun ProductItemBriefView(
 
                         override fun onResponse(call: Call, response: Response) {
                             if (response.isSuccessful) {
+                                val session = response.header("Set-Cookie")
+                                saveSessionCookie(session, context)
+
                                 val responseData = response.body?.string()
                                 responseData?.let {
                                     val intent = Intent(context, ProductDetailsActivity::class.java)
@@ -283,20 +283,5 @@ fun ProductItemBriefView(
                 overflow = TextOverflow.Ellipsis,
             )
         }
-//            }
-            // Right-aligned clickable SVG icon that redirects to myntra.com/${product.landingPageUrl}
-//            DisplaySvgIconFromAssets(
-//                fileName = "myntra-logo.svg",
-//                modifier = Modifier
-//                    .size(24.dp) // Adjusted size for better layout fit
-//                    .clickable {
-//                        val intent = Intent(
-//                            Intent.ACTION_VIEW,
-//                            Uri.parse("https://myntra.com/${product.landingPageUrl}")
-//                        )
-//                        context.startActivity(intent)
-//                    }
-//            )
-//        }
     }
 }
