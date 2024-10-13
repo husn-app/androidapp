@@ -2,12 +2,19 @@ package com.husn.fashionapp
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -34,7 +41,14 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.fashionapp.R
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.Request
+import okhttp3.Response
+import okio.IOException
+import androidx.compose.runtime.staticCompositionLocalOf
 
 @Composable
 fun SetStatusBarColor() {
@@ -49,11 +63,21 @@ fun SetStatusBarColor() {
     }
 }
 
+interface SignInCallback {
+    fun onSignInClicked()
+}
+
+val LocalSignInHelper = staticCompositionLocalOf<SignInHelper?> { null }
+
+
 @Composable
 fun HusnLogo(modifier: Modifier = Modifier){
     SetStatusBarColor()
     Row(
+        modifier = Modifier.fillMaxWidth(),
 //        modifier = Modifier.padding(8.dp) // Adds padding around the Row
+        horizontalArrangement = Arrangement.SpaceBetween,
+//        verticalAlignment = Alignment.CenterVertically
     ) {
         val context = LocalContext.current
         Text(
@@ -69,6 +93,47 @@ fun HusnLogo(modifier: Modifier = Modifier){
                     context.startActivity(intent)
                 },
             textAlign = TextAlign.Center
+        )
+//        Spacer(modifier = Modifier.width(12.dp))
+        // Observe the sign-in state
+        val isUserSignedIn = AuthManager.isUserSignedIn
+
+        val signInText = if (isUserSignedIn) "Sign out" else "Sign in"
+        val signInHelper = LocalSignInHelper.current
+        println("husn_logo:$isUserSignedIn\n $signInText \n $signInHelper")
+        Text(text=signInText, fontSize = 20.sp, modifier = Modifier.padding(16.dp).clickable {
+            if (isUserSignedIn) {
+                AuthManager.signOut()
+            } else {
+                signInHelper?.signIn()
+            }
+        }
+//            val baseUrl = context.getString(R.string.husn_base_url)
+//            val url = "$baseUrl/login_mobile"
+//            var sessionCookie = getSessionCookieFromStorage(context) ?: ""
+//            println("Sign in: $sessionCookie")
+//
+//            val request = Request.Builder()
+//                .url(url)
+//                .addHeader("Cookie", sessionCookie)
+//                .addHeader("platform", "android")
+//                .build()
+//
+//            client.newCall(request).enqueue(object : Callback {
+//                override fun onFailure(call: Call, e: IOException) {
+//                    e.printStackTrace()
+//                }
+//
+//                override fun onResponse(call: Call, response: Response) {
+//                    if (response.isSuccessful) {
+//                        val responseData = response.body?.string()
+//                        println("response_body:$responseData")
+//                    } else {
+//                        //println("Request failed with status: ${response.code}")
+//                    }
+//                }
+//            })
+//            }
         )
     }
 }
@@ -128,3 +193,18 @@ fun SearchBar(
         )
     }
 }
+
+fun saveSessionCookie(cookie: String?, context: Context) {
+    if(cookie == null)
+        return
+    val sharedPreferences = context.getSharedPreferences("SessionPref", Context.MODE_PRIVATE)
+    val editor = sharedPreferences.edit()
+    editor.putString("session_cookie", cookie)  // Save the session cookie with the key "session_cookie"
+    editor.apply()  // Apply changes asynchronously
+}
+
+fun getSessionCookieFromStorage(context: Context): String? {
+    val sharedPreferences = context.getSharedPreferences("SessionPref", Context.MODE_PRIVATE)
+    return sharedPreferences.getString("session_cookie", null)  // Return the session cookie or null if not found
+}
+

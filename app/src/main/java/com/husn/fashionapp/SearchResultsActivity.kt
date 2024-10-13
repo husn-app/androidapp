@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose/**/.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import com.example.fashionapp.R
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.husn.fashionapp.ui.theme.AppTheme
 import okhttp3.Call
@@ -46,8 +50,19 @@ import org.json.JSONObject
 
 
 class SearchResultsActivity : ComponentActivity() {
+    private lateinit var signInHelper: SignInHelper
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val signInLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            signInHelper.handleSignInResult(result.data)
+        }
+
+        signInHelper = SignInHelper(this, signInLauncher)
+
 
         // Retrieve the search query and response data from the intent
         val query = intent.getStringExtra("query") ?: ""
@@ -71,7 +86,9 @@ class SearchResultsActivity : ComponentActivity() {
 
         setContent {
             AppTheme {
-                SearchResultsScreen(query = query, products = products)
+                CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
+                    SearchResultsScreen(query = query, products = products)
+                }
             }
         }
     }
@@ -216,9 +233,15 @@ fun ProductItemBriefView(
                     }
                     firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
 
-                    val url = "https://husn.app/api/product/${product.index}"
+                    val baseUrl = context.getString(R.string.husn_base_url)
+                    val url = "$baseUrl/api/product/${product.index}"
+                    var sessionCookie = getSessionCookieFromStorage(context)
+                    if(sessionCookie == null){
+                        sessionCookie = ""
+                    }
                     val request = Request.Builder()
                         .url(url)
+                        .addHeader("Cookie", sessionCookie)
                         .build()
 
                     client.newCall(request).enqueue(object : Callback {

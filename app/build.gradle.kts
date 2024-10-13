@@ -64,6 +64,7 @@ dependencies {
     implementation("androidx.compose.material:material:1.5.0")
     implementation(libs.play.services.measurement.api)
     implementation(libs.firebase.crashlytics)
+    implementation(libs.androidx.browser)
     debugImplementation("androidx.compose.ui:ui-tooling:1.5.0")
     implementation("androidx.compose.ui:ui-tooling-preview:1.5.0")
     implementation("androidx.activity:activity-compose:1.7.2")
@@ -109,4 +110,7 @@ dependencies {
     implementation("org.openjsse:openjsse:1.1.7")
 
     implementation("org.conscrypt:conscrypt-android:2.5.2")
+    implementation("com.google.android.gms:play-services-auth:20.6.0")
+    implementation(platform("com.google.firebase:firebase-bom:32.2.3"))
+    implementation("com.google.firebase:firebase-auth-ktx")
 }

@@ -12,7 +12,36 @@
           "package_name": "com.husn.fashionapp"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "307272477895-fjo1urf5ua8b4dua9ohnnefum95jbdqp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.husn.fashionapp",
+            "certificate_hash": "f9eea061afc1902f23ea361345bf71bee229506a"
+          }
+        },
+        {
+          "client_id": "307272477895-n4qqpir93u9v5r0340njm6lm4p1k8ti7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.husn.fashionapp",
+            "certificate_hash": "bfa33ec2705181f0385af080af4235469da4b88c"
+          }
+        },
+        {
+          "client_id": "307272477895-oe2tsgcn1bapvknu20gq2lg34d5m37e0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.husn.fashionapp",
+            "certificate_hash": "f2325b5b232f6972a0c3196954b5969a759cdec8"
+          }
+        },
+        {
+          "client_id": "307272477895-98db7q5sgt4irvpukjg1l21gl4m1lvbh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyA4R3m2wP77opuLfrFKGD8fwwt83RktFEc"
@@ -20,7 +49,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "307272477895-98db7q5sgt4irvpukjg1l21gl4m1lvbh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
