@@ -104,58 +104,68 @@ fun PreviewSearchResultsScreen() {
 }
 @Composable
 fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: Product? = null, MainProductView: @Composable ((product: Product) -> Unit)? = null, searchBarFraction: Float = 0.96f) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(top = 8.dp)
-    ) {
-        item {
-            HusnLogo()
-        }
-
-        // Display the search bar
-        item {
-            SearchBar(query = query, searchBarFraction = searchBarFraction)
-            Spacer(modifier = Modifier.height(8.dp)) // Optional: add spacing after the search bar
-        }
-        if(MainProductView != null && currentProduct != null){
-            item{
-                MainProductView(currentProduct)
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(top = 8.dp, bottom = 50.dp)
+        ) {
+            item {
+                TopNavBar()
             }
-        }
 
-        itemsIndexed(products.chunked(2)) { index, productPair ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                // Display the first product in the row
-                ProductItemBriefView(/**/
-                    product = productPair[0],
+            // Display the search bar
+            item {
+                SearchBar(query = query, searchBarFraction = searchBarFraction)
+                Spacer(modifier = Modifier.height(8.dp)) // Optional: add spacing after the search bar
+            }
+            if (MainProductView != null && currentProduct != null) {
+                item {
+                    MainProductView(currentProduct)
+                }
+            }
+
+            itemsIndexed(products.chunked(2)) { index, productPair ->
+                Row(
                     modifier = Modifier
-                        .weight(1f) // Ensure the first product takes up half the space
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    // Display the first product in the row
+                    ProductItemBriefView(/**/
+                        product = productPair[0],
+                        modifier = Modifier
+                            .weight(1f) // Ensure the first product takes up half the space
 //                        .padding(end = 8.dp) // Add spacing between the two products
 //                            .padding(start = 8.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                // Display the second product in the row if available
-                if (productPair.size > 1) {
-                    ProductItemBriefView(
-                        product = productPair[1],
-                        modifier = Modifier
-                            .weight(1f) // Ensure the second product takes up half the space
-//                            .padding(end = 8.dp) // Add spacing between the two products
                     )
-                } else {
-                    // Add an empty Box to take up the second half of the row
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    // Display the second product in the row if available
+                    if (productPair.size > 1) {
+                        ProductItemBriefView(
+                            product = productPair[1],
+                            modifier = Modifier
+                                .weight(1f) // Ensure the second product takes up half the space
 //                            .padding(end = 8.dp) // Add spacing between the two products
-                    )
+                        )
+                    } else {
+                        // Add an empty Box to take up the second half of the row
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+//                            .padding(end = 8.dp) // Add spacing between the two products
+                        )
+                    }
                 }
             }
         }
+
+        BottomBar(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .height(50.dp)
+//                .padding(16.dp) // Optional padding
+        )
     }
 }
 

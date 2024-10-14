@@ -120,7 +120,7 @@ fun StyleSenseApp(context: Context) {
             .fillMaxSize()
 //            .padding(top = 0.dp)
     ) {
-        HusnLogo()
+        TopNavBar()
 
         Spacer(modifier = Modifier.height(250.dp))
         // Search Bar

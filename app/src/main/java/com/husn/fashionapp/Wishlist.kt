@@ -79,7 +79,7 @@ fun WishlistScreen(products: List<Product>){
         modifier = Modifier.fillMaxSize()//.padding(top = 8.dp)
     ) {
         item {
-            HusnLogo()
+            TopNavBar()
         }
         if(AuthManager.isUserSignedIn) {
             itemsIndexed(products.chunked(2)) { index, productPair ->

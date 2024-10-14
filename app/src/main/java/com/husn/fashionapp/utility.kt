@@ -50,6 +50,10 @@ import okhttp3.Response
 import okio.IOException
 import androidx.compose.runtime.staticCompositionLocalOf
 import android.content.SharedPreferences
+import android.widget.ImageView
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 
 @Composable
@@ -69,7 +73,7 @@ val LocalSignInHelper = staticCompositionLocalOf<SignInHelper?> { null }
 
 
 @Composable
-fun HusnLogo(modifier: Modifier = Modifier){
+fun TopNavBar(modifier: Modifier = Modifier){
     SetStatusBarColor()
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -205,6 +209,37 @@ fun SearchBar(
     }
 }
 
+@Composable
+fun BottomBar(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier.padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+//        Text(text = "Home", fontSize = 20.sp)
+        SvgIcon(svgResource = R.drawable.home_icon)
+        Text(text = "Inspiration", fontSize = 20.sp)
+        Text(text = "Wishlist", fontSize = 20.sp)
+    }
+}
+
+@Composable
+fun SvgIcon(svgResource: Int, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val drawable = remember {
+        ContextCompat.getDrawable(context, svgResource) // Load SVG from resources
+    }
+
+    AndroidView(
+        factory = { ctx ->
+            ImageView(ctx).apply {
+                setImageDrawable(drawable)
+
+            }
+        },
+        modifier = modifier.size(24.dp) // Adjust size as needed
+    )
+}
 //object SessionManager {
 //    private const val KEY_SESSION_COOKIE = "session_cookie"
 //    private lateinit var sharedPreferences: SharedPreferences

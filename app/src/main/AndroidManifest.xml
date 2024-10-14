@@ -29,6 +29,9 @@
         <activity android:name="com.husn.fashionapp.SearchResultsActivity" />
         <activity android:name="com.husn.fashionapp.ProductDetailsActivity" />
         <activity android:name="com.husn.fashionapp.WishlistActivity" />
+        <meta-data
+        android:name="com.google.firebase.analytics.FirebaseAnalytics"
+        android:value="true" />
     </application>
 
 </manifest>
