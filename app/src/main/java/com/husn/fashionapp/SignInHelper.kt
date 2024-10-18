@@ -167,20 +167,3 @@ fun clearSessionCookie(context: Context) {
     editor.remove("session_cookie") // Remove the cookie specifically
     editor.apply()
 }
-
-//object SessionManager {
-//    private const val KEY_SESSION_COOKIE = "session_cookie"
-//    private lateinit var sharedPreferences: SharedPreferences
-//
-//    fun initialize(context: Context) { // Call this once in your Application class
-//        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-//    }
-//
-//    fun saveSessionCookie(cookie: String?) {
-//        sharedPreferences.edit().putString(KEY_SESSION_COOKIE, cookie).apply()
-//    }
-//
-//    fun getSessionCookie(): String? {
-//        return sharedPreferences.getString(KEY_SESSION_COOKIE, null)
-//    }
-//}

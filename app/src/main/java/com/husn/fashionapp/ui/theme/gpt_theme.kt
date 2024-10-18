@@ -17,9 +17,10 @@ private val LightColorScheme = lightColorScheme(
     onPrimary = Color.White,
     secondary = Color(0xFFBDB76B),
     onSecondary = Color.White,
-    background = Beige,
+    background = Color.Transparent,
     onBackground = TextColor,
-    surface = Beige,
+//    surface = Beige,
+    surface = Color.Transparent,
     onSurface = TextColor
 )
 
@@ -28,9 +29,11 @@ private val DarkColorScheme = darkColorScheme(
     onPrimary = Color.Black,
     secondary = Color(0xFFBDB76B),
     onSecondary = Color.Black,
-    background = Color(0xFF2B2B2B),
+    background = Color.Transparent,
+//    background = Color(0xFF2B2B2B),
     onBackground = Color.White,
-    surface = Color(0xFF2B2B2B),
+//    surface = Color(0xFF2B2B2B),
+    surface = Color.Transparent,
     onSurface = Color.White
 )
 

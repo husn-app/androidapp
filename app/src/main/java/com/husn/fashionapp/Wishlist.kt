@@ -16,10 +16,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.fashionapp.R
@@ -47,56 +49,7 @@ class WishlistActivity : ComponentActivity() {
 
             }
         }
-
         signInHelper = SignInHelper(this, signInLauncher, this)
-
-        // Retrieve the search query and response data from the intent
-//        val query = intent.getStringExtra("query") ?: ""
-//        val baseUrl = this.getString(R.string.husn_base_url)
-//        val url = "$baseUrl/wishlist_android"
-//        val request = get_url_request(this, url)
-////        val context: Context = this
-////        var responseDataString: String = ""
-//
-//        client.newCall(request).enqueue(object : Callback {
-//            override fun onFailure(call: Call, e: IOException) {
-//                e.printStackTrace()
-//            }
-//
-//            override fun onResponse(call: Call, response: Response) {
-//                if (response.isSuccessful) {
-//                    val session = response.header("Set-Cookie")
-//                    saveSessionCookie(session, context)
-//
-//                    val responseData = response.body?.string()
-//                    responseData?.let {
-//                        responseDataString = responseData
-//                        // Start a new activity with the search result data
-////                        val intent = Intent(context, WishlistActivity::class.java)
-////                        intent.putExtra("responseData", it)
-////                        context.startActivity(intent)
-//                    }
-//                } else {
-//                    println("wishlist_response failed with status: ${response.code}\n${response.body}")
-//                }
-//            }
-//        })
-//
-//        // Parse the response data
-//        val responseData = try {
-//            JSONObject(sanitizeJson(responseDataString))
-//        } catch (e: Exception) {
-//
-//            //println("Error parsing response data: ${e.message}")
-//            onBackPressedDispatcher.onBackPressed()
-//            null
-//
-//        }
-//        val productsJsonArray = responseData?.getJSONArray("products") ?: JSONArray()
-//        val products = mutableListOf<Product>()
-//        for (i in 0 until productsJsonArray.length()) {
-//            products.add(Product(productsJsonArray.getJSONObject(i)))
-//        }
 
         setContent {
             AppTheme {
@@ -117,9 +70,9 @@ class WishlistActivity : ComponentActivity() {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
                 // Handle error appropriately
-                runOnUiThread {
-                    // Optionally, display an error message or take appropriate action
-                }
+//                runOnUiThread {
+//                    // Optionally, display an error message or take appropriate action
+//                }
             }
 
             override fun onResponse(call: Call, response: Response) {
@@ -148,9 +101,9 @@ class WishlistActivity : ComponentActivity() {
                 } else {
                     println("Wishlist response failed with status: ${response.code}")
                     // Handle error appropriately
-                    runOnUiThread {
-                        // Optionally, display an error message or take appropriate action
-                    }
+//                    runOnUiThread {
+//                        // Optionally, display an error message or take appropriate action
+//                    }
                 }
             }
         })
@@ -164,51 +117,56 @@ class WishlistActivity : ComponentActivity() {
 @Composable
 fun WishlistScreen(products: List<Product>){
     val context = LocalContext.current
-    if(AuthManager.isUserSignedIn) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()//.padding(top = 8.dp)
-        ) {
-            item {
-                TopNavBar()
-            }
-            itemsIndexed(products.chunked(2)) { index, productPair ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    // Display the first product in the row
-                    ProductItemBriefView(/**/
-                        product = productPair[0],
+    Scaffold(
+//        scaffoldState = scaffoldState,
+        backgroundColor = Color.Transparent,
+        bottomBar = { BottomBar(context = context) } // BottomBar placed correctly
+    ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
+        if (AuthManager.isUserSignedIn) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(innerPadding)
+            ) {
+                item {
+                    TopNavBar()
+                }
+                itemsIndexed(products.chunked(2)) { index, productPair ->
+                    Row(
                         modifier = Modifier
-                            .weight(1f) // Ensure the first product takes up half the space
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        // Display the first product in the row
+                        ProductItemBriefView(/**/
+                            product = productPair[0],
+                            modifier = Modifier
+                                .weight(1f) // Ensure the first product takes up half the space
 //                        .padding(end = 8.dp) // Add spacing between the two products
 //                            .padding(start = 8.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    // Display the second product in the row if available
-                    if (productPair.size > 1) {
-                        ProductItemBriefView(
-                            product = productPair[1],
-                            modifier = Modifier
-                                .weight(1f) // Ensure the second product takes up half the space
-//                            .padding(end = 8.dp) // Add spacing between the two products
                         )
-                    } else {
-                        // Add an empty Box to take up the second half of the row
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        // Display the second product in the row if available
+                        if (productPair.size > 1) {
+                            ProductItemBriefView(
+                                product = productPair[1],
+                                modifier = Modifier
+                                    .weight(1f) // Ensure the second product takes up half the space
 //                            .padding(end = 8.dp) // Add spacing between the two products
-                        )
+                            )
+                        } else {
+                            // Add an empty Box to take up the second half of the row
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+//                            .padding(end = 8.dp) // Add spacing between the two products
+                            )
+                        }
                     }
                 }
             }
+        } else {
+            val intent = Intent(context, MainActivity::class.java)
+            context.startActivity(intent)
         }
-    }
-    else{
-        val intent = Intent(context, MainActivity::class.java)
-        context.startActivity(intent)
     }
 }

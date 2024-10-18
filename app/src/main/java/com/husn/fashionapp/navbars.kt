@@ -45,11 +45,19 @@ import okio.IOException
 import androidx.compose.runtime.staticCompositionLocalOf
 import android.widget.ImageView
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import okhttp3.RequestBody
 
@@ -105,21 +113,21 @@ fun TopNavBar(modifier: Modifier = Modifier){
             }
         })
 
-        Button(onClick = {
-            if (!isUserSignedIn) {
-                signInHelper?.signIn(onSignInSuccess = {
-                    // Open WishlistActivity upon successful sign-in
-                    val intent = Intent(context, WishlistActivity::class.java)
-                    context.startActivity(intent)
-                })
-            } else {
-                // If already signed in, directly open WishlistActivity
-                val intent = Intent(context, WishlistActivity::class.java)
-                context.startActivity(intent)
-            }
-        }) {
-            Text("Wishlist")
-        }
+//        Button(onClick = {
+//            if (!isUserSignedIn) {
+//                signInHelper?.signIn(onSignInSuccess = {
+//                    // Open WishlistActivity upon successful sign-in
+//                    val intent = Intent(context, WishlistActivity::class.java)
+//                    context.startActivity(intent)
+//                })
+//            } else {
+//                // If already signed in, directly open WishlistActivity
+//                val intent = Intent(context, WishlistActivity::class.java)
+//                context.startActivity(intent)
+//            }
+//        }) {
+//            Text("Wishlist")
+//        }
 
 //        if (showWishlist) {
 //            // Launch the WishlistActivity once the data is ready
@@ -128,42 +136,6 @@ fun TopNavBar(modifier: Modifier = Modifier){
 //                context.startActivity(intent)
 //                showWishlist = false // Reset the flag
 //            }
-//        }
-
-//        if(isUserSignedIn) {
-//        Text(text = "wishlist", fontSize = 20.sp, modifier = Modifier.padding(16.dp).clickable {
-//            if (!isUserSignedIn) {
-//                signInHelper?.signIn()
-//            }
-//            val intent = Intent(context, WishlistActivity::class.java)
-//            context.startActivity(intent)
-//        })
-//            val baseUrl = context.getString(R.string.husn_base_url)
-//            val url = "$baseUrl/wishlist_android"
-//            val request = get_url_request(context, url)
-//            client.newCall(request).enqueue(object : Callback {
-//                override fun onFailure(call: Call, e: IOException) {
-//                    e.printStackTrace()
-//                }
-//
-//                override fun onResponse(call: Call, response: Response) {
-//                    if (response.isSuccessful) {
-//                        val session = response.header("Set-Cookie")
-//                        saveSessionCookie(session, context)
-//
-//                        val responseData = response.body?.string()
-//                        responseData?.let {
-//                            // Start a new activity with the search result data
-//                            val intent = Intent(context, WishlistActivity::class.java)
-//                            intent.putExtra("responseData", it)
-//                            context.startActivity(intent)
-//                        }
-//                    } else {
-//                        println("wishlist_response failed with status: ${response.code}\n${response.body}")
-//                    }
-//                }
-//            })
-//        })
 //        }
     }
 }
@@ -225,33 +197,82 @@ fun SearchBar(
 }
 
 @Composable
-fun BottomBar(modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier.padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-//        Text(text = "Home", fontSize = 20.sp)
-//        SvgIcon(svgResource = R.drawable.home_icon)
-        Text(text = "Inspiration", fontSize = 20.sp)
-        Text(text = "Wishlist", fontSize = 20.sp)
+fun OpenWishlistActivity(context: Context) {
+    val isUserSignedIn = AuthManager.isUserSignedIn
+    val signInHelper = LocalSignInHelper.current
+    if (!isUserSignedIn) {
+        signInHelper?.signIn(onSignInSuccess = {
+            // Open WishlistActivity upon successful sign-in
+            val intent = Intent(context, WishlistActivity::class.java)
+            context.startActivity(intent)
+        })
+    } else {
+        // If already signed in, directly open WishlistActivity
+        val intent = Intent(context, WishlistActivity::class.java)
+        context.startActivity(intent)
     }
+//    val intent = Intent(context, WishlistActivity::class.java) // Replace with your WishlistActivity
+//    context.startActivity(intent)
 }
 
+
+//@Composable
+//fun BottomBar(modifier: Modifier = Modifier) {
+//    Row(
+//        modifier = modifier.padding(8.dp),
+//        horizontalArrangement = Arrangement.SpaceBetween,
+//        verticalAlignment = Alignment.CenterVertically
+//    ) {
+////        Text(text = "Home", fontSize = 20.sp)
+////        SvgIcon(svgResource = R.drawable.home_icon)
+//        Text(text = "Inspiration", fontSize = 20.sp)
+//        Text(text = "Wishlist", fontSize = 20.sp)
+//    }
+//}
+
 @Composable
-fun SvgIcon(svgResource: Int, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val drawable = remember {
-        ContextCompat.getDrawable(context, svgResource) // Load SVG from resources
+fun BottomBar(navController: NavController? = null, context: Context) {
+    val isUserSignedIn = AuthManager.isUserSignedIn
+    val signInHelper = LocalSignInHelper.current
+    // Use a BottomNavigation composable for proper styling and behavior
+    BottomNavigation(
+        modifier = Modifier.fillMaxWidth(),
+        backgroundColor = Color.Transparent, // Or your desired background color
+        elevation = 0.dp
+    ) {
+
+        BottomNavigationItem(
+            icon = { Icon(imageVector = Icons.Default.Home, contentDescription = "Home") },
+            selected = false, // Handle selection state if needed with navigation
+            onClick = { /*openHomeActivity(context)*/ },
+            selectedContentColor = Color.Black, // Customize selected icon color
+            unselectedContentColor = Color.Gray // Customize unselected icon color
+        )
+        BottomNavigationItem(
+            icon = { Icon(imageVector = Icons.Default.Search, contentDescription = "Inspiration") },
+            selected = false,
+            onClick = { /* openInspirationActivity(context) */},
+            selectedContentColor = Color.Black,
+            unselectedContentColor = Color.Gray
+        )
+        BottomNavigationItem(
+            icon = { Icon(imageVector = Icons.Default.Favorite, contentDescription = "Wishlist") },
+            selected = false,
+            onClick = {
+                if (!isUserSignedIn) {
+                    signInHelper?.signIn(onSignInSuccess = {
+                        // Open WishlistActivity upon successful sign-in
+                        val intent = Intent(context, WishlistActivity::class.java)
+                        context.startActivity(intent)
+                    })
+                } else {
+                    // If already signed in, directly open WishlistActivity
+                    val intent = Intent(context, WishlistActivity::class.java)
+                    context.startActivity(intent)
+                }
+            },
+            selectedContentColor = Color.Black,
+            unselectedContentColor = Color.Gray
+        )
     }
-
-    AndroidView(
-        factory = { ctx ->
-            ImageView(ctx).apply {
-                setImageDrawable(drawable)
-
-            }
-        },
-        modifier = modifier.size(24.dp) // Adjust size as needed
-    )
 }

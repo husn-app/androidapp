@@ -1,4 +1,5 @@
 package com.husn.fashionapp
+import FavoriteButton
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -23,11 +24,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,6 +48,7 @@ import coil.decode.SvgDecoder
 import coil.request.ImageRequest
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.husn.fashionapp.ui.theme.AppTheme
+import okhttp3.OkHttpClient
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -54,7 +60,7 @@ class ProductDetailsActivity : ComponentActivity() {
 
         // Retrieve the product data from the intent
         val productDataString = intent.getStringExtra("productData") ?: ""
-
+        var is_wishlisted: Boolean = false
         // Parse the response data
         var currentProductJson: JSONObject = JSONObject()
         var productsJsonArray: JSONArray = JSONArray()
@@ -62,6 +68,7 @@ class ProductDetailsActivity : ComponentActivity() {
             var responseData = JSONObject(productDataString)
             currentProductJson = responseData.getJSONObject("current_product")
             productsJsonArray = responseData.getJSONArray("products")
+            is_wishlisted = responseData.getBoolean("is_wishlisted")
         } catch (e: Exception) {
             // Log the exception if needed
             onBackPressedDispatcher.onBackPressed()
@@ -93,7 +100,7 @@ class ProductDetailsActivity : ComponentActivity() {
                         products = products,
                         currentProduct = currentProduct,
                         MainProductView = { product ->  // Passing the MainProductView as a lambda
-                            MainProductView(product = product)  // Call your MainProductView composable here
+                            MainProductView(product = product, is_wishlisted = is_wishlisted)  // Call your MainProductView composable here
                         })
                 }
             }
@@ -109,7 +116,10 @@ fun PreviewProductDetailsScreen() {
 }
 
 @Composable
-fun MainProductView(product: Product, modifier: Modifier = Modifier) {
+fun MainProductView(product: Product, modifier: Modifier = Modifier, is_wishlisted: Boolean = false) {
+    val context = LocalContext.current
+//    var isFavorite by remember { mutableStateOf(false) }
+
     Column(
         modifier = modifier
             .padding(8.dp),
@@ -124,58 +134,81 @@ fun MainProductView(product: Product, modifier: Modifier = Modifier) {
                 .clip(RoundedCornerShape(16.dp))
         )
         Spacer(modifier = Modifier.height(4.dp))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(1f)
-                .padding(horizontal = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        )
-            // verticalAlignment = Alignment.CenterVertically
-        {
-            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.Start) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-//                    horizontalArrangement = Arrangement.Start
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (product.rating > 0) {
-                        Text(text = "%.2f".format(product.rating), color = Color.Black, fontSize = 8.sp)
-                        Spacer(modifier = Modifier.width(2.dp))
-                        Icon(
-                            imageVector = Icons.Filled.Star,
-                            contentDescription = "Rating",
-                            tint = Color(0xFFDEB887),  //Burlywood
-                            modifier = Modifier.width(14.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                    }
-                    Text(text = "Rs ${product.price}", color = Color.Black, fontSize = 8.sp)
-                }
-                Text(text = product.brand, color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)
-                Text(text = product.productName.replace(product.brand, ""), color = MaterialTheme.colorScheme.primary, fontSize = 8.sp)
-            }
-            // Right-aligned clickable SVG icon that redirects to myntra.com/${product.productUrl}
-            val context = LocalContext.current
-            val firebaseAnalytics = remember { FirebaseAnalytics.getInstance(context) }
-            DisplaySvgIconFromAssets(
-                fileName = "myntra-logo.svg",
-                modifier = Modifier
-                    .size(40.dp)
-                    .clickable {
-                        val bundle = Bundle().apply {
-                            putString(FirebaseAnalytics.Param.ITEM_ID, product.index.toString())
-                            putString(FirebaseAnalytics.Param.ITEM_NAME, product.productName)
-                            putString(FirebaseAnalytics.Param.CONTENT_TYPE, "logo")
-                        }
-                        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, bundle)
-
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(product.productUrl))
-                        context.startActivity(intent)
-                    }
-            )
-            // DisplaySvgIconFromAssets(fileName = "myntra-logo.svg", modifier = Modifier.weight(0.2f).aspectRatio(1.0f))
+        Row(modifier = Modifier.fillMaxWidth(1f).padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween) {
+            FavoriteButton(initialIsWishlisted = is_wishlisted, productId = product.index)
         }
+//            IconToggleButton(
+//                checked = isFavorite,
+//                onCheckedChange = {
+//                    isFavorite = it
+//                    coroutineScope.launch {
+//                        val success = sendFavoriteRequest(product.id, isFavorite) // Replace with your actual function
+//                        if (!success) {
+//                            // Handle error, potentially revert UI state
+//                            isFavorite = !isFavorite
+//                            Toast.makeText(context, "Failed to update favorite status", Toast.LENGTH_SHORT).show()
+//                        }
+//                    }
+//                }
+//            ) {
+//                Icon(
+//                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+//                    contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
+//                    tint = if (isFavorite) MaterialTheme.colors.primary else MaterialTheme.colors.onSurface.copy(alpha = 0.6f) // Or any other color
+//                )
+//            }
+//        Row(
+//            modifier = Modifier
+//                .fillMaxWidth(1f)
+//                .padding(horizontal = 8.dp),
+//            horizontalArrangement = Arrangement.SpaceBetween,
+//            verticalAlignment = Alignment.CenterVertically
+//        )
+//            // verticalAlignment = Alignment.CenterVertically
+//        {
+//            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.Start) {
+//                Row(
+//                    modifier = Modifier.fillMaxWidth(),
+////                    horizontalArrangement = Arrangement.Start
+//                    verticalAlignment = Alignment.CenterVertically
+//                ) {
+//                    if (product.rating > 0) {
+//                        Text(text = "%.2f".format(product.rating), color = Color.Black, fontSize = 8.sp)
+//                        Spacer(modifier = Modifier.width(2.dp))
+//                        Icon(
+//                            imageVector = Icons.Filled.Star,
+//                            contentDescription = "Rating",
+//                            tint = Color(0xFFDEB887),  //Burlywood
+//                            modifier = Modifier.width(14.dp)
+//                        )
+//                        Spacer(modifier = Modifier.width(12.dp))
+//                    }
+//                    Text(text = "Rs ${product.price}", color = Color.Black, fontSize = 8.sp)
+//                }
+//                Text(text = product.brand, color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)
+//                Text(text = product.productName.replace(product.brand, ""), color = MaterialTheme.colorScheme.primary, fontSize = 8.sp)
+//            }
+//
+//            val context = LocalContext.current
+//            val firebaseAnalytics = remember { FirebaseAnalytics.getInstance(context) }
+//            DisplaySvgIconFromAssets(
+//                fileName = "myntra-logo.svg",
+//                modifier = Modifier
+//                    .size(40.dp)
+//                    .clickable {
+//                        val bundle = Bundle().apply {
+//                            putString(FirebaseAnalytics.Param.ITEM_ID, product.index.toString())
+//                            putString(FirebaseAnalytics.Param.ITEM_NAME, product.productName)
+//                            putString(FirebaseAnalytics.Param.CONTENT_TYPE, "logo")
+//                        }
+//                        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, bundle)
+//
+//                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(product.productUrl))
+//                        context.startActivity(intent)
+//                    }
+//            )
+//        }
     }
 }
 

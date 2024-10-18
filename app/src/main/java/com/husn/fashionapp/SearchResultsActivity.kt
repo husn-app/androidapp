@@ -1,6 +1,7 @@
 package com.husn.fashionapp
 
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -22,6 +23,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Scaffold
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -102,11 +106,20 @@ class SearchResultsActivity : ComponentActivity() {
 fun PreviewSearchResultsScreen() {
     SearchResultsScreen(query = "Sample Query", products = getDummyProductsList())
 }
+
 @Composable
 fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: Product? = null, MainProductView: @Composable ((product: Product) -> Unit)? = null, searchBarFraction: Float = 0.96f) {
-    Box(modifier = Modifier.fillMaxSize()) {
+//    val scaffoldState = rememberScaffoldState() // If you're using a Scaffold
+    val context: Context = LocalContext.current
+    Scaffold(
+//        scaffoldState = scaffoldState,
+        backgroundColor = Color.Transparent,
+        bottomBar = { BottomBar(context = context) } // BottomBar placed correctly
+    ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
+
+//        Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(top = 8.dp, bottom = 50.dp)
+            modifier = Modifier.fillMaxSize().padding(innerPadding)
         ) {
             item {
                 TopNavBar()
@@ -134,9 +147,7 @@ fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: 
                     ProductItemBriefView(/**/
                         product = productPair[0],
                         modifier = Modifier
-                            .weight(1f) // Ensure the first product takes up half the space
-//                        .padding(end = 8.dp) // Add spacing between the two products
-//                            .padding(start = 8.dp)
+                            .weight(1f)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     // Display the second product in the row if available
@@ -158,15 +169,7 @@ fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: 
                 }
             }
         }
-
-        BottomBar(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .height(50.dp)
-//                .padding(16.dp) // Optional padding
-        )
-    }
+        }
 }
 
 @Composable

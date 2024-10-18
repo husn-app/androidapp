@@ -14,11 +14,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Scaffold
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -107,50 +111,40 @@ fun PreviewStyleSenseApp() {
 
 @Composable
 fun StyleSenseApp(context: Context) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-//            .padding(top = 0.dp)
-    ) {
-        TopNavBar()
+//    val scaffoldState = rememberScaffoldState() // If you're using a Scaffold
+    Scaffold(
+//        scaffoldState = scaffoldState,
+        backgroundColor = Color.Transparent,
+        bottomBar = { BottomBar(context = context) } // BottomBar placed correctly
+    ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
 
-        Spacer(modifier = Modifier.height(250.dp))
-        // Search Bar
-
-        SearchBar(context = context)  // Call SearchBar here
-
-        Spacer(modifier = Modifier.height(16.dp))
         Column(
             modifier = Modifier
-                .fillMaxWidth(),
-//                    .padding(top = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize()
+                .padding(innerPadding) // Apply padding here
         ) {
-            val linkTexts = listOf(
-                "Christmas dinner dress",
-                "Red Corset",
-                "Parachute jeans with Pleats",
-                "Jumpsuit for diwali",
-            )
-            val searchQueries = listOf(
-                "Christmas dinner dress",
-                "Sexy Red Corset",
-                "Parachute jeans with Pleats",
-                "Jumpsuit for diwali",
+            TopNavBar()
+
+            Spacer(modifier = Modifier.height(250.dp))
+
+            SearchBar(context = context)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Search for your favourite outfits or checkout the Inspirations tab!",
+                modifier = Modifier.padding(start = 28.dp, top = 8.dp),
+                fontSize = 16.sp
             )
 
-            linkTexts.forEachIndexed { index, linkText ->
-                Text(
-                    text = linkText,
-                    modifier = Modifier
-                        .clickable { sendSearchQuery(context, searchQueries[index]) }
-//                .padding(8.dp),
-                    , fontSize = 16.sp
-                )
-            }
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "Check back here in some time to see your personalized feed.",
+                modifier = Modifier.padding(start = 28.dp, top = 8.dp),
+                fontSize = 16.sp
+            )
+
         }
-
-//        BottomBar()
     }
 }
