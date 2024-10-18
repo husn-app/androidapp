@@ -2,19 +2,13 @@ package com.husn.fashionapp
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import android.webkit.WebView
-import android.webkit.WebViewClient
-import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -49,12 +43,15 @@ import okhttp3.Request
 import okhttp3.Response
 import okio.IOException
 import androidx.compose.runtime.staticCompositionLocalOf
-import android.content.SharedPreferences
 import android.widget.ImageView
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.preference.PreferenceManager
+import kotlinx.coroutines.launch
+import okhttp3.RequestBody
 
 @Composable
 fun SetStatusBarColor() {
@@ -75,13 +72,13 @@ val LocalSignInHelper = staticCompositionLocalOf<SignInHelper?> { null }
 @Composable
 fun TopNavBar(modifier: Modifier = Modifier){
     SetStatusBarColor()
+    val context = LocalContext.current
+    val isUserSignedIn = AuthManager.isUserSignedIn
+    val signInHelper = LocalSignInHelper.current
     Row(
         modifier = Modifier.fillMaxWidth(),
-//        modifier = Modifier.padding(8.dp) // Adds padding around the Row
         horizontalArrangement = Arrangement.SpaceBetween,
-//        verticalAlignment = Alignment.CenterVertically
     ) {
-        val context = LocalContext.current
         Text(
             text = "Husn",
             fontSize = 24.sp, // Set a large font size
@@ -96,60 +93,78 @@ fun TopNavBar(modifier: Modifier = Modifier){
                 },
             textAlign = TextAlign.Center
         )
-//        Spacer(modifier = Modifier.width(12.dp))
-        // Observe the sign-in state
-        val isUserSignedIn = AuthManager.isUserSignedIn
 
         val signInText = if (isUserSignedIn) "Sign out" else "Sign in"
-        val signInHelper = LocalSignInHelper.current
         println("husn_logo:$isUserSignedIn\n $signInText \n $signInHelper")
 
         Text(text=signInText, fontSize = 20.sp, modifier = Modifier.padding(16.dp).clickable {
             if (isUserSignedIn) {
-                AuthManager.signOut()
-                signInHelper?.signOut()
+                signInHelper?.signOut(context)
             } else {
                 signInHelper?.signIn()
             }
         })
 
-        if(isUserSignedIn) {
-            Text(text = "wishlist", fontSize = 20.sp, modifier = Modifier.padding(16.dp).clickable {
-                val baseUrl = context.getString(R.string.husn_base_url)
-                val url = "$baseUrl/wishlist_android"
-                var sessionCookie = getSessionCookieFromStorage(context) ?: ""
-                println("wishlist_session_cookie: $sessionCookie")
-
-                val request = Request.Builder()
-                    .url(url)
-                    .addHeader("Cookie", sessionCookie)
-                    .addHeader("platform", "android")
-                    .build()
-
-                client.newCall(request).enqueue(object : Callback {
-                    override fun onFailure(call: Call, e: IOException) {
-                        e.printStackTrace()
-                    }
-
-                    override fun onResponse(call: Call, response: Response) {
-                        if (response.isSuccessful) {
-                            val session = response.header("Set-Cookie")
-                            saveSessionCookie(session, context)
-
-                            val responseData = response.body?.string()
-                            responseData?.let {
-                                // Start a new activity with the search result data
-                                val intent = Intent(context, WishlistActivity::class.java)
-                                intent.putExtra("responseData", it)
-                                context.startActivity(intent)
-                            }
-                        } else {
-                            println("wishlist_response failed with status: ${response.code}\n${response.body}")
-                        }
-                    }
+        Button(onClick = {
+            if (!isUserSignedIn) {
+                signInHelper?.signIn(onSignInSuccess = {
+                    // Open WishlistActivity upon successful sign-in
+                    val intent = Intent(context, WishlistActivity::class.java)
+                    context.startActivity(intent)
                 })
-            })
+            } else {
+                // If already signed in, directly open WishlistActivity
+                val intent = Intent(context, WishlistActivity::class.java)
+                context.startActivity(intent)
+            }
+        }) {
+            Text("Wishlist")
         }
+
+//        if (showWishlist) {
+//            // Launch the WishlistActivity once the data is ready
+//            LaunchedEffect(Unit) {
+//                val intent = Intent(context, WishlistActivity::class.java)
+//                context.startActivity(intent)
+//                showWishlist = false // Reset the flag
+//            }
+//        }
+
+//        if(isUserSignedIn) {
+//        Text(text = "wishlist", fontSize = 20.sp, modifier = Modifier.padding(16.dp).clickable {
+//            if (!isUserSignedIn) {
+//                signInHelper?.signIn()
+//            }
+//            val intent = Intent(context, WishlistActivity::class.java)
+//            context.startActivity(intent)
+//        })
+//            val baseUrl = context.getString(R.string.husn_base_url)
+//            val url = "$baseUrl/wishlist_android"
+//            val request = get_url_request(context, url)
+//            client.newCall(request).enqueue(object : Callback {
+//                override fun onFailure(call: Call, e: IOException) {
+//                    e.printStackTrace()
+//                }
+//
+//                override fun onResponse(call: Call, response: Response) {
+//                    if (response.isSuccessful) {
+//                        val session = response.header("Set-Cookie")
+//                        saveSessionCookie(session, context)
+//
+//                        val responseData = response.body?.string()
+//                        responseData?.let {
+//                            // Start a new activity with the search result data
+//                            val intent = Intent(context, WishlistActivity::class.java)
+//                            intent.putExtra("responseData", it)
+//                            context.startActivity(intent)
+//                        }
+//                    } else {
+//                        println("wishlist_response failed with status: ${response.code}\n${response.body}")
+//                    }
+//                }
+//            })
+//        })
+//        }
     }
 }
 
@@ -217,7 +232,7 @@ fun BottomBar(modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically
     ) {
 //        Text(text = "Home", fontSize = 20.sp)
-        SvgIcon(svgResource = R.drawable.home_icon)
+//        SvgIcon(svgResource = R.drawable.home_icon)
         Text(text = "Inspiration", fontSize = 20.sp)
         Text(text = "Wishlist", fontSize = 20.sp)
     }
@@ -239,41 +254,4 @@ fun SvgIcon(svgResource: Int, modifier: Modifier = Modifier) {
         },
         modifier = modifier.size(24.dp) // Adjust size as needed
     )
-}
-//object SessionManager {
-//    private const val KEY_SESSION_COOKIE = "session_cookie"
-//    private lateinit var sharedPreferences: SharedPreferences
-//
-//    fun initialize(context: Context) { // Call this once in your Application class
-//        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-//    }
-//
-//    fun saveSessionCookie(cookie: String?) {
-//        sharedPreferences.edit().putString(KEY_SESSION_COOKIE, cookie).apply()
-//    }
-//
-//    fun getSessionCookie(): String? {
-//        return sharedPreferences.getString(KEY_SESSION_COOKIE, null)
-//    }
-//}
-
-fun saveSessionCookie(cookie: String?, context: Context) {
-    if(cookie == null)
-        return
-    val sharedPreferences = context.getSharedPreferences("SessionPref", Context.MODE_PRIVATE)
-    val editor = sharedPreferences.edit()
-    editor.putString("session_cookie", cookie)  // Save the session cookie with the key "session_cookie"
-    editor.apply()  // Apply changes asynchronously
-}
-
-fun getSessionCookieFromStorage(context: Context): String? {
-    val sharedPreferences = context.getSharedPreferences("SessionPref", Context.MODE_PRIVATE)
-    return sharedPreferences.getString("session_cookie", null)  // Return the session cookie or null if not found
-}
-
-fun clearSessionCookie(context: Context) {
-    val sharedPreferences = context.getSharedPreferences("SessionPref", Context.MODE_PRIVATE)
-    val editor = sharedPreferences.edit()
-    editor.remove("session_cookie") // Remove the cookie specifically
-    editor.apply()
 }

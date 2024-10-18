@@ -242,16 +242,7 @@ fun ProductItemBriefView(
 
                     val baseUrl = context.getString(R.string.husn_base_url)
                     val url = "$baseUrl/api/product/${product.index}"
-                    var sessionCookie = getSessionCookieFromStorage(context)
-                    if(sessionCookie == null){
-                        sessionCookie = ""
-                    }
-                    val request = Request.Builder()
-                        .url(url)
-                        .addHeader("Cookie", sessionCookie)
-                        .addHeader("platform", "android")
-                        .build()
-
+                    val request = get_url_request(context, url)
                     client.newCall(request).enqueue(object : Callback {
                         override fun onFailure(call: Call, e: IOException) {
                             e.printStackTrace()

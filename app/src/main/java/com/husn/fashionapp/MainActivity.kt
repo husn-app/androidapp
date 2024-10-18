@@ -68,15 +68,7 @@ val client = OkHttpClient()
 fun sendSearchQuery(context: Context, query: String) {
     val baseUrl = context.getString(R.string.husn_base_url)
     val url = "$baseUrl/api/query?query=${URLEncoder.encode(query, "UTF-8")}"
-    var sessionCookie = getSessionCookieFromStorage(context) ?: ""
-    // Build the POST request
-    val request = Request.Builder()
-        .url(url)
-        .addHeader("platform", "android")
-        .addHeader("Cookie", sessionCookie)
-        .get()
-        .build()
-
+    val request = get_url_request(context, url)
     // Execute the request asynchronously
     client.newCall(request).enqueue(object : Callback {
         override fun onFailure(call: Call, e: IOException) {
@@ -158,5 +150,7 @@ fun StyleSenseApp(context: Context) {
                 )
             }
         }
+
+//        BottomBar()
     }
 }

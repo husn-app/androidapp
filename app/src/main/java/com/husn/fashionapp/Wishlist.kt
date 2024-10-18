@@ -1,9 +1,11 @@
 package com.husn.fashionapp
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -15,58 +17,145 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.fashionapp.R
 import com.husn.fashionapp.ui.theme.AppTheme
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Response
+import okio.IOException
 import org.json.JSONArray
 import org.json.JSONObject
 
 class WishlistActivity : ComponentActivity() {
-//    private lateinit var signInHelper: SignInHelper
+    private lateinit var signInHelper: SignInHelper
+    private val client = OkHttpClient()
+    private val productsState = mutableStateOf<List<Product>>(emptyList())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-//        val signInLauncher = registerForActivityResult(
-//            ActivityResultContracts.StartActivityForResult()
-//        ) { result ->
-//            signInHelper.handleSignInResult(result.data)
-//        }
-//
-//        signInHelper = SignInHelper(this, signInLauncher, this)
+        val signInLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            signInHelper.handleSignInResult(result.data) {
 
+            }
+        }
+
+        signInHelper = SignInHelper(this, signInLauncher, this)
 
         // Retrieve the search query and response data from the intent
 //        val query = intent.getStringExtra("query") ?: ""
-        val responseDataString = intent.getStringExtra("responseData") ?: ""
-
-        // Parse the response data
-        val responseData = try {
-            JSONObject(sanitizeJson(responseDataString))
-        } catch (e: Exception) {
-
-            //println("Error parsing response data: ${e.message}")
-            onBackPressedDispatcher.onBackPressed()
-            null
-
-        }
-        val productsJsonArray = responseData?.getJSONArray("products") ?: JSONArray()
-        val products = mutableListOf<Product>()
-        for (i in 0 until productsJsonArray.length()) {
-            products.add(Product(productsJsonArray.getJSONObject(i)))
-        }
+//        val baseUrl = this.getString(R.string.husn_base_url)
+//        val url = "$baseUrl/wishlist_android"
+//        val request = get_url_request(this, url)
+////        val context: Context = this
+////        var responseDataString: String = ""
+//
+//        client.newCall(request).enqueue(object : Callback {
+//            override fun onFailure(call: Call, e: IOException) {
+//                e.printStackTrace()
+//            }
+//
+//            override fun onResponse(call: Call, response: Response) {
+//                if (response.isSuccessful) {
+//                    val session = response.header("Set-Cookie")
+//                    saveSessionCookie(session, context)
+//
+//                    val responseData = response.body?.string()
+//                    responseData?.let {
+//                        responseDataString = responseData
+//                        // Start a new activity with the search result data
+////                        val intent = Intent(context, WishlistActivity::class.java)
+////                        intent.putExtra("responseData", it)
+////                        context.startActivity(intent)
+//                    }
+//                } else {
+//                    println("wishlist_response failed with status: ${response.code}\n${response.body}")
+//                }
+//            }
+//        })
+//
+//        // Parse the response data
+//        val responseData = try {
+//            JSONObject(sanitizeJson(responseDataString))
+//        } catch (e: Exception) {
+//
+//            //println("Error parsing response data: ${e.message}")
+//            onBackPressedDispatcher.onBackPressed()
+//            null
+//
+//        }
+//        val productsJsonArray = responseData?.getJSONArray("products") ?: JSONArray()
+//        val products = mutableListOf<Product>()
+//        for (i in 0 until productsJsonArray.length()) {
+//            products.add(Product(productsJsonArray.getJSONObject(i)))
+//        }
 
         setContent {
             AppTheme {
-//                CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                WishlistScreen(products = products)
-//                }
+                CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
+                    WishlistScreen(products = productsState.value)
+                }
             }
         }
+        fetchWishlistData()
     }
 
-    // Helper function to sanitize the input JSON string
+    private fun fetchWishlistData() {
+        val baseUrl = getString(R.string.husn_base_url)
+        val url = "$baseUrl/wishlist_android"
+        val request = get_url_request(this, url)
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+                // Handle error appropriately
+                runOnUiThread {
+                    // Optionally, display an error message or take appropriate action
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    val session = response.header("Set-Cookie")
+                    saveSessionCookie(session, this@WishlistActivity)
+
+                    val responseDataString = response.body?.string()
+                    responseDataString?.let {
+                        val responseData = try {
+                            JSONObject(sanitizeJson(it))
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            null
+                        }
+                        val productsJsonArray = responseData?.getJSONArray("products") ?: JSONArray()
+                        val productsList = mutableListOf<Product>()
+                        for (i in 0 until productsJsonArray.length()) {
+                            productsList.add(Product(productsJsonArray.getJSONObject(i)))
+                        }
+                        // Update the products state on the main thread
+                        runOnUiThread {
+                            productsState.value = productsList
+                        }
+                    }
+                } else {
+                    println("Wishlist response failed with status: ${response.code}")
+                    // Handle error appropriately
+                    runOnUiThread {
+                        // Optionally, display an error message or take appropriate action
+                    }
+                }
+            }
+        })
+    }
+
     private fun sanitizeJson(jsonString: String): String {
         return jsonString.replace("NaN", "0")
     }
@@ -75,13 +164,13 @@ class WishlistActivity : ComponentActivity() {
 @Composable
 fun WishlistScreen(products: List<Product>){
     val context = LocalContext.current
-    LazyColumn(
-        modifier = Modifier.fillMaxSize()//.padding(top = 8.dp)
-    ) {
-        item {
-            TopNavBar()
-        }
-        if(AuthManager.isUserSignedIn) {
+    if(AuthManager.isUserSignedIn) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()//.padding(top = 8.dp)
+        ) {
+            item {
+                TopNavBar()
+            }
             itemsIndexed(products.chunked(2)) { index, productPair ->
                 Row(
                     modifier = Modifier
@@ -117,9 +206,9 @@ fun WishlistScreen(products: List<Product>){
                 }
             }
         }
-        else{
-            val intent = Intent(context, MainActivity::class.java)
-            context.startActivity(intent)
-        }
+    }
+    else{
+        val intent = Intent(context, MainActivity::class.java)
+        context.startActivity(intent)
     }
 }
