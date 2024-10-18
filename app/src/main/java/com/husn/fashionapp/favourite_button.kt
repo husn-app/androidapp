@@ -1,17 +1,24 @@
 import android.content.Context
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconToggleButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import com.example.fashionapp.R
 import com.husn.fashionapp.AuthManager
 import com.husn.fashionapp.LocalSignInHelper
@@ -71,7 +78,7 @@ fun FavoriteButton(
             Icon(
                 imageVector = Icons.Outlined.FavoriteBorder,
                 contentDescription = "Add to Wishlist",
-                tint = Color.Gray
+                tint = Color.Black
             )
         }
     }
