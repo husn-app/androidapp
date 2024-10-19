@@ -25,12 +25,10 @@ import com.google.firebase.auth.FirebaseAuth
 
 object AuthManager {
     val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
-
     // Observable sign-in state
     var isUserSignedIn by mutableStateOf(firebaseAuth.currentUser != null)
-//        private set
+        private set
 
-    // Initialize the AuthStateListener
     init {
         firebaseAuth.addAuthStateListener { auth ->
             isUserSignedIn = auth.currentUser != null
@@ -136,7 +134,7 @@ class SignInHelper(
         AuthManager.signOut()
         clearSessionCookie(context)
 
-        val intent = Intent(context, MainActivity::class.java)
+        val intent = Intent(context, InspirationsActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         context.startActivity(intent)
 

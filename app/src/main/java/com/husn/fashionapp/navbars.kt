@@ -231,10 +231,9 @@ fun OpenWishlistActivity(context: Context) {
 //}
 
 @Composable
-fun BottomBar(navController: NavController? = null, context: Context) {
+fun BottomBar(context: Context) {
     val isUserSignedIn = AuthManager.isUserSignedIn
     val signInHelper = LocalSignInHelper.current
-    // Use a BottomNavigation composable for proper styling and behavior
     BottomNavigation(
         modifier = Modifier.fillMaxWidth(),
         backgroundColor = Color.Transparent, // Or your desired background color
@@ -244,14 +243,20 @@ fun BottomBar(navController: NavController? = null, context: Context) {
         BottomNavigationItem(
             icon = { Icon(imageVector = Icons.Default.Home, contentDescription = "Home") },
             selected = false, // Handle selection state if needed with navigation
-            onClick = { /*openHomeActivity(context)*/ },
+            onClick = {
+                val intent = Intent(context, FeedActivity::class.java)
+                context.startActivity(intent)
+            },
             selectedContentColor = Color.Black, // Customize selected icon color
             unselectedContentColor = Color.Gray // Customize unselected icon color
         )
         BottomNavigationItem(
             icon = { Icon(imageVector = Icons.Default.Search, contentDescription = "Inspiration") },
             selected = false,
-            onClick = { /* openInspirationActivity(context) */},
+            onClick = {
+                val intent = Intent(context, InspirationsActivity::class.java)
+                context.startActivity(intent)
+            },
             selectedContentColor = Color.Black,
             unselectedContentColor = Color.Gray
         )

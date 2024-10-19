@@ -36,8 +36,8 @@ import org.json.JSONObject
 
 class WishlistActivity : ComponentActivity() {
     private lateinit var signInHelper: SignInHelper
-    private val client = OkHttpClient()
     private val productsState = mutableStateOf<List<Product>>(emptyList())
+    private val fetch_utility = Fetchutilities(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,59 +58,11 @@ class WishlistActivity : ComponentActivity() {
                 }
             }
         }
-        fetchWishlistData()
-    }
-
-    private fun fetchWishlistData() {
-        val baseUrl = getString(R.string.husn_base_url)
-        val url = "$baseUrl/wishlist_android"
-        val request = get_url_request(this, url)
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace()
-                // Handle error appropriately
-//                runOnUiThread {
-//                    // Optionally, display an error message or take appropriate action
-//                }
+        fetch_utility.fetchWishlistData(relative_url = "wishlist_android") { products ->
+            runOnUiThread {
+                productsState.value = products ?: emptyList()
             }
-
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    val session = response.header("Set-Cookie")
-                    saveSessionCookie(session, this@WishlistActivity)
-
-                    val responseDataString = response.body?.string()
-                    responseDataString?.let {
-                        val responseData = try {
-                            JSONObject(sanitizeJson(it))
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            null
-                        }
-                        val productsJsonArray = responseData?.getJSONArray("products") ?: JSONArray()
-                        val productsList = mutableListOf<Product>()
-                        for (i in 0 until productsJsonArray.length()) {
-                            productsList.add(Product(productsJsonArray.getJSONObject(i)))
-                        }
-                        // Update the products state on the main thread
-                        runOnUiThread {
-                            productsState.value = productsList
-                        }
-                    }
-                } else {
-                    println("Wishlist response failed with status: ${response.code}")
-                    // Handle error appropriately
-//                    runOnUiThread {
-//                        // Optionally, display an error message or take appropriate action
-//                    }
-                }
-            }
-        })
-    }
-
-    private fun sanitizeJson(jsonString: String): String {
-        return jsonString.replace("NaN", "0")
+        }
     }
 }
 
@@ -118,7 +70,7 @@ class WishlistActivity : ComponentActivity() {
 fun WishlistScreen(products: List<Product>){
     val context = LocalContext.current
     Scaffold(
-//        scaffoldState = scaffoldState,
+        topBar = { TopNavBar() } ,
         backgroundColor = Color.Transparent,
         bottomBar = { BottomBar(context = context) } // BottomBar placed correctly
     ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
@@ -126,9 +78,6 @@ fun WishlistScreen(products: List<Product>){
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(innerPadding)
             ) {
-                item {
-                    TopNavBar()
-                }
                 itemsIndexed(products.chunked(2)) { index, productPair ->
                     Row(
                         modifier = Modifier

@@ -109,23 +109,16 @@ fun PreviewSearchResultsScreen() {
 
 @Composable
 fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: Product? = null, MainProductView: @Composable ((product: Product) -> Unit)? = null, searchBarFraction: Float = 0.96f) {
-//    val scaffoldState = rememberScaffoldState() // If you're using a Scaffold
     val context: Context = LocalContext.current
     Scaffold(
-//        scaffoldState = scaffoldState,
+        topBar = { TopNavBar() },
         backgroundColor = Color.Transparent,
         bottomBar = { BottomBar(context = context) } // BottomBar placed correctly
     ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
 
-//        Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(innerPadding)
         ) {
-            item {
-                TopNavBar()
-            }
-
-            // Display the search bar
             item {
                 SearchBar(query = query, searchBarFraction = searchBarFraction)
                 Spacer(modifier = Modifier.height(8.dp)) // Optional: add spacing after the search bar

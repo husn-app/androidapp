@@ -76,7 +76,6 @@ fun sendSearchQuery(context: Context, query: String) {
     // Execute the request asynchronously
     client.newCall(request).enqueue(object : Callback {
         override fun onFailure(call: Call, e: IOException) {
-            // Handle failure
             e.printStackTrace()
         }
 
@@ -111,9 +110,8 @@ fun PreviewStyleSenseApp() {
 
 @Composable
 fun StyleSenseApp(context: Context) {
-//    val scaffoldState = rememberScaffoldState() // If you're using a Scaffold
     Scaffold(
-//        scaffoldState = scaffoldState,
+        topBar = { TopNavBar() },
         backgroundColor = Color.Transparent,
         bottomBar = { BottomBar(context = context) } // BottomBar placed correctly
     ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
@@ -123,8 +121,6 @@ fun StyleSenseApp(context: Context) {
                 .fillMaxSize()
                 .padding(innerPadding) // Apply padding here
         ) {
-            TopNavBar()
-
             Spacer(modifier = Modifier.height(250.dp))
 
             SearchBar(context = context)

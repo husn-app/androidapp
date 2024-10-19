@@ -1,6 +1,7 @@
 package com.husn.fashionapp
 
 import org.json.JSONObject
+import java.util.Dictionary
 
 data class Product(
     val originalWebsite: String = "",
@@ -29,5 +30,17 @@ data class Product(
         gender = json.optString("gender", ""),
         price = json.optInt("price", 0),
         index = json.optInt("index", 0),
+    )
+}
+
+data class InspirationProduct(
+    val primary_image: String = "",
+    val inspiration_subcategory_name: String = "",
+    val inspiration_subcategory_query: String = "",
+) {
+    constructor(json: JSONObject) : this(
+        primary_image = json.optString("primary_image", ""),
+        inspiration_subcategory_name = json.optJSONObject("inspiration_subcategory")?.optString("name", "") ?: "",
+        inspiration_subcategory_query = json.optJSONObject("inspiration_subcategory")?.optString("query", "") ?: ""
     )
 }

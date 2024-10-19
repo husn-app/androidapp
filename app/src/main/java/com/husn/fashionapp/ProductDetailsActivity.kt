@@ -111,7 +111,7 @@ fun PreviewProductDetailsScreen() {
 }
 
 @Composable
-fun MainProductView(product: Product, modifier: Modifier = Modifier, is_wishlisted: Boolean = false) {
+fun MainProductView(product: Product, modifier: Modifier = Modifier, is_wishlisted: Boolean = false, clickable: () -> Unit = {}) {
     val context = LocalContext.current
     val firebaseAnalytics = remember { FirebaseAnalytics.getInstance(context) }
 
@@ -127,6 +127,9 @@ fun MainProductView(product: Product, modifier: Modifier = Modifier, is_wishlist
                 .fillMaxWidth()
                 .aspectRatio(0.75f) // Maintain aspect ratio
                 .clip(RoundedCornerShape(16.dp))
+                .clickable{
+                    clickable()
+                }
         )
         Spacer(modifier = Modifier.height(4.dp))
         Row(modifier = Modifier.fillMaxWidth(1f).padding(horizontal = 8.dp),
