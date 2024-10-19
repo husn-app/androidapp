@@ -113,30 +113,6 @@ fun TopNavBar(modifier: Modifier = Modifier){
             }
         })
 
-//        Button(onClick = {
-//            if (!isUserSignedIn) {
-//                signInHelper?.signIn(onSignInSuccess = {
-//                    // Open WishlistActivity upon successful sign-in
-//                    val intent = Intent(context, WishlistActivity::class.java)
-//                    context.startActivity(intent)
-//                })
-//            } else {
-//                // If already signed in, directly open WishlistActivity
-//                val intent = Intent(context, WishlistActivity::class.java)
-//                context.startActivity(intent)
-//            }
-//        }) {
-//            Text("Wishlist")
-//        }
-
-//        if (showWishlist) {
-//            // Launch the WishlistActivity once the data is ready
-//            LaunchedEffect(Unit) {
-//                val intent = Intent(context, WishlistActivity::class.java)
-//                context.startActivity(intent)
-//                showWishlist = false // Reset the flag
-//            }
-//        }
     }
 }
 
@@ -159,8 +135,6 @@ fun SearchBar(
             .wrapContentHeight(),  // Limit height to the SearchBar's height
         contentAlignment = Alignment.Center
     ) {
-//        SearchBar()  // Call SearchBar here
-//    }
         OutlinedTextField(
             value = searchText,
             onValueChange = { searchText = it },
@@ -211,24 +185,7 @@ fun OpenWishlistActivity(context: Context) {
         val intent = Intent(context, WishlistActivity::class.java)
         context.startActivity(intent)
     }
-//    val intent = Intent(context, WishlistActivity::class.java) // Replace with your WishlistActivity
-//    context.startActivity(intent)
 }
-
-
-//@Composable
-//fun BottomBar(modifier: Modifier = Modifier) {
-//    Row(
-//        modifier = modifier.padding(8.dp),
-//        horizontalArrangement = Arrangement.SpaceBetween,
-//        verticalAlignment = Alignment.CenterVertically
-//    ) {
-////        Text(text = "Home", fontSize = 20.sp)
-////        SvgIcon(svgResource = R.drawable.home_icon)
-//        Text(text = "Inspiration", fontSize = 20.sp)
-//        Text(text = "Wishlist", fontSize = 20.sp)
-//    }
-//}
 
 @Composable
 fun BottomBar(context: Context) {
@@ -244,7 +201,7 @@ fun BottomBar(context: Context) {
             icon = { Icon(imageVector = Icons.Default.Home, contentDescription = "Home") },
             selected = false, // Handle selection state if needed with navigation
             onClick = {
-                val intent = Intent(context, FeedActivity::class.java)
+                val intent = Intent(context, OnboardingActivity::class.java)
                 context.startActivity(intent)
             },
             selectedContentColor = Color.Black, // Customize selected icon color

@@ -115,4 +115,12 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:20.6.0")
     implementation(platform("com.google.firebase:firebase-bom:32.2.3"))
     implementation("com.google.firebase:firebase-auth-ktx")
+//    implementation("androidx.activity:activity-compose:1.7.2")
+//    implementation("androidx.compose.ui:ui:1.4.3")
+//    implementation("androidx.compose.material:material:1.4.3")
+//    implementation("androidx.compose.ui:ui-tooling-preview:1.4.3")
+////    implementation "io.coil-kt:coil-compose:2.4.0" // For image loading
+////    implementation "com.squareup.okhttp3:okhttp:4.11.0" // For network requests
+////    implementation "org.json:json:20230227" // For JSON manipulation
+//    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.2")
 }

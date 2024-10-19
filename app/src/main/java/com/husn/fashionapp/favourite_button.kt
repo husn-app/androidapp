@@ -95,7 +95,7 @@ suspend fun sendWishlistRequest(
         val client = OkHttpClient()
         val mediaType = "application/json; charset=utf-8".toMediaType()
         val requestBody = "{\"productId\": $productId}".toRequestBody(mediaType)
-        val request = post_url_request(context, url, requestBody)/**/
+        val request = post_url_request(context, url, requestBody)
 
         try {
             val response = client.newCall(request).execute()
