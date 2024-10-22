@@ -1,27 +1,30 @@
 package com.husn.fashionapp
 
 import android.content.Context
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Request
-import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 
 fun get_url_request(context: Context, url: String) : Request {
-    var sessionCookie = getSessionCookieFromStorage(context) ?: ""
-    val request = Request.Builder()
+    var request = Request.Builder()
         .url(url)
         .addHeader("platform", "android")
-        .addHeader("Cookie", sessionCookie)
         .get()
-        .build()
-    return request
+    request = addCookiesToRequest(request, context)
+    return request.build()
 }
 
-fun post_url_request(context: Context, url: String, requestBody: RequestBody) : Request {
-    var sessionCookie = getSessionCookieFromStorage(context) ?: ""
-    val request = Request.Builder()
+fun post_url_request(context: Context, url: String, requestBodyJson: JSONObject = JSONObject()) : Request {
+    val mediaType = "application/json; charset=utf-8".toMediaType()
+    val requestBodyString = requestBodyJson.apply {
+        put("referrer", "android")
+    }.toString()
+    val requestBody = requestBodyString.toRequestBody(mediaType)
+    var request = Request.Builder()
         .url(url)
         .addHeader("platform", "android")
-        .addHeader("Cookie", sessionCookie)
         .post(requestBody)
-        .build()
-    return request
+    request = addCookiesToRequest(request, context)
+    return request.build()
 }

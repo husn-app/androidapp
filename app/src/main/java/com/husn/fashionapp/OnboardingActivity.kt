@@ -3,7 +3,6 @@ package com.husn.fashionapp
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -21,14 +20,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Scaffold
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -47,6 +44,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.fashionapp.R
 import com.husn.fashionapp.ui.theme.AppTheme
 import kotlinx.coroutines.Dispatchers
@@ -55,7 +53,6 @@ import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okio.IOException
@@ -175,9 +172,10 @@ fun GenderAgeInputScreen() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 32.dp),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(25.dp),
+                    colors = ButtonDefaults.buttonColors(Color(0xFFC8BEA1))
                 ) {
-                    Text(text = "Submit")
+                    Text(text = "Let's go!", color = MaterialTheme.colorScheme.primary, fontSize = 16.sp)
                 }
             }
         }
@@ -204,7 +202,7 @@ fun GenderOption(
             painter = painterResource(id = drawableRes),
             contentDescription = label,
             modifier = Modifier
-                .size(80.dp)
+                .size(100.dp)
                 .clip(CircleShape)
                 .border(
                     BorderStroke(
@@ -227,14 +225,14 @@ suspend fun sendPostRequest(
 ) {
     val client = OkHttpClient()
     val baseUrl = context.getString(R.string.husn_base_url)
-    val url = "$baseUrl/onboarding_android"
+    val url = "$baseUrl/api/onboarding"
 
     val json = JSONObject().apply {
         put("gender", gender)
         put("age", age.toIntOrNull() ?: 0)
-    }.toString()
-    val mediaType = "application/json".toMediaType()
-    val request = post_url_request(context, url, requestBody = json.toRequestBody(mediaType))
+    } //.toString()
+//    val mediaType = "application/json".toMediaType()
+    val request = post_url_request(context, url, json)
 
     client.newCall(request).enqueue(object : Callback {
         override fun onFailure(call: Call, e: IOException) {
@@ -242,7 +240,7 @@ suspend fun sendPostRequest(
 
         override fun onResponse(call: Call, response: Response) {
             if (response.isSuccessful) {
-                val intent = Intent(context, FeedActivity::class.java)
+                val intent = Intent(context, InspirationsActivity::class.java)
                 context.startActivity(intent)
             }
         }

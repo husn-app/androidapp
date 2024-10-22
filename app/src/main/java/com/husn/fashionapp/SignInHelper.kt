@@ -5,23 +5,25 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.example.fashionapp.R
+import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
-import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import okio.IOException
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import com.google.firebase.auth.FirebaseAuth
+import org.json.JSONObject
 
 object AuthManager {
     val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -29,14 +31,32 @@ object AuthManager {
     var isUserSignedIn by mutableStateOf(firebaseAuth.currentUser != null)
         private set
 
-    init {
+    var gender: String? = null
+    var pictureUrl: String? = null
+    var onboardingStage: String? = null
+
+//    init {
+//        firebaseAuth.addAuthStateListener { auth ->
+//            isUserSignedIn = auth.currentUser != null
+//        }
+//        AuthManager.gender = getSavedKeyValue("gender", context)
+//        AuthManager.onboardingStage = getSavedKeyValue("onboarding_stage", context)
+//        AuthManager.pictureUrl = getSavedKeyValue("picture_url", context)
+//    }
+    fun initialize(context: Context) {
         firebaseAuth.addAuthStateListener { auth ->
             isUserSignedIn = auth.currentUser != null
         }
+        gender = getSavedKeyValue("gender", context)
+        onboardingStage = getSavedKeyValue("onboarding_stage", context)
+        pictureUrl = getSavedKeyValue("picture_url", context)
     }
 
     fun signOut() {
         firebaseAuth.signOut()
+        gender = null
+        pictureUrl = null
+        onboardingStage = null
     }
 }
 
@@ -52,6 +72,7 @@ class SignInHelper(
     private var onSignInSuccessCallback: (() -> Unit)? = null
 
     init {
+        AuthManager.initialize(activity)
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(activity.getString(R.string.server_client_id))
             .requestEmail()
@@ -71,7 +92,7 @@ class SignInHelper(
         try {
             val account = task.result
             println("sign_in account: $account \n idToken: ${account?.idToken}")
-            firebaseAuthWithGoogle(account.idToken!!)
+            firebaseAuthWithGoogle(account.idToken!!, onSignInSuccess)
         } catch (e: Exception) {
             println("sign_in failed: ${e}")
             e.printStackTrace()
@@ -84,6 +105,9 @@ class SignInHelper(
             .addOnCompleteListener(activity) { task ->
                 if (task.isSuccessful) {
                     println("Firebase sign-in successful")
+//                    if(onSignInSuccess != {}){
+//                        onSignInSuccessCallback = onSignInSuccess
+//                    }
                     sendIdTokenToServer(idToken){
                         onSignInSuccessCallback?.invoke()
                         // Reset the callback
@@ -97,14 +121,16 @@ class SignInHelper(
 
     private fun sendIdTokenToServer(idToken: String, onSuccess: () -> Unit = {}) {
         val url = "$baseUrl/login_android"
-        val mediaType = "application/json; charset=utf-8".toMediaType()
-        val requestBody = "{\"idToken\": \"$idToken\"}".toRequestBody(mediaType)
-
-        val request = Request.Builder()
-            .url(url)
-            .post(requestBody)
-            .addHeader("platform", "android")
-            .build()
+//        val mediaType = "application/json; charset=utf-8".toMediaType()
+//        val requestBody = "{\"idToken\": \"$idToken\"}".toRequestBody(mediaType)
+//
+//        val request = Request.Builder()
+//            .url(url)
+//            .post(requestBody)
+//            .addHeader("platform", "android")
+//            .build()
+        val requestBodyJson = JSONObject("{\"idToken\": \"$idToken\"}")
+        val request = post_url_request(context, url, requestBodyJson)
 
         coroutineScope.launch {
             try {
@@ -112,11 +138,25 @@ class SignInHelper(
                 if (response.isSuccessful) {
                     val responseBody = response.body?.string()
                     println("backend response: $responseBody")
-                    val session = response.header("Set-Cookie")
-                    println("response_header:$session\nsignInHelper_session_cookie:$session")
-                    saveSessionCookie(session, context)
-                    // ... process response (e.g., navigation) ...
-                    onSuccess()
+
+                    val headers = response.headers
+                    val cookies = headers.values("Set-Cookie")
+                    println("cookies: $cookies")
+                    saveSessionCookie(cookies, context)
+                    val onboarding_stage = getSavedKeyValue("onboarding_stage", context)
+
+                    AuthManager.gender = getSavedKeyValue("gender", context)
+                    AuthManager.onboardingStage = getSavedKeyValue("onboarding_stage", context)
+                    AuthManager.pictureUrl = getSavedKeyValue("picture_url", context)
+
+                    println("Inside signinhelper: gender=${AuthManager.gender}\nonboardingStage=${AuthManager.onboardingStage}\npictureUrl=${AuthManager.pictureUrl}")
+                    if(onboarding_stage == null || onboarding_stage != "COMPLETE"){
+                        val intent = Intent(context, OnboardingActivity::class.java)
+                        context.startActivity(intent)
+                    }
+                    else {
+                        onSuccess()
+                    }
                 } else {
                     println("backend error: ${response.code} ${response.body}")
                 }
@@ -143,25 +183,4 @@ class SignInHelper(
             context.finish()
         }
     }
-}
-
-fun saveSessionCookie(cookie: String?, context: Context) {
-    if(cookie == null)
-        return
-    val sharedPreferences = context.getSharedPreferences("SessionPref", Context.MODE_PRIVATE)
-    val editor = sharedPreferences.edit()
-    editor.putString("session_cookie", cookie)  // Save the session cookie with the key "session_cookie"
-    editor.apply()  // Apply changes asynchronously
-}
-
-fun getSessionCookieFromStorage(context: Context): String? {
-    val sharedPreferences = context.getSharedPreferences("SessionPref", Context.MODE_PRIVATE)
-    return sharedPreferences.getString("session_cookie", null)  // Return the session cookie or null if not found
-}
-
-fun clearSessionCookie(context: Context) {
-    val sharedPreferences = context.getSharedPreferences("SessionPref", Context.MODE_PRIVATE)
-    val editor = sharedPreferences.edit()
-    editor.remove("session_cookie") // Remove the cookie specifically
-    editor.apply()
 }

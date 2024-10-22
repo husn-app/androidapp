@@ -24,11 +24,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Scaffold
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,21 +40,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
-import com.example.fashionapp.R
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.husn.fashionapp.ui.theme.AppTheme
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.Request
-import okhttp3.Response
-import okio.IOException
-import org.json.JSONArray
 import org.json.JSONObject
 
 
 class SearchResultsActivity : ComponentActivity() {
     private lateinit var signInHelper: SignInHelper
-
+    private val fetch_utility = Fetchutilities(this)
+    private val productsState = mutableStateOf<List<Product>>(emptyList())
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -66,38 +60,22 @@ class SearchResultsActivity : ComponentActivity() {
 
         signInHelper = SignInHelper(this, signInLauncher, this)
 
-        // Retrieve the search query and response data from the intent
         val query = intent.getStringExtra("query") ?: ""
-        val responseDataString = intent.getStringExtra("responseData") ?: ""
-
-        // Parse the response data
-        val responseData = try {
-            JSONObject(sanitizeJson(responseDataString))
-        } catch (e: Exception) {
-
-             //println("Error parsing response data: ${e.message}")
-             onBackPressedDispatcher.onBackPressed()
-            null
-
-        }
-        val productsJsonArray = responseData?.getJSONArray("products") ?: JSONArray()
-        val products = mutableListOf<Product>()
-        for (i in 0 until productsJsonArray.length()) {
-            products.add(Product(productsJsonArray.getJSONObject(i)))
-        }
-
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    SearchResultsScreen(query = query, products = products)
+                    SearchResultsScreen(query = query, products = productsState.value)
                 }
             }
         }
-    }
-
-    // Helper function to sanitize the input JSON string
-    private fun sanitizeJson(jsonString: String): String {
-        return jsonString.replace("NaN", "0") // Replace NaN with default numeric value (e.g., 0)
+        fetch_utility.fetchProductsList(relative_url = "/api/query", requestBodyJson = JSONObject().apply {
+            put("query", query)
+        })
+        { products ->
+            runOnUiThread {
+                productsState.value = products ?: emptyList()
+            }
+        }
     }
 }
 
@@ -111,7 +89,7 @@ fun PreviewSearchResultsScreen() {
 fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: Product? = null, MainProductView: @Composable ((product: Product) -> Unit)? = null, searchBarFraction: Float = 0.96f) {
     val context: Context = LocalContext.current
     Scaffold(
-        topBar = { TopNavBar() },
+//        topBar = { TopNavBar() },
         backgroundColor = Color.Transparent,
         bottomBar = { BottomBar(context = context) } // BottomBar placed correctly
     ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
@@ -119,6 +97,9 @@ fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: 
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(innerPadding)
         ) {
+            item {
+                TopNavBar()
+            }
             item {
                 SearchBar(query = query, searchBarFraction = searchBarFraction)
                 Spacer(modifier = Modifier.height(8.dp)) // Optional: add spacing after the search bar
@@ -166,49 +147,6 @@ fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: 
 }
 
 @Composable
-fun ProductsListView(products: List<Product>){
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        // Group items into pairs and handle them in rows
-        itemsIndexed(products.chunked(2)) { index, productPair ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            ) {
-                // Display the first product in the row
-                ProductItemBriefView(
-                    product = productPair[0],
-                    modifier = Modifier
-                        .weight(1f) // Ensure the first product takes up half the space
-                        .padding(end = 8.dp) // Add spacing between the two products
-//                            .padding(start = 8.dp)
-                )
-
-                // Display the second product in the row if available
-                if (productPair.size > 1) {
-                    ProductItemBriefView(
-                        product = productPair[1],
-                        modifier = Modifier
-                            .weight(1f) // Ensure the second product takes up half the space
-                            .padding(end = 8.dp) // Add spacing between the two products
-                    )
-                } else {
-                    // Add an empty Box to take up the second half of the row
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(end = 8.dp) // Add spacing between the two products
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
 fun ProductItemBriefView(
     product: Product,
     modifier: Modifier = Modifier,
@@ -223,12 +161,10 @@ fun ProductItemBriefView(
             painter = rememberAsyncImagePainter(product.primaryImage),
             contentDescription = null,
             modifier = Modifier
-//                .width(256.dp)
                 .fillMaxWidth()
                 .aspectRatio(0.75f) // Maintain aspect ratio
                 .clip(RoundedCornerShape(16.dp))
                 .clickable {
-//                    val baseUrl = context.getString(R.string.husn_base_url)
                     val bundle = Bundle().apply {
                         putString(FirebaseAnalytics.Param.ITEM_ID, product.index.toString())
                         putString(FirebaseAnalytics.Param.ITEM_NAME, product.brand)
@@ -236,35 +172,14 @@ fun ProductItemBriefView(
                     }
                     firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
 
-                    val baseUrl = context.getString(R.string.husn_base_url)
-                    val url = "$baseUrl/api/product/${product.index}"
-                    val request = get_url_request(context, url)
-                    client.newCall(request).enqueue(object : Callback {
-                        override fun onFailure(call: Call, e: IOException) {
-                            e.printStackTrace()
-                        }
-
-                        override fun onResponse(call: Call, response: Response) {
-                            if (response.isSuccessful) {
-                                val session = response.header("Set-Cookie")
-                                saveSessionCookie(session, context)
-
-                                val responseData = response.body?.string()
-                                responseData?.let {
-                                    val intent = Intent(context, ProductDetailsActivity::class.java)
-                                    intent.putExtra("productData", it)
-                                    context.startActivity(intent)
-                                }
-                            } else {
-                                //println("Request failed with status: ${response.code}")
-                            }
-                        }
-                    })
+                    val intent = Intent(context, ProductDetailsActivity::class.java).apply {
+                        putExtra("product_index", product.index)
+                    }
+                    context.startActivity(intent)
                 }
-//                contentScale = ContentScale.Crop
         )
         Spacer(modifier = Modifier.height(4.dp))
-        Column(horizontalAlignment = Alignment.Start) {
+        Column(horizontalAlignment = Alignment.Start, modifier = Modifier.padding(start = 4.dp)) {
             Text(
                 text = product.brand,
                 color = MaterialTheme.colorScheme.primary,

@@ -1,7 +1,6 @@
 package com.husn.fashionapp
 
 import org.json.JSONObject
-import java.util.Dictionary
 
 data class Product(
     val originalWebsite: String = "",
@@ -16,6 +15,7 @@ data class Product(
     val gender: String = "",
     val price: Int = 0,
     val index: Int = 0,
+    val isWishlisted: Boolean = false
 ) {
     constructor(json: JSONObject) : this(
         originalWebsite = json.optString("original_website", ""),
@@ -30,6 +30,7 @@ data class Product(
         gender = json.optString("gender", ""),
         price = json.optInt("price", 0),
         index = json.optInt("index", 0),
+        isWishlisted = json.optBoolean("is_wishlisted", false)
     )
 }
 

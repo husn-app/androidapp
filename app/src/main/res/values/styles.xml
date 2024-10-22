@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="AppTheme" parent="android:Theme.Material.Light.NoActionBar">
-        <!-- Set the PNG as the background for all activities -->
-        <item name="android:windowBackground">@mipmap/husn_grainy_background</item>
+<!--        <item name="android:windowBackground">@mipmap/husn_grainy_background</item>-->
+        <item name="android:colorBackground">#dedacf</item>
     </style>
+
 </resources>

@@ -1,24 +1,17 @@
 import android.content.Context
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconToggleButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import com.example.fashionapp.R
 import com.husn.fashionapp.AuthManager
 import com.husn.fashionapp.LocalSignInHelper
@@ -33,12 +26,13 @@ import org.json.JSONObject
 
 @Composable
 fun FavoriteButton(
-    initialIsWishlisted: Boolean,
+    isWishlisted: Boolean,
+    onWishlistChange: (Boolean) -> Unit,
     productId: Int,
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    var isWishlisted by remember { mutableStateOf(initialIsWishlisted) }
+//    var isWishlisted by remember { mutableStateOf(initialIsWishlisted) }
     val signInHelper = LocalSignInHelper.current
 
     IconToggleButton(
@@ -53,7 +47,8 @@ fun FavoriteButton(
                             productId = productId,
                             context = context
                         )
-                        isWishlisted = newIsWishlisted
+//                        isWishlisted = newIsWishlisted
+                        onWishlistChange(newIsWishlisted)
                     }
                 })
             } else {
@@ -63,7 +58,8 @@ fun FavoriteButton(
                         productId = productId,
                         context = context
                     )
-                    isWishlisted = newIsWishlisted
+//                    isWishlisted = newIsWishlisted
+                    onWishlistChange(newIsWishlisted)
                 }
             }
         }
@@ -90,12 +86,13 @@ suspend fun sendWishlistRequest(
 ): Boolean {
     return withContext(Dispatchers.IO) {
         val baseUrl = context.getString(R.string.husn_base_url)
-        val url = "$baseUrl/wishlist/$productId"
+        val url = "$baseUrl/api/wishlist/$productId"
         println("sendWishlistRequest: $url")
         val client = OkHttpClient()
-        val mediaType = "application/json; charset=utf-8".toMediaType()
-        val requestBody = "{\"productId\": $productId}".toRequestBody(mediaType)
-        val request = post_url_request(context, url, requestBody)
+        val requestBodyJson = JSONObject("{\"productId\": $productId}")//.apply{
+//            put("productId", productId)
+//        }
+        val request = post_url_request(context, url, requestBodyJson)
 
         try {
             val response = client.newCall(request).execute()
@@ -103,7 +100,7 @@ suspend fun sendWishlistRequest(
                 val responseBody = response.body?.string()
                 // Parse the responseBody JSON to get the is_wishlisted parameter
                 val jsonObject = JSONObject(responseBody)
-                val newIsWishlisted = jsonObject.getBoolean("is_wishlisted")
+                val newIsWishlisted = jsonObject.getBoolean("wishlist_status")
                 println("sendWishlistRequest: $newIsWishlisted")
                 newIsWishlisted
             } else {

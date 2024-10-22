@@ -16,17 +16,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import com.example.fashionapp.R
 import com.husn.fashionapp.ui.theme.AppTheme
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.Response
-import okio.IOException
 
 class FeedActivity : ComponentActivity() {
     private lateinit var signInHelper: SignInHelper
     private val productsState = mutableStateOf<List<Product>>(emptyList())
     private val fetch_utility = Fetchutilities(this)
+    private val isWishlistedState = mutableStateOf<Boolean>(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +31,6 @@ class FeedActivity : ComponentActivity() {
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
             signInHelper.handleSignInResult(result.data) {
-
             }
         }
         signInHelper = SignInHelper(this, signInLauncher, this)
@@ -44,58 +39,59 @@ class FeedActivity : ComponentActivity() {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
                     if (productsState.value.isNotEmpty()) {
-                        FeedScreen(products = productsState.value)
+                        FeedScreen(products = productsState.value, onWishlistChange = { productId, newValue ->
+                            updateProductWishlistStatus(productId, newValue)
+                        })
                     } else {
                         StyleSenseApp(context = this)
                     }
                 }
             }
         }
-        fetch_utility.fetchWishlistData(relative_url = "feed_android") { products ->
+        fetch_utility.fetchProductsList(relative_url = "/api/feed") { products ->
             runOnUiThread {
                 productsState.value = products ?: emptyList()
+            }
+        }
+    }
+
+    private fun updateProductWishlistStatus(productId: Int, newValue: Boolean) {
+        productsState.value = productsState.value.map { product ->
+            if (product.index == productId) {
+                product.copy(isWishlisted = newValue)
+            } else {
+                product
             }
         }
     }
 }
 
 @Composable
-fun FeedScreen(products: List<Product>){
+fun FeedScreen(products: List<Product>,
+               onWishlistChange: (Int, Boolean) -> Unit){
     var context = LocalContext.current
     Scaffold(
-        topBar = { TopNavBar() } ,
         backgroundColor = Color.Transparent,
-        bottomBar = { BottomBar(context = context) } // BottomBar placed correctly
+        bottomBar = { BottomBar(context = context, selectedItem = 1) } // BottomBar placed correctly
     ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
+
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(innerPadding)
         ) {
+            item {
+                TopNavBar()
+            }
             items(products) { product ->
-                MainProductView(product, clickable = {
-                    val baseUrl = context.getString(R.string.husn_base_url)
-                    val url = "$baseUrl/api/product/${product.index}"
-                    val request = get_url_request(context, url)
-                    client.newCall(request).enqueue(object : Callback {
-                        override fun onFailure(call: Call, e: IOException) {
-                            e.printStackTrace()
-                        }
-
-                        override fun onResponse(call: Call, response: Response) {
-                            if (response.isSuccessful) {
-                                val session = response.header("Set-Cookie")
-                                saveSessionCookie(session, context)
-
-                                val responseData = response.body?.string()
-                                responseData?.let {
-                                    val intent = Intent(context, ProductDetailsActivity::class.java)
-                                    intent.putExtra("productData", it)
-                                    context.startActivity(intent)
-                                }
-                            } else {
-                                //println("Request failed with status: ${response.code}")
-                            }
-                        }
-                    })
+                MainProductView(product,
+                    isWishlisted = product.isWishlisted,
+                    onWishlistChange = { newValue ->
+                        onWishlistChange(product.index, newValue)
+                    },
+                    clickable = {
+                    val intent = Intent(context, ProductDetailsActivity::class.java).apply {
+                        putExtra("product_index", product.index)
+                    }
+                    context.startActivity(intent)
                 })
             }
         }

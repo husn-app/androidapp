@@ -1,5 +1,6 @@
 package com.husn.fashionapp
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,8 +37,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.fashionapp.R
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.husn.fashionapp.ui.theme.AppTheme
 import okhttp3.Call
 import okhttp3.Callback
@@ -48,8 +52,11 @@ import org.json.JSONObject
 class InspirationsActivity : ComponentActivity() {
     private lateinit var signInHelper: SignInHelper
     private val client = OkHttpClient()
-    private val inspirationsState = mutableStateOf<Map<String, List<Pair<String, List<InspirationProduct>>>>>(emptyMap())
-    private val genderState = mutableStateOf<String>("WOMAN")
+    private val inspirationsState = mutableStateOf<List<Pair<String, List<InspirationProduct>>>>(
+        emptyList()
+    )
+//    private val genderState = mutableStateOf<String>("WOMAN")
+    private val fetch_utility = Fetchutilities(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +65,7 @@ class InspirationsActivity : ComponentActivity() {
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
             signInHelper.handleSignInResult(result.data) {
+//                fetchInspirationData()
             }
         }
         signInHelper = SignInHelper(this, signInLauncher, this)
@@ -65,10 +73,21 @@ class InspirationsActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    InspirationScreen(
-                        inspirationsMap = inspirationsState.value, gender = genderState.value,
-                        onGenderChange = { newGender -> genderState.value = newGender }
-                    )
+                    println("inspirationsactivity: ${AuthManager.onboardingStage}\n${AuthManager.gender}\n${AuthManager.pictureUrl}\n${AuthManager.isUserSignedIn}")
+                    if (!AuthManager.isUserSignedIn) {
+                        signInHelper.signIn()
+                    }
+                    else if(AuthManager.onboardingStage != "COMPLETE"){
+                        val intent = Intent(this, OnboardingActivity::class.java)
+                        startActivity(intent)
+                    }
+                    else
+                    {
+                        InspirationScreen(
+                            inspirations = inspirationsState.value //, gender = genderState.value,
+//                            onGenderChange = { newGender -> genderState.value = newGender }
+                        )
+                    }
                 }
             }
         }
@@ -77,37 +96,42 @@ class InspirationsActivity : ComponentActivity() {
 
     private fun fetchInspirationData() {
         val baseUrl = getString(R.string.husn_base_url)
-        val url = "$baseUrl/inspirations_android"
-        val request = get_url_request(this, url)
+        var url = "$baseUrl/api/inspiration"
+        AuthManager.gender?.let{
+            url = "$url/${AuthManager.gender}"
+        }
+        val request = post_url_request(this, url)
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
-//                runOnUiThread {
-//                    isRefreshing.value = false
-//                }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
-                    val session = response.header("Set-Cookie")
-                    saveSessionCookie(session, this@InspirationsActivity)
+//                    val session = response.header("Set-Cookie")
+                    val headers = response.headers
+                    val cookies = headers.values("Set-Cookie")
+                    println("fetchInspirationData success. cookies: $cookies\n response: $response")
+                    saveSessionCookie(cookies, this@InspirationsActivity)
 
                     val responseDataString = response.body?.string()
+                    println("fetchInspirationData responseDataString $responseDataString")
                     responseDataString?.let {
                         val responseData = try {
-                            JSONObject(sanitizeJson(it))
+                            JSONObject(fetch_utility.sanitizeJson(it))
                         } catch (e: Exception) {
                             e.printStackTrace()
                             null
                         }
-                        val inspirationsJson = responseData?.getJSONObject("inspirations")
-                        val gender = responseData?.getString("gender")
-                        val inspirationsMap = mutableMapOf<String, List<Pair<String, List<InspirationProduct>>>>()
-                        if (inspirationsJson != null) {
-                            for (genderKey in listOf("MAN", "WOMAN")) {
-                                val categoryArray = inspirationsJson.getJSONArray(genderKey)
-                                val inspirationsList = mutableListOf<Pair<String, List<InspirationProduct>>>()
+                        val categoryArray = responseData?.getJSONArray("inspirations")
+                        println("fetchInspirationData categoryArray: $categoryArray")
+//                        val gender = responseData?.getString("gender")
+                        val inspirationsList = mutableListOf<Pair<String, List<InspirationProduct>>>()
+                        if (categoryArray != null) {
+//                            for (genderKey in listOf("MAN", "WOMAN")) {
+//                                val categoryArray = inspirationsJson.getJSONArray(genderKey)
+
                                 for (i in 0 until categoryArray.length()) {
                                     val categoryObj = categoryArray.getJSONObject(i)
                                     val categoryName = categoryObj.getString("category")
@@ -119,121 +143,129 @@ class InspirationsActivity : ComponentActivity() {
                                     }
                                     inspirationsList.add(Pair(categoryName, productsList))
                                 }
-                                inspirationsMap[genderKey] = inspirationsList
-                            }
+//                                inspirationsMap[genderKey] = inspirationsList
+//                            }
                         }
                         // Update the inspirations state on the main thread
                         runOnUiThread {
-                            inspirationsState.value = inspirationsMap
-                            gender?.let {
-                                genderState.value = gender
-                            }
+                            inspirationsState.value = inspirationsList
+//                            gender?.let {
+//                                genderState.value = gender
+//                            }
                         }
                     }
                 } else {
                     println("Inspiration response failed with status: ${response.code}")
-//                    runOnUiThread {
-//                        isRefreshing.value = false
-//                    }
                 }
             }
         })
-    }
-
-    private fun sanitizeJson(jsonString: String): String {
-        return jsonString.replace("NaN", "0")
     }
 }
 
 @Composable
 fun InspirationScreen(
-    inspirationsMap: Map<String, List<Pair<String, List<InspirationProduct>>>>,
-    gender: String,
+    inspirations: List<Pair<String, List<InspirationProduct>>>,
+    gender: String = "",
     onGenderChange: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
     val signInHelper = LocalSignInHelper.current
-    val inspirations = inspirationsMap[gender] ?: emptyList()
-    val oppositeGender = if (gender == "MAN") "WOMAN" else "MAN"
-    val formatted_gender = if(gender == "MAN") "Men" else "Women"
-    val formatted_opp_gender = if(oppositeGender == "MAN") "Men" else "Women"
+//    val inspirations = inspirationsMap[gender] ?: emptyList()
+//    val oppositeGender = if (gender == "MAN") "WOMAN" else "MAN"
+//    val formattedGender = if(gender == "MAN") "Men" else "Women"
+//    val formattedOppGender = if(oppositeGender == "MAN") "Men" else "Women"
+    val firebaseAnalytics = remember { FirebaseAnalytics.getInstance(context) }
 
     Scaffold(
-        topBar = { TopNavBar() },
         backgroundColor = Color.Transparent,
-        bottomBar = { BottomBar(context = context) }
+        bottomBar = { BottomBar(context = context, selectedItem = 2) }
     ) { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding)) {
-            if (!AuthManager.isUserSignedIn) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Text("This page has $formatted_gender's inspirations.")
-                    Row {
-                        Text(
-                            text = "Login",
-                            textDecoration = TextDecoration.Underline,
-                            modifier = Modifier.clickable {
-                                signInHelper?.signIn()
-                            }
-                        )
-                        Text(" to see personalized feed. ")
-                    }
-                    Text(
-                        text = "$formatted_opp_gender's inspirations.",
-                        textDecoration = TextDecoration.Underline,
-                        modifier = Modifier.clickable {
-                            onGenderChange(oppositeGender)
-                        }
-                    )
-                }
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(innerPadding)
+        ) {
+            item {
+                TopNavBar()
             }
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(inspirations) { (categoryName, productsList) ->
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+//            if (!AuthManager.isUserSignedIn) {
+//                item {
+//                    Column(
+//                        modifier = Modifier.padding(16.dp)
+//                    ) {
+//                        Text("This page has $formattedGender's inspirations.")
+//                        Row {
+//                            Text(
+//                                text = "Login",
+//                                textDecoration = TextDecoration.Underline,
+//                                modifier = Modifier.clickable {
+//                                    signInHelper?.signIn(){
+//                                        val intent = Intent(context, InspirationsActivity::class.java)
+//                                        context.startActivity(intent)
+//                                    }
+//                                }
+//                            )
+//                            Text(" to see personalized feed. ")
+//                        }
+//                        Text(
+//                            text = "$formattedOppGender's inspirations.",
+//                            textDecoration = TextDecoration.Underline,
+//                            modifier = Modifier.clickable {
+//                                onGenderChange(oppositeGender)
+//                            }
+//                        )
+//                    }
+//                }
+//            }
+            items(inspirations) { (categoryName, productsList) ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = categoryName,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Text(
-                            text = categoryName,
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            items(productsList) { product ->
-                                Column(
+                        items(productsList) { product ->
+                            Column(
+                                modifier = Modifier
+                                    .width(250.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                AsyncImage(
+                                    model = product.primary_image,
+                                    contentDescription = null,
                                     modifier = Modifier
-                                        .width(250.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    AsyncImage(
-                                        model = product.primary_image,
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .aspectRatio(0.75f)
-                                            .clip(RoundedCornerShape(16.dp))
-                                            .clickable {
-                                                sendSearchQuery(context, product.inspiration_subcategory_query)
-                                            },
-                                        contentScale = ContentScale.Crop
-                                    )
-                                    Text(
-                                        text = product.inspiration_subcategory_name,
-                                        textAlign = TextAlign.Center,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        modifier = Modifier.padding(top = 4.dp)
-                                    )
-                                }
+                                        .fillMaxWidth()
+                                        .aspectRatio(0.75f)
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .clickable {
+                                            val bundle = Bundle().apply {
+                                                putString(FirebaseAnalytics.Param.SEARCH_TERM, product.inspiration_subcategory_query)
+                                            }
+                                            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SEARCH, bundle)
+
+                                            val intent = Intent(context, SearchResultsActivity::class.java).apply {
+                                                putExtra("query", product.inspiration_subcategory_query)
+                                            }
+                                            context.startActivity(intent)
+                                        },
+                                    contentScale = ContentScale.Crop
+                                )
+                                Text(
+                                    text = product.inspiration_subcategory_name,
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
                             }
                         }
                     }

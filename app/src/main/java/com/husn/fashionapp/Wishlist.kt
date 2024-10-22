@@ -1,6 +1,5 @@
 package com.husn.fashionapp
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -24,15 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.fashionapp.R
 import com.husn.fashionapp.ui.theme.AppTheme
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.OkHttpClient
-import okhttp3.Response
-import okio.IOException
-import org.json.JSONArray
-import org.json.JSONObject
 
 class WishlistActivity : ComponentActivity() {
     private lateinit var signInHelper: SignInHelper
@@ -46,7 +37,6 @@ class WishlistActivity : ComponentActivity() {
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
             signInHelper.handleSignInResult(result.data) {
-
             }
         }
         signInHelper = SignInHelper(this, signInLauncher, this)
@@ -58,7 +48,7 @@ class WishlistActivity : ComponentActivity() {
                 }
             }
         }
-        fetch_utility.fetchWishlistData(relative_url = "wishlist_android") { products ->
+        fetch_utility.fetchProductsList(relative_url = "/api/wishlist") { products ->
             runOnUiThread {
                 productsState.value = products ?: emptyList()
             }
@@ -70,14 +60,16 @@ class WishlistActivity : ComponentActivity() {
 fun WishlistScreen(products: List<Product>){
     val context = LocalContext.current
     Scaffold(
-        topBar = { TopNavBar() } ,
         backgroundColor = Color.Transparent,
-        bottomBar = { BottomBar(context = context) } // BottomBar placed correctly
+        bottomBar = { BottomBar(context = context, selectedItem = 2) } // BottomBar placed correctly
     ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
         if (AuthManager.isUserSignedIn) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(innerPadding)
             ) {
+                item{
+                    TopNavBar()
+                }
                 itemsIndexed(products.chunked(2)) { index, productPair ->
                     Row(
                         modifier = Modifier
@@ -90,8 +82,6 @@ fun WishlistScreen(products: List<Product>){
                             product = productPair[0],
                             modifier = Modifier
                                 .weight(1f) // Ensure the first product takes up half the space
-//                        .padding(end = 8.dp) // Add spacing between the two products
-//                            .padding(start = 8.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         // Display the second product in the row if available
@@ -99,15 +89,13 @@ fun WishlistScreen(products: List<Product>){
                             ProductItemBriefView(
                                 product = productPair[1],
                                 modifier = Modifier
-                                    .weight(1f) // Ensure the second product takes up half the space
-//                            .padding(end = 8.dp) // Add spacing between the two products
+                                    .weight(1f)
                             )
                         } else {
                             // Add an empty Box to take up the second half of the row
                             Box(
                                 modifier = Modifier
                                     .weight(1f)
-//                            .padding(end = 8.dp) // Add spacing between the two products
                             )
                         }
                     }
