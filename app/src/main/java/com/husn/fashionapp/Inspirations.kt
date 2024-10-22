@@ -65,33 +65,31 @@ class InspirationsActivity : ComponentActivity() {
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
             signInHelper.handleSignInResult(result.data) {
-//                fetchInspirationData()
+                fetchInspirationData()
             }
         }
         signInHelper = SignInHelper(this, signInLauncher, this)
+        if (!AuthManager.isUserSignedIn) {
+            signInHelper.signIn()
+//            signInHelper?.signIn(onSignInSuccess = {
+//                val intent = Intent(this, WishlistActivity::class.java)
+//                startActivity(intent)
+//            })
+        } else {
+            // Fetch data if already signed in
+            fetchInspirationData()
+        }
 
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    println("inspirationsactivity: ${AuthManager.onboardingStage}\n${AuthManager.gender}\n${AuthManager.pictureUrl}\n${AuthManager.isUserSignedIn}")
-                    if (!AuthManager.isUserSignedIn) {
-                        signInHelper.signIn()
-                    }
-                    else if(AuthManager.onboardingStage != "COMPLETE"){
-                        val intent = Intent(this, OnboardingActivity::class.java)
-                        startActivity(intent)
-                    }
-                    else
-                    {
-                        InspirationScreen(
-                            inspirations = inspirationsState.value //, gender = genderState.value,
+                    InspirationScreen(
+                        inspirations = inspirationsState.value //, gender = genderState.value,
 //                            onGenderChange = { newGender -> genderState.value = newGender }
-                        )
-                    }
+                    )
                 }
             }
         }
-        fetchInspirationData()
     }
 
     private fun fetchInspirationData() {

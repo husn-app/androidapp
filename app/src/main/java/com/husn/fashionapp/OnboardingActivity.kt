@@ -117,15 +117,15 @@ fun GenderAgeInputScreen() {
                 GenderOption(
                     drawableRes = R.drawable.boy, // Your custom drawable
                     label = "Man",
-                    isSelected = selectedGender == "Male",
-                    onClick = { selectedGender = "Male" }
+                    isSelected = selectedGender == "MAN",
+                    onClick = { selectedGender = "MAN" }
                 )
                 Spacer(modifier = Modifier.width(24.dp))
                 GenderOption(
                     drawableRes = R.drawable.girl, // Your custom drawable
                     label = "Woman",
-                    isSelected = selectedGender == "Female",
-                    onClick = { selectedGender = "Female" }
+                    isSelected = selectedGender == "WOMAN",
+                    onClick = { selectedGender = "WOMAN" }
                 )
             }
 
@@ -223,6 +223,7 @@ suspend fun sendPostRequest(
     age: String,
     context: Context,
 ) {
+    val fetch_utility = Fetchutilities(context)
     val client = OkHttpClient()
     val baseUrl = context.getString(R.string.husn_base_url)
     val url = "$baseUrl/api/onboarding"
@@ -240,6 +241,22 @@ suspend fun sendPostRequest(
 
         override fun onResponse(call: Call, response: Response) {
             if (response.isSuccessful) {
+                val headers = response.headers
+                val cookies = headers.values("Set-Cookie")
+                saveSessionCookie(cookies, context)
+                val responseBody = response.body?.string()
+                println("onboardingactivity response: $responseBody")
+                responseBody?.let{
+                    var responseData =
+                        JSONObject(fetch_utility.sanitizeJson(it))
+                    if (responseData.has("gender")) {
+                        AuthManager.gender = responseData.getString("gender")
+                        AuthManager.gender?.let { genderValue ->
+                            putKeyValue("gender", genderValue, context)
+                        }
+                    }
+                }
+
                 val intent = Intent(context, InspirationsActivity::class.java)
                 context.startActivity(intent)
             }

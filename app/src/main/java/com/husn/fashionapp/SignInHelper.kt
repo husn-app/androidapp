@@ -13,6 +13,7 @@ import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.CoroutineScope
@@ -30,7 +31,7 @@ object AuthManager {
     // Observable sign-in state
     var isUserSignedIn by mutableStateOf(firebaseAuth.currentUser != null)
         private set
-
+    var isSignInInProgress = false
     var gender: String? = null
     var pictureUrl: String? = null
     var onboardingStage: String? = null
@@ -70,6 +71,7 @@ class SignInHelper(
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private val googleSignInClient: GoogleSignInClient
     private var onSignInSuccessCallback: (() -> Unit)? = null
+    private val fetch_utility = Fetchutilities(context)
 
     init {
         AuthManager.initialize(activity)
@@ -81,6 +83,11 @@ class SignInHelper(
     }
 
     fun signIn(onSignInSuccess: () -> Unit = {}) {
+        if (AuthManager.isSignInInProgress) {
+            println("Sign-in already in progress")
+            return
+        }
+        AuthManager.isSignInInProgress = true
         onSignInSuccessCallback = onSignInSuccess
         val signInIntent = googleSignInClient.signInIntent
         signInLauncher.launch(signInIntent)
@@ -90,9 +97,11 @@ class SignInHelper(
         val task = GoogleSignIn.getSignedInAccountFromIntent(data)
         println("sign_in: $task")
         try {
-            val account = task.result
+//            val account = task.result
+            val account = task.getResult(ApiException::class.java)
             println("sign_in account: $account \n idToken: ${account?.idToken}")
             firebaseAuthWithGoogle(account.idToken!!, onSignInSuccess)
+            AuthManager.isSignInInProgress = false
         } catch (e: Exception) {
             println("sign_in failed: ${e}")
             e.printStackTrace()
@@ -138,6 +147,19 @@ class SignInHelper(
                 if (response.isSuccessful) {
                     val responseBody = response.body?.string()
                     println("backend response: $responseBody")
+                    responseBody?.let{
+                        var responseData =
+                            JSONObject(fetch_utility.sanitizeJson(it))
+                        if (responseData.has("gender") && !responseData.isNull("gender")) {
+                            AuthManager.gender = responseData.getString("gender")
+                            AuthManager.gender?.let { genderValue ->
+                                putKeyValue("gender", genderValue, context)
+                            }
+                        }
+                        else{
+                            AuthManager.gender = null
+                        }
+                    }
 
                     val headers = response.headers
                     val cookies = headers.values("Set-Cookie")
@@ -145,17 +167,19 @@ class SignInHelper(
                     saveSessionCookie(cookies, context)
                     val onboarding_stage = getSavedKeyValue("onboarding_stage", context)
 
-                    AuthManager.gender = getSavedKeyValue("gender", context)
+//                    AuthManager.gender = getSavedKeyValue("gender", context)
                     AuthManager.onboardingStage = getSavedKeyValue("onboarding_stage", context)
                     AuthManager.pictureUrl = getSavedKeyValue("picture_url", context)
 
-                    println("Inside signinhelper: gender=${AuthManager.gender}\nonboardingStage=${AuthManager.onboardingStage}\npictureUrl=${AuthManager.pictureUrl}")
-                    if(onboarding_stage == null || onboarding_stage != "COMPLETE"){
+                    println("Inside signinhelper: gender=${AuthManager.gender}\tonboardingStage=${AuthManager.onboardingStage}\tpictureUrl=${AuthManager.pictureUrl}")
+                    if(AuthManager.onboardingStage == null || AuthManager.onboardingStage != "COMPLETE"){
                         val intent = Intent(context, OnboardingActivity::class.java)
                         context.startActivity(intent)
                     }
                     else {
-                        onSuccess()
+                        val intent = Intent(context, InspirationsActivity::class.java)
+                        context.startActivity(intent)
+//                        onSuccess()
                     }
                 } else {
                     println("backend error: ${response.code} ${response.body}")

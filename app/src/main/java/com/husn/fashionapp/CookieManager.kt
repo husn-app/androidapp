@@ -102,3 +102,14 @@ fun getSavedKeyValue(key: String, context: Context): String? {
     val sharedPreferences = context.getSharedPreferences("SessionPref", Context.MODE_PRIVATE)
     return sharedPreferences.getString(key, null) // Returns null if the key doesn't exist
 }
+
+fun putKeyValue(key: String, value: String, context: Context){
+    val sharedPreferences = context.getSharedPreferences("SessionPref", Context.MODE_PRIVATE)
+    val editor = sharedPreferences.edit()
+    editor.putString(
+        key,
+        value
+    )
+    println("putKeyValue: key: $key, value: $value")
+    editor.apply()  // Apply changes asynchronously
+}
