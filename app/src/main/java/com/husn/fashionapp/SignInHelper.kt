@@ -135,7 +135,7 @@ class SignInHelper(
                 val response = client.newCall(request).execute()
                 if (response.isSuccessful) {
                     val responseBody = response.body?.string()
-                    println("backend response: $responseBody")
+//                    println("backend response: $responseBody")
                     responseBody?.let{
                         var responseData =
                             JSONObject(fetch_utility.sanitizeJson(it))
@@ -152,7 +152,7 @@ class SignInHelper(
 
                     val headers = response.headers
                     val cookies = headers.values("Set-Cookie")
-                    println("cookies: $cookies")
+//                    println("cookies: $cookies")
                     saveSessionCookie(cookies, context)
                     val onboarding_stage = getSavedKeyValue("onboarding_stage", context)
 
@@ -160,7 +160,7 @@ class SignInHelper(
                     AuthManager.onboardingStage = getSavedKeyValue("onboarding_stage", context)
                     AuthManager.pictureUrl = getSavedKeyValue("picture_url", context)
 
-                    println("Inside signinhelper: gender=${AuthManager.gender}\tonboardingStage=${AuthManager.onboardingStage}\tpictureUrl=${AuthManager.pictureUrl}")
+//                    println("Inside signinhelper: gender=${AuthManager.gender}\tonboardingStage=${AuthManager.onboardingStage}\tpictureUrl=${AuthManager.pictureUrl}")
                     if(AuthManager.onboardingStage == null || AuthManager.onboardingStage != "COMPLETE"){
                         val intent = Intent(context, OnboardingActivity::class.java)
                         context.startActivity(intent)

@@ -221,7 +221,6 @@ suspend fun sendPostRequest(
     age: String,
     context: Context,
 ) {
-    val fetch_utility = Fetchutilities(context)
     val client = OkHttpClient()
     val baseUrl = context.getString(R.string.husn_base_url)
     val url = "$baseUrl/api/onboarding"
@@ -230,7 +229,6 @@ suspend fun sendPostRequest(
         put("gender", gender)
         put("age", age.toIntOrNull() ?: 0)
     } //.toString()
-//    val mediaType = "application/json".toMediaType()
     val request = post_url_request(context, url, json)
 
     client.newCall(request).enqueue(object : Callback {

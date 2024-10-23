@@ -170,7 +170,7 @@ fun ProductItemBriefView(
                         putString(FirebaseAnalytics.Param.ITEM_NAME, product.brand)
                         putString(FirebaseAnalytics.Param.CONTENT_TYPE, "product")
                     }
-                    firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
+                    firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle)
 
                     val intent = Intent(context, ProductDetailsActivity::class.java).apply {
                         putExtra("product_index", product.index)

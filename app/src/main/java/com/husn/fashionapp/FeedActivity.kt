@@ -21,8 +21,8 @@ import com.husn.fashionapp.ui.theme.AppTheme
 class FeedActivity : ComponentActivity() {
     private lateinit var signInHelper: SignInHelper
     private val productsState = mutableStateOf<List<Product>>(emptyList())
+    private val isLoading = mutableStateOf(true)
     private val fetch_utility = Fetchutilities(this)
-    private val isWishlistedState = mutableStateOf<Boolean>(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,7 +38,10 @@ class FeedActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    if (productsState.value.isNotEmpty()) {
+                    if(isLoading.value){
+                        LoadingScreen()
+                    }
+                    else if (productsState.value.isNotEmpty()) {
                         FeedScreen(products = productsState.value, onWishlistChange = { productId, newValue ->
                             updateProductWishlistStatus(productId, newValue)
                         })
@@ -51,6 +54,7 @@ class FeedActivity : ComponentActivity() {
         fetch_utility.fetchProductsList(relative_url = "/api/feed") { products ->
             runOnUiThread {
                 productsState.value = products ?: emptyList()
+                isLoading.value = false
             }
         }
     }

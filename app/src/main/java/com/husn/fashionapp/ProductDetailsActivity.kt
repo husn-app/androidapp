@@ -121,7 +121,6 @@ fun MainProductView(product: Product, modifier: Modifier = Modifier, isWishliste
     val firebaseAnalytics = remember { FirebaseAnalytics.getInstance(context) }
     val processedUrl = remember(product) { fetch_utility.makeProductUrl(context, product) }
 
-    println("MainProductView: iswishlited: ${isWishlisted}")
     Column(
         modifier = modifier
             .padding(8.dp),
@@ -155,7 +154,7 @@ fun MainProductView(product: Product, modifier: Modifier = Modifier, isWishliste
                                 putString(FirebaseAnalytics.Param.ITEM_NAME, product.productName)
                                 putString(FirebaseAnalytics.Param.CONTENT_TYPE, "logo")
                             }
-                            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, bundle)
+                            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.BEGIN_CHECKOUT, bundle)
 
                             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(product.productUrl))
                             context.startActivity(intent)

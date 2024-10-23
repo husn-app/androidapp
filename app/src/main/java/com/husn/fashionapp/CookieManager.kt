@@ -11,7 +11,7 @@ fun addCookiesToRequest(requestBuilder: Request.Builder, context: Context): Requ
         // Combine cookies into a single string for the "Cookie" header in the format "key1=value1; key2=value2"
         val cookieHeaderValue = cookies.entries.joinToString("; ") { "${it.key}=${it.value}" }
         requestBuilder.addHeader("Cookie", cookieHeaderValue)
-        println("Added cookies before request: $cookies")
+//        println("Added cookies before request: $cookies")
     }
     else{
         requestBuilder.addHeader("Cookie", "")
@@ -35,7 +35,7 @@ fun saveSessionCookie(cookies: List<String>, context: Context) {
             key,
             value
         )
-        println("key: $key, value: $value")
+//        println("key: $key, value: $value")
     }
     editor.apply()  // Apply changes asynchronously
 }
@@ -50,7 +50,7 @@ fun getSessionCookieFromStorage(context: Context): Map<String, String> {
     // Print the retrieved cookies
     if (cookies.isNotEmpty()) {
         for ((key, value) in cookies) {
-            println("Retrieved key: $key, value: $value")
+//            println("Retrieved key: $key, value: $value")
         }
     } else {
         println("No cookies found in storage.")
@@ -67,7 +67,7 @@ fun clearSessionCookie(context: Context) {
     editor.clear()  // Clear all data in the shared preferences
     editor.apply()  // Apply changes asynchronously
 
-    println("All session cookies have been cleared.")
+//    println("All session cookies have been cleared.")
 }
 
 fun getSavedKeyValue(key: String, context: Context): String? {
@@ -82,6 +82,6 @@ fun putKeyValue(key: String, value: String, context: Context){
         key,
         value
     )
-    println("putKeyValue: key: $key, value: $value")
+//    println("putKeyValue: key: $key, value: $value")
     editor.apply()  // Apply changes asynchronously
 }

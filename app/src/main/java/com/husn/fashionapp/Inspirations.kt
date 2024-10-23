@@ -160,9 +160,6 @@ class InspirationsActivity : ComponentActivity() {
                         // Update the inspirations state on the main thread
                         runOnUiThread {
                             inspirationsState.value = inspirationsList
-//                            gender?.let {
-//                                genderState.value = gender
-//                            }
                         }
                     }
                 } else {
@@ -178,7 +175,6 @@ fun InspirationScreen(
     inspirations: List<Pair<String, List<InspirationProduct>>>
 ) {
     val context = LocalContext.current
-    val signInHelper = LocalSignInHelper.current
     val firebaseAnalytics = remember { FirebaseAnalytics.getInstance(context) }
     val randomizedInspirations = remember(inspirations) {
         inspirations.map { (category, products) ->
