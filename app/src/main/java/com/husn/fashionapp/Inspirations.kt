@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -173,6 +174,11 @@ fun InspirationScreen(
 //    val formattedGender = if(gender == "MAN") "Men" else "Women"
 //    val formattedOppGender = if(oppositeGender == "MAN") "Men" else "Women"
     val firebaseAnalytics = remember { FirebaseAnalytics.getInstance(context) }
+    val randomizedInspirations = remember(inspirations) {
+        inspirations.map { (category, products) ->
+            category to products.shuffled()
+        }.shuffled()
+    }
 
     Scaffold(
         backgroundColor = Color.Transparent,
@@ -213,7 +219,7 @@ fun InspirationScreen(
 //                    }
 //                }
 //            }
-            items(inspirations) { (categoryName, productsList) ->
+            items(randomizedInspirations) { (categoryName, productsList) ->
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()

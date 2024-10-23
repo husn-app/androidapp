@@ -97,9 +97,10 @@ class ProductDetailsActivity : ComponentActivity() {
         if (Intent.ACTION_VIEW == intent.action) {
             intent.data?.let { uri ->
                 val segments = uri.pathSegments
-                if (segments.size >= 2) {
-                    val indexString = segments.lastOrNull()
-                    return indexString?.toIntOrNull() ?: 0
+                if (segments.size >= 3) {
+                    return segments[2].toIntOrNull() ?: 0
+//                    val indexString = segments.lastOrNull()
+//                    return indexString?.toIntOrNull() ?: 0
                 }
             }
         }
@@ -118,8 +119,10 @@ fun PreviewProductDetailsScreen() {
 @Composable
 fun MainProductView(product: Product, modifier: Modifier = Modifier, isWishlisted: Boolean = false, onWishlistChange: (Boolean) -> Unit = {}, clickable: () -> Unit = {}) {
     val context = LocalContext.current
-//    val fetch_utility = Fetchutilities(context)
+    val fetch_utility = Fetchutilities(context)
     val firebaseAnalytics = remember { FirebaseAnalytics.getInstance(context) }
+    val processedUrl = remember(product) { fetch_utility.makeProductUrl(context, product) }
+
     println("MainProductView: iswishlited: ${isWishlisted}")
     Column(
         modifier = modifier
@@ -141,7 +144,7 @@ fun MainProductView(product: Product, modifier: Modifier = Modifier, isWishliste
             horizontalArrangement = Arrangement.SpaceBetween) {
             Row {
                 FavoriteButton(isWishlisted = isWishlisted, onWishlistChange = onWishlistChange, productId = product.index)
-                ShareButton(url = product.productUrl)
+                ShareButton(url = processedUrl)//product.productUrl)
                 Spacer(modifier = Modifier.width(8.dp))
                 DisplaySvgIconFromAssets(
                     fileName = "myntra-logo.svg",

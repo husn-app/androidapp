@@ -110,15 +110,18 @@ class Fetchutilities(private val context: Context, private val client: OkHttpCli
         })
     }
 
-    fun makeProductUrl(product: Product): String {
-//        val context = LocalContext.current
+    fun makeProductUrl(context: Context, product: Product): String {
         val decodedUrl = URLDecoder.decode(product.productUrl, "UTF-8") // Decode URL-encoded characters
         val pathSegments = decodedUrl.split("/").filter { it.isNotBlank() }
         println("productDetails: $pathSegments")
         val baseUrl = context.getString(R.string.husn_base_url)
-//    val allUrl = "$baseUrl/${pathSegments[pathSegments.size - 3]}/${product.index}"
-//    println("productUrl: $allUrl")
-//    return allUrl
-        return baseUrl
+        if (pathSegments.size < 3) {
+            return baseUrl
+        }
+
+        val allUrl = "$baseUrl/${pathSegments[pathSegments.size - 3]}/${product.index}"
+        println("productUrl: $allUrl")
+        return allUrl
+//        return baseUrl
     }
 }

@@ -3,6 +3,7 @@ package com.husn.fashionapp
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -23,6 +25,8 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -37,16 +41,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.example.fashionapp.R
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.firebase.analytics.FirebaseAnalytics
 
@@ -72,6 +83,7 @@ fun TopNavBar(modifier: Modifier = Modifier){
     val context = LocalContext.current
     val isUserSignedIn = AuthManager.isUserSignedIn
     val signInHelper = LocalSignInHelper.current
+    var showDropdown by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -83,24 +95,68 @@ fun TopNavBar(modifier: Modifier = Modifier){
             fontFamily = FontFamily.Serif,
             color = Color.Black,
             modifier = Modifier
-                .padding(16.dp) // Padding around the text
-                .clickable {
-                    val intent = Intent(context, MainActivity::class.java)
-                    context.startActivity(intent)
-                },
+                .padding(16.dp), // Padding around the text
+//                .clickable {
+//                    val intent = Intent(context, MainActivity::class.java)
+//                    context.startActivity(intent)
+//                },
             textAlign = TextAlign.Center
         )
 
-        val signInText = if (isUserSignedIn) "Sign out" else "Sign in"
-//        println("husn_logo:$isUserSignedIn\n $signInText \n $signInHelper")
-
-        Text(text=signInText, fontSize = 20.sp, modifier = Modifier.padding(16.dp).clickable {
+        Box(
+            modifier = Modifier.padding(16.dp)
+        ) {
             if (isUserSignedIn) {
-                signInHelper?.signOut(context)
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(AuthManager.pictureUrl)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "Profile Picture",
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .clickable { showDropdown = true },
+                    contentScale = ContentScale.Crop,
+//                    placeholder = painterResource(R.drawable.profile_placeholder) // Make sure to have a placeholder image
+                )
+
+                DropdownMenu(
+                    expanded = showDropdown,
+                    onDismissRequest = { showDropdown = false },
+                    modifier = Modifier.background(color = Color.White)
+//                    offset = DpOffset(x = (-40).dp, y = 4.dp)
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Sign out", fontSize = 16.sp, fontFamily = FontFamily.Serif,
+                            textAlign = TextAlign.Center) },
+                        onClick = {
+                            signInHelper?.signOut(context)
+                            showDropdown = false
+                        }
+                    )
+                }
             } else {
-                signInHelper?.signIn()
+                Text(
+                    text = "Sign in",
+                    fontSize = 20.sp,
+                    modifier = Modifier.clickable {
+                        signInHelper?.signIn()
+                    }
+                )
             }
-        })
+        }
+
+//        val signInText = if (isUserSignedIn) "Sign out" else "Sign in"
+////        println("husn_logo:$isUserSignedIn\n $signInText \n $signInHelper")
+//
+//        Text(text=signInText, fontSize = 20.sp, modifier = Modifier.padding(16.dp).clickable {
+//            if (isUserSignedIn) {
+//                signInHelper?.signOut(context)
+//            } else {
+//                signInHelper?.signIn()
+//            }
+//        })
 
     }
 }
