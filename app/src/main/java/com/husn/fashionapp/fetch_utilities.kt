@@ -1,7 +1,6 @@
 package com.husn.fashionapp
 
 import android.content.Context
-import androidx.compose.ui.platform.LocalContext
 import com.example.fashionapp.R
 import okhttp3.Call
 import okhttp3.Callback
@@ -75,7 +74,7 @@ class Fetchutilities(private val context: Context, private val client: OkHttpCli
                     saveSessionCookie(cookies, context)
 
                     val responseData = response.body?.string()
-                    println("fetchProductData: responseData: $responseData")
+//                    println("fetchProductData: responseData: $responseData")
                     responseData?.let {
 //                        var is_wishlisted: Boolean = false
                         // Parse the response data
@@ -100,7 +99,6 @@ class Fetchutilities(private val context: Context, private val client: OkHttpCli
                             val product = Product(productJson)
                             products.add(product)
                         }
-                        println("fetchProductData: product.iswishlisted = ${currentProduct.isWishlisted}")
                         callback(currentProduct, products)
                     }
                 } else {
@@ -113,14 +111,14 @@ class Fetchutilities(private val context: Context, private val client: OkHttpCli
     fun makeProductUrl(context: Context, product: Product): String {
         val decodedUrl = URLDecoder.decode(product.productUrl, "UTF-8") // Decode URL-encoded characters
         val pathSegments = decodedUrl.split("/").filter { it.isNotBlank() }
-        println("productDetails: $pathSegments")
+//        println("productDetails: $pathSegments")
         val baseUrl = context.getString(R.string.husn_base_url)
         if (pathSegments.size < 3) {
             return baseUrl
         }
 
         val allUrl = "$baseUrl/${pathSegments[pathSegments.size - 3]}/${product.index}"
-        println("productUrl: $allUrl")
+//        println("productUrl: $allUrl")
         return allUrl
 //        return baseUrl
     }

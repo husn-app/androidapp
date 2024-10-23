@@ -1,6 +1,5 @@
 package com.husn.fashionapp
 
-//import androidx.appcompat.app.AppCompatActivity
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity

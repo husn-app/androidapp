@@ -8,7 +8,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,7 +24,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -36,7 +34,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -111,11 +108,11 @@ class InspirationsActivity : ComponentActivity() {
 //                    val session = response.header("Set-Cookie")
                     val headers = response.headers
                     val cookies = headers.values("Set-Cookie")
-                    println("fetchInspirationData success. cookies: $cookies\n response: $response")
+//                    println("fetchInspirationData success. cookies: $cookies\n response: $response")
                     saveSessionCookie(cookies, this@InspirationsActivity)
 
                     val responseDataString = response.body?.string()
-                    println("fetchInspirationData responseDataString $responseDataString")
+//                    println("fetchInspirationData responseDataString $responseDataString")
                     responseDataString?.let {
                         val responseData = try {
                             JSONObject(fetch_utility.sanitizeJson(it))
@@ -124,7 +121,7 @@ class InspirationsActivity : ComponentActivity() {
                             null
                         }
                         val categoryArray = responseData?.getJSONArray("inspirations")
-                        println("fetchInspirationData categoryArray: $categoryArray")
+//                        println("fetchInspirationData categoryArray: $categoryArray")
 //                        val gender = responseData?.getString("gender")
                         val inspirationsList = mutableListOf<Pair<String, List<InspirationProduct>>>()
                         if (categoryArray != null) {
@@ -163,16 +160,10 @@ class InspirationsActivity : ComponentActivity() {
 
 @Composable
 fun InspirationScreen(
-    inspirations: List<Pair<String, List<InspirationProduct>>>,
-    gender: String = "",
-    onGenderChange: (String) -> Unit = {}
+    inspirations: List<Pair<String, List<InspirationProduct>>>
 ) {
     val context = LocalContext.current
     val signInHelper = LocalSignInHelper.current
-//    val inspirations = inspirationsMap[gender] ?: emptyList()
-//    val oppositeGender = if (gender == "MAN") "WOMAN" else "MAN"
-//    val formattedGender = if(gender == "MAN") "Men" else "Women"
-//    val formattedOppGender = if(oppositeGender == "MAN") "Men" else "Women"
     val firebaseAnalytics = remember { FirebaseAnalytics.getInstance(context) }
     val randomizedInspirations = remember(inspirations) {
         inspirations.map { (category, products) ->
@@ -190,35 +181,6 @@ fun InspirationScreen(
             item {
                 TopNavBar()
             }
-//            if (!AuthManager.isUserSignedIn) {
-//                item {
-//                    Column(
-//                        modifier = Modifier.padding(16.dp)
-//                    ) {
-//                        Text("This page has $formattedGender's inspirations.")
-//                        Row {
-//                            Text(
-//                                text = "Login",
-//                                textDecoration = TextDecoration.Underline,
-//                                modifier = Modifier.clickable {
-//                                    signInHelper?.signIn(){
-//                                        val intent = Intent(context, InspirationsActivity::class.java)
-//                                        context.startActivity(intent)
-//                                    }
-//                                }
-//                            )
-//                            Text(" to see personalized feed. ")
-//                        }
-//                        Text(
-//                            text = "$formattedOppGender's inspirations.",
-//                            textDecoration = TextDecoration.Underline,
-//                            modifier = Modifier.clickable {
-//                                onGenderChange(oppositeGender)
-//                            }
-//                        )
-//                    }
-//                }
-//            }
             items(randomizedInspirations) { (categoryName, productsList) ->
                 Column(
                     modifier = Modifier

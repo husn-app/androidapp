@@ -59,34 +59,6 @@ fun getSessionCookieFromStorage(context: Context): Map<String, String> {
     return cookies
 }
 
-//fun clearSessionCookie(context: Context) {
-//    val sharedPreferences = context.getSharedPreferences("SessionPref", Context.MODE_PRIVATE)
-//    val cookies = sharedPreferences.getStringSet("session_cookies", null)
-//
-//    val editor = sharedPreferences.edit()
-//    editor.remove("session_cookie") // Remove the cookie specifically
-//    editor.apply()
-//}
-
-//fun clearSessionCookie(context: Context) {
-//    val sharedPreferences = context.getSharedPreferences("SessionPref", Context.MODE_PRIVATE)
-//    val editor = sharedPreferences.edit()
-//
-//    // Retrieve all the entries in SharedPreferences
-//    val allEntries = sharedPreferences.all
-//
-//    // Iterate through the entries and remove all key-value pairs (cookies)
-//    for ((key, value) in allEntries) {
-//        if (value is String) {
-//            editor.remove(key)  // Remove each cookie stored as a separate key
-//            println("Removed cookie key: $key")
-//        }
-//    }
-//
-//    editor.apply()  // Apply changes asynchronously
-//    println("All session cookies have been cleared.")
-//}
-
 fun clearSessionCookie(context: Context) {
     val sharedPreferences = context.getSharedPreferences("SessionPref", Context.MODE_PRIVATE)
     val editor = sharedPreferences.edit()

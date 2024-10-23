@@ -5,11 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.example.fashionapp.R
@@ -19,9 +15,7 @@ import com.husn.fashionapp.post_url_request
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
-import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 
 @Composable
@@ -87,7 +81,7 @@ suspend fun sendWishlistRequest(
     return withContext(Dispatchers.IO) {
         val baseUrl = context.getString(R.string.husn_base_url)
         val url = "$baseUrl/api/wishlist/$productId"
-        println("sendWishlistRequest: $url")
+//        println("sendWishlistRequest: $url")
         val client = OkHttpClient()
         val requestBodyJson = JSONObject("{\"productId\": $productId}")//.apply{
 //            put("productId", productId)
@@ -101,7 +95,7 @@ suspend fun sendWishlistRequest(
                 // Parse the responseBody JSON to get the is_wishlisted parameter
                 val jsonObject = JSONObject(responseBody)
                 val newIsWishlisted = jsonObject.getBoolean("wishlist_status")
-                println("sendWishlistRequest: $newIsWishlisted")
+//                println("sendWishlistRequest: $newIsWishlisted")
                 newIsWishlisted
             } else {
                 println("sendWishlistRequest: response failed")

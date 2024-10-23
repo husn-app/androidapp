@@ -9,7 +9,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.example.fashionapp.R
-import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -19,10 +18,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
 import okio.IOException
 import org.json.JSONObject
 
@@ -130,14 +126,6 @@ class SignInHelper(
 
     private fun sendIdTokenToServer(idToken: String, onSuccess: () -> Unit = {}) {
         val url = "$baseUrl/login_android"
-//        val mediaType = "application/json; charset=utf-8".toMediaType()
-//        val requestBody = "{\"idToken\": \"$idToken\"}".toRequestBody(mediaType)
-//
-//        val request = Request.Builder()
-//            .url(url)
-//            .post(requestBody)
-//            .addHeader("platform", "android")
-//            .build()
         val requestBodyJson = JSONObject("{\"idToken\": \"$idToken\"}")
         val request = post_url_request(context, url, requestBodyJson)
 

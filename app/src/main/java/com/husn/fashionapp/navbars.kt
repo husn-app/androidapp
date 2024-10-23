@@ -46,18 +46,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.fashionapp.R
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.firebase.analytics.FirebaseAnalytics
 
@@ -114,7 +111,7 @@ fun TopNavBar(modifier: Modifier = Modifier){
                         .build(),
                     contentDescription = "Profile Picture",
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(36.dp)
                         .clip(CircleShape)
                         .clickable { showDropdown = true },
                     contentScale = ContentScale.Crop,
@@ -146,18 +143,6 @@ fun TopNavBar(modifier: Modifier = Modifier){
                 )
             }
         }
-
-//        val signInText = if (isUserSignedIn) "Sign out" else "Sign in"
-////        println("husn_logo:$isUserSignedIn\n $signInText \n $signInHelper")
-//
-//        Text(text=signInText, fontSize = 20.sp, modifier = Modifier.padding(16.dp).clickable {
-//            if (isUserSignedIn) {
-//                signInHelper?.signOut(context)
-//            } else {
-//                signInHelper?.signIn()
-//            }
-//        })
-
     }
 }
 
