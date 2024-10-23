@@ -73,6 +73,7 @@ fun WishlistScreen(products: List<Product>){
         bottomBar = { BottomBar(context = context, selectedItem = 2) } // BottomBar placed correctly
     ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
         if (products.isEmpty()) {
+            TopNavBar()
             Column(
                 modifier = Modifier
                     .fillMaxSize()

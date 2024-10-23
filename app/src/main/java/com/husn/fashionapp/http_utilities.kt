@@ -15,10 +15,10 @@ fun get_url_request(context: Context, url: String) : Request {
     return request.build()
 }
 
-fun post_url_request(context: Context, url: String, requestBodyJson: JSONObject = JSONObject()) : Request {
+fun post_url_request(context: Context, url: String, requestBodyJson: JSONObject = JSONObject(), requestReferrer: String = "android") : Request {
     val mediaType = "application/json; charset=utf-8".toMediaType()
     val requestBodyString = requestBodyJson.apply {
-        put("referrer", "android")
+        put("referrer", requestReferrer)
     }.toString()
     val requestBody = requestBodyString.toRequestBody(mediaType)
     var request = Request.Builder()

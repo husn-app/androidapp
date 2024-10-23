@@ -101,6 +101,7 @@ class SignInHelper(
         } catch (e: Exception) {
             println("sign_in failed: ${e}")
             e.printStackTrace()
+            activity.finish()
         }
     }
 

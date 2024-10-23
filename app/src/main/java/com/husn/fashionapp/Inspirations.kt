@@ -1,8 +1,10 @@
 package com.husn.fashionapp
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -62,8 +64,13 @@ class InspirationsActivity : ComponentActivity() {
         val signInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
-            signInHelper.handleSignInResult(result.data) {
-                fetchInspirationData()
+            if (result.resultCode == Activity.RESULT_CANCELED) {
+                // User cancelled the sign-in
+                finishAffinity()
+            } else {
+                signInHelper.handleSignInResult(result.data) {
+                    fetchInspirationData()
+                }
             }
         }
         signInHelper = SignInHelper(this, signInLauncher, this)
@@ -86,6 +93,14 @@ class InspirationsActivity : ComponentActivity() {
 //                            onGenderChange = { newGender -> genderState.value = newGender }
                     )
                 }
+            }
+        }
+
+        onBackPressedDispatcher.addCallback(this) {
+            if (!AuthManager.isUserSignedIn) {
+                finishAffinity() // This will close all activities and exit the app
+            } else {
+                finish() // Handle normal finish behavior when signed in
             }
         }
     }

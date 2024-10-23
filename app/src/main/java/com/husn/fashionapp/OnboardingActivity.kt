@@ -92,7 +92,7 @@ fun GenderAgeInputScreen() {
     Scaffold(
         topBar = { TopNavBar() },
         backgroundColor = Color.Transparent,
-        bottomBar = { BottomBar(context = context) }
+//        bottomBar = { BottomBar(context = context) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -244,16 +244,6 @@ suspend fun sendPostRequest(
                 saveSessionCookie(cookies, context)
                 val responseBody = response.body?.string()
                 println("onboardingactivity response: $responseBody")
-                responseBody?.let{
-                    var responseData =
-                        JSONObject(fetch_utility.sanitizeJson(it))
-                    if (responseData.has("gender")) {
-                        AuthManager.gender = responseData.getString("gender")
-                        AuthManager.gender?.let { genderValue ->
-                            putKeyValue("gender", genderValue, context)
-                        }
-                    }
-                }
 
                 val intent = Intent(context, InspirationsActivity::class.java)
                 context.startActivity(intent)

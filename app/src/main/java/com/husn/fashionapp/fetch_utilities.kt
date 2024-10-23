@@ -117,7 +117,7 @@ class Fetchutilities(private val context: Context, private val client: OkHttpCli
             return baseUrl
         }
 
-        val allUrl = "$baseUrl/${pathSegments[pathSegments.size - 3]}/${product.index}"
+        val allUrl = "$baseUrl/product/${pathSegments[pathSegments.size - 3]}/${product.index}"
 //        println("productUrl: $allUrl")
         return allUrl
 //        return baseUrl

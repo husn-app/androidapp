@@ -125,7 +125,7 @@ fun TopNavBar(modifier: Modifier = Modifier){
 //                    offset = DpOffset(x = (-40).dp, y = 4.dp)
                 ) {
                     DropdownMenuItem(
-                        text = { Text("Sign out", fontSize = 16.sp, fontFamily = FontFamily.Serif,
+                        text = { Text("Sign out", color = Color.Black, fontSize = 16.sp, fontFamily = FontFamily.Serif,
                             textAlign = TextAlign.Center) },
                         onClick = {
                             signInHelper?.signOut(context)
@@ -133,15 +133,16 @@ fun TopNavBar(modifier: Modifier = Modifier){
                         }
                     )
                 }
-            } else {
-                Text(
-                    text = "Sign in",
-                    fontSize = 20.sp,
-                    modifier = Modifier.clickable {
-                        signInHelper?.signIn()
-                    }
-                )
             }
+//            else {
+//                Text(
+//                    text = "Sign in",
+//                    fontSize = 20.sp,
+//                    modifier = Modifier.clickable {
+//                        signInHelper?.signIn()
+//                    }
+//                )
+//            }
         }
     }
 }
