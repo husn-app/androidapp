@@ -32,15 +32,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import com.husn.fashionapp.ui.theme.AppTheme
 
 class WishlistActivity : ComponentActivity() {
     private lateinit var signInHelper: SignInHelper
     private val productsState = mutableStateOf<List<Product>>(emptyList())
     private val fetch_utility = Fetchutilities(this)
+    private val isLoading = mutableStateOf(true)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val signInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -53,13 +56,19 @@ class WishlistActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    WishlistScreen(products = productsState.value)
+                    if(isLoading.value){
+                        LoadingScreen()
+                    }
+                    else {
+                        WishlistScreen(products = productsState.value)
+                    }
                 }
             }
         }
         fetch_utility.fetchProductsList(relative_url = "/api/wishlist") { products ->
             runOnUiThread {
                 productsState.value = products ?: emptyList()
+                isLoading.value = false
             }
         }
     }
@@ -70,7 +79,7 @@ fun WishlistScreen(products: List<Product>){
     val context = LocalContext.current
     Scaffold(
         backgroundColor = Color.Transparent,
-        bottomBar = { BottomBar(context = context, selectedItem = 2) } // BottomBar placed correctly
+        bottomBar = { BottomBar(selectedItem = 2) } // BottomBar placed correctly
     ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
         if (products.isEmpty()) {
             TopNavBar()
@@ -134,7 +143,7 @@ fun WishlistScreen(products: List<Product>){
                 }
             }
         } else {
-            val intent = Intent(context, InspirationsActivity::class.java)
+            val intent = Intent(context, FeedActivity::class.java)
             context.startActivity(intent)
         }
     }

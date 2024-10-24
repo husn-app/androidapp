@@ -7,21 +7,26 @@ import androidx.activity.ComponentActivity
 import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Scaffold
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,7 +43,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import com.example.fashionapp.R
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.husn.fashionapp.ui.theme.AppTheme
@@ -60,49 +67,51 @@ class InspirationsActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val signInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
-            if (result.resultCode == Activity.RESULT_CANCELED) {
-                // User cancelled the sign-in
-                finishAffinity()
-            } else {
+//            if (result.resultCode == Activity.RESULT_CANCELED) {
+//                // User cancelled the sign-in
+//                finishAffinity()
+//            } else {
                 signInHelper.handleSignInResult(result.data) {
-                    fetchInspirationData()
+//                    fetchInspirationData()
                 }
-            }
+//            }
         }
         signInHelper = SignInHelper(this, signInLauncher, this)
-        if (!AuthManager.isUserSignedIn) {
-            signInHelper.signIn()
-//            signInHelper?.signIn(onSignInSuccess = {
-//                val intent = Intent(this, WishlistActivity::class.java)
-//                startActivity(intent)
-//            })
-        } else {
-            // Fetch data if already signed in
-            fetchInspirationData()
-        }
-
+//        if (!AuthManager.isUserSignedIn) {
+//            signInHelper.signIn()
+////            signInHelper?.signIn(onSignInSuccess = {
+////                val intent = Intent(this, WishlistActivity::class.java)
+////                startActivity(intent)
+////            })
+//        } else {
+//            // Fetch data if already signed in
+//            fetchInspirationData()
+//        }
+        fetchInspirationData()
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    InspirationScreen(
-                        inspirations = inspirationsState.value //, gender = genderState.value,
-//                            onGenderChange = { newGender -> genderState.value = newGender }
-                    )
+//                    FullScreenContent {
+                        InspirationScreen(
+                            inspirations = inspirationsState.value
+                        )
+//                    }
                 }
             }
         }
 
-        onBackPressedDispatcher.addCallback(this) {
-            if (!AuthManager.isUserSignedIn) {
-                finishAffinity() // This will close all activities and exit the app
-            } else {
-                finish() // Handle normal finish behavior when signed in
-            }
-        }
+//        onBackPressedDispatcher.addCallback(this) {
+//            if (!AuthManager.isUserSignedIn) {
+//                finishAffinity() // This will close all activities and exit the app
+//            } else {
+//                finish() // Handle normal finish behavior when signed in
+//            }
+//        }
     }
 
     private fun fetchInspirationData() {
@@ -111,6 +120,7 @@ class InspirationsActivity : ComponentActivity() {
         AuthManager.gender?.let{
             url = "$url/${AuthManager.gender}"
         }
+        println("fetchInspirationData: sending request to url: $url")
         val request = post_url_request(this, url)
 
         client.newCall(request).enqueue(object : Callback {
@@ -184,13 +194,14 @@ fun InspirationScreen(
 
     Scaffold(
         backgroundColor = Color.Transparent,
-        bottomBar = { BottomBar(context = context, selectedItem = 2) }
+        bottomBar = { BottomBar(selectedItem = 2) }
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(innerPadding)
         ) {
             item {
                 TopNavBar()
+                SearchBar()
             }
             items(randomizedInspirations) { (categoryName, productsList) ->
                 Column(
@@ -204,8 +215,7 @@ fun InspirationScreen(
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.primary,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.headlineSmall
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     LazyRow(
@@ -217,26 +227,17 @@ fun InspirationScreen(
                                     .width(250.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                AsyncImage(
-                                    model = product.primary_image,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .aspectRatio(0.75f)
-                                        .clip(RoundedCornerShape(16.dp))
-                                        .clickable {
-                                            val bundle = Bundle().apply {
-                                                putString(FirebaseAnalytics.Param.SEARCH_TERM, product.inspiration_subcategory_query)
-                                            }
-                                            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SEARCH, bundle)
+                                ImageFromUrl(product.primary_image, clickable = {
+                                    val bundle = Bundle().apply {
+                                        putString(FirebaseAnalytics.Param.SEARCH_TERM, product.inspiration_subcategory_query)
+                                    }
+                                    firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SEARCH, bundle)
 
-                                            val intent = Intent(context, SearchResultsActivity::class.java).apply {
-                                                putExtra("query", product.inspiration_subcategory_query)
-                                            }
-                                            context.startActivity(intent)
-                                        },
-                                    contentScale = ContentScale.Crop
-                                )
+                                    val intent = Intent(context, SearchResultsActivity::class.java).apply {
+                                        putExtra("query", product.inspiration_subcategory_query)
+                                    }
+                                    context.startActivity(intent)
+                                })
                                 Text(
                                     text = product.inspiration_subcategory_name,
                                     textAlign = TextAlign.Center,
@@ -247,6 +248,7 @@ fun InspirationScreen(
                         }
                     }
                 }
+                Divider()
             }
         }
     }

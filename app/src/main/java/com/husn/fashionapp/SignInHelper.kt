@@ -111,9 +111,6 @@ class SignInHelper(
             .addOnCompleteListener(activity) { task ->
                 if (task.isSuccessful) {
                     println("Firebase sign-in successful")
-//                    if(onSignInSuccess != {}){
-//                        onSignInSuccessCallback = onSignInSuccess
-//                    }
                     sendIdTokenToServer(idToken){
                         onSignInSuccessCallback?.invoke()
                         // Reset the callback
@@ -166,7 +163,7 @@ class SignInHelper(
                         context.startActivity(intent)
                     }
                     else {
-                        val intent = Intent(context, InspirationsActivity::class.java)
+                        val intent = Intent(context, FeedActivity::class.java)
                         context.startActivity(intent)
 //                        onSuccess()
                     }
@@ -187,7 +184,7 @@ class SignInHelper(
         AuthManager.signOut()
         clearSessionCookie(context)
 
-        val intent = Intent(context, InspirationsActivity::class.java)
+        val intent = Intent(context, FeedActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         context.startActivity(intent)
 

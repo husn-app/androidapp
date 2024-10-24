@@ -1,5 +1,6 @@
 package com.husn.fashionapp
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -57,54 +59,31 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.fashionapp.R
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.firebase.analytics.FirebaseAnalytics
 
-@Composable
-fun SetStatusBarColor() {
-    val systemUiController = rememberSystemUiController()
-    val statusBarColor = MaterialTheme.colorScheme.primary // Or any other color you prefer
-    val useDarkIcons = !isSystemInDarkTheme() && statusBarColor.luminance() > 0.5f
-    SideEffect {
-        systemUiController.setStatusBarColor(
-            color = Color.Transparent,
-            darkIcons = useDarkIcons
-        )
-    }
-}
-
 val LocalSignInHelper = staticCompositionLocalOf<SignInHelper?> { null }
-
-
 @Composable
-fun TopNavBar(modifier: Modifier = Modifier){
-    SetStatusBarColor()
+fun TopNavBar(modifier: Modifier = Modifier.statusBarsPadding()){
     val context = LocalContext.current
     val isUserSignedIn = AuthManager.isUserSignedIn
     val signInHelper = LocalSignInHelper.current
     var showDropdown by remember { mutableStateOf(false) }
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().padding(top = 0.dp).padding(bottom = 16.dp).padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Text(
             text = "Husn",
-            fontSize = 24.sp, // Set a large font size
+            fontSize = 28.sp, // Set a large font size
             fontWeight = FontWeight.Bold, // Bold font weight
             fontFamily = FontFamily.Serif,
             color = Color.Black,
-            modifier = Modifier
-                .padding(16.dp), // Padding around the text
-//                .clickable {
-//                    val intent = Intent(context, MainActivity::class.java)
-//                    context.startActivity(intent)
-//                },
             textAlign = TextAlign.Center
         )
 
-        Box(
-            modifier = Modifier.padding(16.dp)
-        ) {
+        Box{
             if (isUserSignedIn) {
                 AsyncImage(
                     model = ImageRequest.Builder(context)
@@ -116,35 +95,38 @@ fun TopNavBar(modifier: Modifier = Modifier){
                         .size(36.dp)
                         .clip(CircleShape)
                         .clickable { showDropdown = true },
-                    contentScale = ContentScale.Crop,
+                    contentScale = ContentScale.Crop)
 //                    placeholder = painterResource(R.drawable.profile_placeholder) // Make sure to have a placeholder image
-                )
-
-                DropdownMenu(
-                    expanded = showDropdown,
-                    onDismissRequest = { showDropdown = false },
-                    modifier = Modifier.background(color = Color.White)
-//                    offset = DpOffset(x = (-40).dp, y = 4.dp)
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("Sign out", color = Color.Black, fontSize = 16.sp, fontFamily = FontFamily.Serif,
-                            textAlign = TextAlign.Center) },
-                        onClick = {
-                            signInHelper?.signOut(context)
-                            showDropdown = false
-                        }
-                    )
-                }
             }
-//            else {
-//                Text(
-//                    text = "Sign in",
-//                    fontSize = 20.sp,
-//                    modifier = Modifier.clickable {
-//                        signInHelper?.signIn()
-//                    }
-//                )
-//            }
+            else {
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(R.drawable.google_signin_1)
+                        .build(),
+                    contentDescription = "Google Sign In",
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .clickable { signInHelper?.signIn() },
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            DropdownMenu(
+                expanded = showDropdown,
+                onDismissRequest = { showDropdown = false },
+                modifier = Modifier.background(color = Color.White)
+//                    offset = DpOffset(x = (-40).dp, y = 4.dp)
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Sign out", color = Color.Black, fontSize = 16.sp, fontFamily = FontFamily.Serif,
+                        textAlign = TextAlign.Center) },
+                    onClick = {
+                        signInHelper?.signOut(context)
+                        showDropdown = false
+                    }
+                )
+            }
         }
     }
 }
@@ -154,7 +136,7 @@ fun SearchBar(
     query: String = "",
     context: Context = LocalContext.current,
     modifier: Modifier = Modifier,
-    searchBarFraction: Float = 0.9f
+    searchBarFraction: Float = 0.96f
 ) {
     var searchText by remember { mutableStateOf(TextFieldValue(query)) }
     val firebaseAnalytics = remember { FirebaseAnalytics.getInstance(context) }
@@ -210,19 +192,18 @@ fun SearchBar(
 }
 
 @Composable
-fun BottomBar(context: Context, selectedItem: Int = 0) {
+fun BottomBar(selectedItem: Int = 0) {
     val isUserSignedIn = AuthManager.isUserSignedIn
     val signInHelper = LocalSignInHelper.current
     val iconSize = 28.dp
 //    val selectedItem = remember { mutableStateOf(0) }
-
+    val context = LocalContext.current
     Column {
-        // Divider for separation
         Divider(
-            color = Color.Gray, // Customize the color as needed
-            thickness = 1.dp,
-            modifier = Modifier
-                .fillMaxWidth()
+            color = Color(0xFFC8BEA1), // Customize the color as needed
+//            thickness = 1.dp,
+//            modifier = Modifier
+//                .fillMaxWidth()
         )
 
         BottomNavigation(
@@ -238,6 +219,7 @@ fun BottomBar(context: Context, selectedItem: Int = 0) {
                 onClick = {
 //                    selectedItem.value = 1
                     val intent = Intent(context, FeedActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                     context.startActivity(intent)
                 },
                 selectedContentColor = Color.Black, // Customize selected icon color
@@ -254,6 +236,7 @@ fun BottomBar(context: Context, selectedItem: Int = 0) {
                 selected = selectedItem == 2,
                 onClick = {
                     val intent = Intent(context, InspirationsActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                     context.startActivity(intent)
                 },
                 selectedContentColor = Color.Black,
@@ -272,10 +255,12 @@ fun BottomBar(context: Context, selectedItem: Int = 0) {
                     if (!isUserSignedIn) {
                         signInHelper?.signIn(onSignInSuccess = {
                             val intent = Intent(context, WishlistActivity::class.java)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                             context.startActivity(intent)
                         })
                     } else {
                         val intent = Intent(context, WishlistActivity::class.java)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                         context.startActivity(intent)
                     }
                 },
@@ -283,17 +268,5 @@ fun BottomBar(context: Context, selectedItem: Int = 0) {
                 unselectedContentColor = Color.Gray
             )
         }
-    }
-}
-
-@Composable
-fun LoadingScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator(
-            color = MaterialTheme.colorScheme.primary
-        )
     }
 }

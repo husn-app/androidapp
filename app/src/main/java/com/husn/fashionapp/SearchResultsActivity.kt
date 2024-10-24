@@ -39,6 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import coil.compose.rememberAsyncImagePainter
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.husn.fashionapp.ui.theme.AppTheme
@@ -51,6 +52,7 @@ class SearchResultsActivity : ComponentActivity() {
     private val productsState = mutableStateOf<List<Product>>(emptyList())
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val signInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -64,7 +66,9 @@ class SearchResultsActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    SearchResultsScreen(query = query, products = productsState.value)
+                    FullScreenContent {
+                        SearchResultsScreen(query = query, products = productsState.value)
+                    }
                 }
             }
         }
@@ -86,14 +90,12 @@ fun PreviewSearchResultsScreen() {
 }
 
 @Composable
-fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: Product? = null, MainProductView: @Composable ((product: Product) -> Unit)? = null, searchBarFraction: Float = 0.96f) {
+fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: Product? = null, MainProductView: @Composable ((product: Product) -> Unit)? = null) {
     val context: Context = LocalContext.current
     Scaffold(
-//        topBar = { TopNavBar() },
         backgroundColor = Color.Transparent,
-        bottomBar = { BottomBar(context = context) } // BottomBar placed correctly
+        bottomBar = { BottomBar() } // BottomBar placed correctly
     ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
-
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(innerPadding)
         ) {
@@ -101,7 +103,7 @@ fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: 
                 TopNavBar()
             }
             item {
-                SearchBar(query = query, searchBarFraction = searchBarFraction)
+                SearchBar(query = query)
                 Spacer(modifier = Modifier.height(8.dp)) // Optional: add spacing after the search bar
             }
             if (MainProductView != null && currentProduct != null) {
@@ -157,27 +159,19 @@ fun ProductItemBriefView(
     Column(
         modifier = modifier.fillMaxWidth()
     ) {
-        Image(
-            painter = rememberAsyncImagePainter(product.primaryImage),
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(0.75f) // Maintain aspect ratio
-                .clip(RoundedCornerShape(16.dp))
-                .clickable {
-                    val bundle = Bundle().apply {
-                        putString(FirebaseAnalytics.Param.ITEM_ID, product.index.toString())
-                        putString(FirebaseAnalytics.Param.ITEM_NAME, product.brand)
-                        putString(FirebaseAnalytics.Param.CONTENT_TYPE, "product")
-                    }
-                    firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle)
+        ImageFromUrl(product.primaryImage, clickable = {
+            val bundle = Bundle().apply {
+                putString(FirebaseAnalytics.Param.ITEM_ID, product.index.toString())
+                putString(FirebaseAnalytics.Param.ITEM_NAME, product.brand)
+                putString(FirebaseAnalytics.Param.CONTENT_TYPE, "product")
+            }
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle)
 
-                    val intent = Intent(context, ProductDetailsActivity::class.java).apply {
-                        putExtra("product_index", product.index)
-                    }
-                    context.startActivity(intent)
-                }
-        )
+            val intent = Intent(context, ProductDetailsActivity::class.java).apply {
+                putExtra("product_index", product.index)
+            }
+            context.startActivity(intent)
+        })
         Spacer(modifier = Modifier.height(4.dp))
         Column(horizontalAlignment = Alignment.Start, modifier = Modifier.padding(start = 4.dp)) {
             Text(

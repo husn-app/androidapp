@@ -1,8 +1,10 @@
 package com.husn.fashionapp
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.view.WindowCompat
 import com.husn.fashionapp.ui.theme.AppTheme
 
 class FeedActivity : ComponentActivity() {
@@ -26,31 +29,47 @@ class FeedActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val signInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
-            signInHelper.handleSignInResult(result.data) {
+            if (result.resultCode == Activity.RESULT_CANCELED) {
+                finishAffinity()
+            }
+            else {
+                signInHelper.handleSignInResult(result.data) {
+                    fetchFeedProducts()
+                }
             }
         }
         signInHelper = SignInHelper(this, signInLauncher, this)
 
+        fetchFeedProducts()
+
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    if(isLoading.value){
-                        LoadingScreen()
-                    }
-                    else if (productsState.value.isNotEmpty()) {
-                        FeedScreen(products = productsState.value, onWishlistChange = { productId, newValue ->
-                            updateProductWishlistStatus(productId, newValue)
+                    FullScreenContent {
+                        FeedScreen(
+                            products = productsState.value,
+                            onWishlistChange = { productId, newValue ->
+                                updateProductWishlistStatus(productId, newValue)
                         })
-                    } else {
-                        StyleSenseApp(context = this)
                     }
                 }
             }
         }
+
+        onBackPressedDispatcher.addCallback(this) {
+            if (!AuthManager.isUserSignedIn) {
+                finishAffinity() // This will close all activities and exit the app
+            } else {
+                finish() // Handle normal finish behavior when signed in
+            }
+        }
+    }
+    private fun fetchFeedProducts() {
         fetch_utility.fetchProductsList(relative_url = "/api/feed") { products ->
             runOnUiThread {
                 productsState.value = products ?: emptyList()
@@ -74,9 +93,10 @@ class FeedActivity : ComponentActivity() {
 fun FeedScreen(products: List<Product>,
                onWishlistChange: (Int, Boolean) -> Unit){
     var context = LocalContext.current
+//    Thread.sleep(1000)
     Scaffold(
         backgroundColor = Color.Transparent,
-        bottomBar = { BottomBar(context = context, selectedItem = 1) } // BottomBar placed correctly
+        bottomBar = { BottomBar(selectedItem = 1) } // BottomBar placed correctly
     ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
 
         LazyColumn(
@@ -84,6 +104,7 @@ fun FeedScreen(products: List<Product>,
         ) {
             item {
                 TopNavBar()
+                SearchBar()
             }
             items(products) { product ->
                 MainProductView(product,

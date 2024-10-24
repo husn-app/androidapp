@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
@@ -33,6 +34,8 @@ class MainActivity : ComponentActivity(){
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(true)
         firebaseAnalytics = Firebase.analytics
 
@@ -47,7 +50,9 @@ class MainActivity : ComponentActivity(){
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    StyleSenseApp(context = this)
+                    FullScreenContent {
+                        StyleSenseApp(context = this)
+                    }
                 }
             }
         }
@@ -66,7 +71,7 @@ fun StyleSenseApp(context: Context) {
     Scaffold(
         topBar = { TopNavBar() },
         backgroundColor = Color.Transparent,
-        bottomBar = { BottomBar(context = context) } // BottomBar placed correctly
+        bottomBar = { BottomBar() } // BottomBar placed correctly
     ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
 
         Column(
@@ -76,7 +81,7 @@ fun StyleSenseApp(context: Context) {
         ) {
             Spacer(modifier = Modifier.height(250.dp))
 
-            SearchBar(context = context)
+            SearchBar(context = context, searchBarFraction = 0.9f)
 
             Spacer(modifier = Modifier.height(16.dp))
 

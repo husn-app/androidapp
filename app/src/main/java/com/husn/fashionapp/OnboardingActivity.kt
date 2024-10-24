@@ -45,6 +45,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import com.example.fashionapp.R
 import com.husn.fashionapp.ui.theme.AppTheme
 import kotlinx.coroutines.Dispatchers
@@ -60,6 +61,7 @@ class OnboardingActivity : ComponentActivity() {
     private lateinit var signInHelper: SignInHelper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val signInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -73,7 +75,9 @@ class OnboardingActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    GenderAgeInputScreen()
+                    FullScreenContent {
+                        GenderAgeInputScreen()
+                    }
                 }
             }
         }
@@ -243,7 +247,7 @@ suspend fun sendPostRequest(
                 val responseBody = response.body?.string()
                 println("onboardingactivity response: $responseBody")
 
-                val intent = Intent(context, InspirationsActivity::class.java)
+                val intent = Intent(context, FeedActivity::class.java)
                 context.startActivity(intent)
             }
         }

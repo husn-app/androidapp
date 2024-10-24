@@ -35,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import coil.decode.SvgDecoder
@@ -51,6 +52,7 @@ class ProductDetailsActivity : ComponentActivity() {
     private val isWishlistedState = mutableStateOf<Boolean>(false)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
 //        val productIndex = intent.getIntExtra("product_index", 0)
         val productIndex = extractProductIndexFromIntent(intent)
@@ -66,17 +68,20 @@ class ProductDetailsActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    SearchResultsScreen(
-                        query = "",
-                        products = productsState.value,
-                        currentProduct = currentProductstate.value,
-                        MainProductView = { product ->  // Passing the MainProductView as a lambda
-                            MainProductView(product = product, isWishlisted = isWishlistedState.value,
-                                onWishlistChange = { newValue ->
-                                    isWishlistedState.value = newValue
-                                    // Optionally, handle any side effects here
-                                })  // Call your MainProductView composable here
-                        })
+                    FullScreenContent {
+                        SearchResultsScreen(
+                            query = "",
+                            products = productsState.value,
+                            currentProduct = currentProductstate.value,
+                            MainProductView = { product ->  // Passing the MainProductView as a lambda
+                                MainProductView(product = product,
+                                    isWishlisted = isWishlistedState.value,
+                                    onWishlistChange = { newValue ->
+                                        isWishlistedState.value = newValue
+                                        // Optionally, handle any side effects here
+                                    })  // Call your MainProductView composable here
+                            })
+                    }
                 }
             }
         }
@@ -108,9 +113,13 @@ class ProductDetailsActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewProductDetailsScreen() {
-    SearchResultsScreen(query = "", products = getDummyProductsList(), currentProduct = getDummyProduct(), MainProductView = { product ->  // Passing the MainProductView as a lambda
-        MainProductView(product = product)  // Call your MainProductView composable here
-    })
+    SearchResultsScreen(
+        query = "",
+        products = getDummyProductsList(),
+        currentProduct = getDummyProduct(),
+        MainProductView = { product ->  // Passing the MainProductView as a lambda
+            MainProductView(product = product)  // Call your MainProductView composable here
+        })
 }
 
 
@@ -125,17 +134,7 @@ fun MainProductView(product: Product, modifier: Modifier = Modifier, isWishliste
         modifier = modifier
             .padding(8.dp),
     ) {
-        Image(
-            painter = rememberAsyncImagePainter(product.primaryImage),
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(0.75f) // Maintain aspect ratio
-                .clip(RoundedCornerShape(16.dp))
-                .clickable{
-                    clickable()
-                }
-        )
+        ImageFromUrl(product.primaryImage, clickable = clickable)
         Spacer(modifier = Modifier.height(4.dp))
         Row(modifier = Modifier.fillMaxWidth(1f).padding(horizontal = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween) {
@@ -182,7 +181,7 @@ fun MainProductView(product: Product, modifier: Modifier = Modifier, isWishliste
                     Icon(
                         imageVector = Icons.Filled.Star,
                         contentDescription = "Rating",
-                        tint = Color(0xFFDEB887),  //Burlywood
+                        tint = Color(0xFFEA880C),  //Burlywood
                         modifier = Modifier.width(16.dp).padding(top=3.dp)
                     )
                 }
