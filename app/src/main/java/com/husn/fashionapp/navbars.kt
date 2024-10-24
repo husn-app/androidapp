@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -132,11 +133,12 @@ fun SearchBar(
 
     val textColor = Color.Black
     val backgroundColor = Color.White
+    val focusedBorderColor = Color(0xffc8bea1)
 
     Box(
         modifier = modifier
             .fillMaxWidth()  // Occupy full width but not full height.
-//            .height(50.dp),
+            .height(50.dp)
             .wrapContentHeight(),  // Limit height to the SearchBar's height
         contentAlignment = Alignment.Center
     ) {
@@ -159,7 +161,8 @@ fun SearchBar(
                 unfocusedContainerColor = backgroundColor,
                 disabledContainerColor = backgroundColor,
                 focusedTextColor = textColor, // Text color when focused
-                unfocusedTextColor = textColor
+                unfocusedTextColor = textColor,
+                focusedBorderColor = focusedBorderColor
             ),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(

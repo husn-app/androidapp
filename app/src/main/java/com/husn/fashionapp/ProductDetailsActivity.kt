@@ -106,8 +106,6 @@ class ProductDetailsActivity : ComponentActivity() {
                 val segments = uri.pathSegments
                 if (segments.size >= 3) {
                     return segments[2].toIntOrNull() ?: 0
-//                    val indexString = segments.lastOrNull()
-//                    return indexString?.toIntOrNull() ?: 0
                 }
             }
         }
@@ -168,7 +166,7 @@ fun MainProductView(product: Product, modifier: Modifier = Modifier, isWishliste
                         }
                 )
             }
-            Text(text = "Rs ${product.price}", color = Color.Black, fontSize = 20.sp)
+            Text(text = "Rs ${product.price}", color = Color.Black, fontSize = 16.sp)
         }
 
         Row(modifier = Modifier.fillMaxWidth(1f).padding(start = 8.dp),
@@ -187,20 +185,20 @@ fun MainProductView(product: Product, modifier: Modifier = Modifier, isWishliste
                     Text(
                         text = "%.2f".format(product.rating),
                         color = Color.Black,
-                        fontSize = 16.sp
+                        fontSize = 12.sp
                     )
                     Spacer(modifier = Modifier.width(2.dp))
                     Icon(
                         imageVector = Icons.Filled.Star,
                         contentDescription = "Rating",
-                        tint = Color(0xFF68827F),  //Burlywood
-                        modifier = Modifier.width(16.dp).padding(top = 3.dp)
+                        tint = Color(0xFF68827F),
+                        modifier = Modifier.width(16.dp)
                     )
                 }
             }
         }
         var productName = product.productName.replace(product.brand, "", ignoreCase = true).trimStart()
-        Spacer(modifier = Modifier.height(4.dp))
+//        Spacer(modifier = Modifier.height(4.dp))
         Text(text = productName, color = Color.Black, fontSize = 12.sp, lineHeight = 14.sp,
             modifier = Modifier.padding(start = 8.dp))
     }
