@@ -88,19 +88,19 @@ fun TopNavBar(modifier: Modifier = Modifier.statusBarsPadding()){
                     contentScale = ContentScale.Crop)
 //                    placeholder = painterResource(R.drawable.profile_placeholder) // Make sure to have a placeholder image
             }
-            else {
-                AsyncImage(
-                    model = ImageRequest.Builder(context)
-                        .data(R.drawable.google_signin_1)
-                        .build(),
-                    contentDescription = "Google Sign In",
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(CircleShape)
-                        .clickable { signInHelper?.signIn() },
-                    contentScale = ContentScale.Crop
-                )
-            }
+//            else {
+//                AsyncImage(
+//                    model = ImageRequest.Builder(context)
+//                        .data(R.drawable.google_signin_1)
+//                        .build(),
+//                    contentDescription = "Google Sign In",
+//                    modifier = Modifier
+//                        .size(44.dp)
+//                        .clip(CircleShape)
+//                        .clickable { signInHelper?.signIn() },
+//                    contentScale = ContentScale.Crop
+//                )
+//            }
 
             DropdownMenu(
                 expanded = showDropdown,

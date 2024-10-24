@@ -143,7 +143,7 @@ fun WishlistScreen(products: List<Product>){
                 }
             }
         } else {
-            val intent = Intent(context, FeedActivity::class.java)
+            val intent = Intent(context, LandingActivity::class.java)
             context.startActivity(intent)
         }
     }

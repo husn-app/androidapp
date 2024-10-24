@@ -1,75 +1,111 @@
 package com.husn.fashionapp
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.addCallback
+import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.* // ktlint-disable no-wildcard-imports
+import androidx.compose.material.* // ktlint-disable no-wildcard-imports
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import com.example.fashionapp.R
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.husn.fashionapp.AuthManager
+import com.husn.fashionapp.SignInHelper
+import com.husn.fashionapp.OnboardingActivity // Correct import for OnboardingActivity
+import com.husn.fashionapp.FeedActivity // Correct import for FeedActivity
+import com.husn.fashionapp.TopNavBar
+import com.husn.fashionapp.ui.theme.AppTheme
 
+class LandingActivity : ComponentActivity() {
 
+//    private lateinit var signInLauncher: ActivityResultLauncher<Intent>
+    private lateinit var signInHelper: SignInHelper
 
-//@Composable
-//fun LandingPage(onSignInClick: () -> Unit) {
-//    // Main Layout
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .padding(16.dp),
-//        verticalArrangement = Arrangement.SpaceBetween // Pushes content to top and bottom
-//    ) {
-//
-//        // Top Section: Title and Feature Highlights
-//        Column {
-//            Text(
-//                text = "Welcome to My Awesome App",
-//                style = MaterialTheme.typography.titleMedium,
-//                fontWeight = FontWeight.Bold
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        println("LandingActivity: 1")
+        val signInLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            signInHelper.handleSignInResult(result.data) //{
+            //}
+        }
+        signInHelper = SignInHelper(this, signInLauncher, this)
+
+        setContent {
+            AppTheme {
+                CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
+                    LandingPageScreen()
+                }
+            }
+        }
+
+        onBackPressedDispatcher.addCallback(this) {
+            println("LandingActivity: 3")
+            if (!AuthManager.isUserSignedIn) {
+                println("LandingActivity: 4")
+                finishAffinity() // This will close all activities and exit the app
+            } else {
+                println("LandingActivity: 5")
+                finish() // Handle normal finish behavior when signed in
+            }
+        }
+    }
+}
+
+@Composable
+fun LandingPageScreen() {
+    println("LandingActivity: 2")
+    val isUserSignedIn = AuthManager.isUserSignedIn
+    val signInHelper = LocalSignInHelper.current
+    val context = LocalContext.current
+    Scaffold(
+//        topBar = {TopNavBar()},
+        backgroundColor = Color.Transparent,
+        bottomBar = { if( isUserSignedIn) BottomBar() else null } // BottomBar placed correctly
+    ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
+        TopNavBar()
+        if (!isUserSignedIn) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(bottom = 16.dp), // Add some gap from the bottom of the screen
+                    contentAlignment = Alignment.BottomCenter
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.android_neutral_sq_si),
+                    contentDescription = "Google sign in",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            signInHelper?.signIn()
+                        }
+                )
+            }
+                        //signInHelper?.signIn()
+//                    } else {
+//                        val intent = Intent(context, WishlistActivity::class.java)
+//                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+//                        context.startActivity(intent)
+//                    }
+                    }
 //            )
-//            Spacer(modifier = Modifier.height(16.dp))
 //        }
-//
-//        // Bottom Section: Google Sign-In Button
-//        GoogleSignInButton(onClick = onSignInClick)
-//    }
-//}
-//
-//
-//@Composable
-//fun GoogleSignInButton(onClick: () -> Unit) {
-//    Button(
-//        onClick = onClick,
-//        modifier = Modifier.fillMaxWidth(),
-//        colors = ButtonColors()
-//    )
-//    //ButtonDefaults.buttonColors(
-////            backgroundColor = MaterialTheme.colorScheme.primary
-////        )
-//     {
-//        Row(verticalAlignment = Alignment.CenterVertically) {
-//            Icon(
-//                painter = painterResource(id = R.drawable.google_signin_1), // Replace with your Google logo drawable
-//                contentDescription = "Google Sign-In",
-////                tint = Color.Unspecified // Or set a tint if desired
-//            )
-//            Spacer(modifier = Modifier.width(8.dp))
-//            Text("Continue with Google")
-//        }
-//    }
-//}
+    }
+}

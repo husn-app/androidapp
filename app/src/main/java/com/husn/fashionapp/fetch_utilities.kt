@@ -2,6 +2,10 @@ package com.husn.fashionapp
 
 import android.content.Context
 import com.example.fashionapp.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -18,36 +22,63 @@ class Fetchutilities(private val context: Context, private val client: OkHttpCli
         val url = "$baseUrl/$relative_url"
         val request = post_url_request(context, url, requestBodyJson)
 
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-            }
+        var retryCount = 0
+        val maxRetries = 1
 
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    val headers = response.headers
-                    val cookies = headers.values("Set-Cookie")
-                    saveSessionCookie(cookies, context)
+        fun makeRequest() {
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    if (retryCount < maxRetries) {
+                        retryCount++
+                        println("fetchProductsList request failed. Retrying (attempt ${retryCount + 1}). Error: ${e.message}")
+                        // Introduce a short delay before retrying
+                        CoroutineScope(Dispatchers.IO).launch {
+                            delay(200) // Delay for 500ms
+                            makeRequest()
+                        }
 
-                    val responseDataString = response.body?.string()
-                    responseDataString?.let {
-                        val responseData = try {
-                            JSONObject(sanitizeJson(it))
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            null
-                        }
-                        val productsJsonArray = responseData?.getJSONArray("products") ?: JSONArray()
-                        val productsList = mutableListOf<Product>()
-                        for (i in 0 until productsJsonArray.length()) {
-                            productsList.add(Product(productsJsonArray.getJSONObject(i)))
-                        }
-                        callback(productsList)
+                    } else {
+                        println("fetchProductsList request failed after multiple retries. Error: ${e.message}")
+                        callback(null) // Indicate failure to the caller
                     }
-                } else {
-                    println("fetchProductsList response failed with status: ${response.code}\n $response")
                 }
-            }
-        })
+
+                override fun onResponse(call: Call, response: Response) {
+                    if (response.isSuccessful) {
+                        val headers = response.headers
+                        val cookies = headers.values("Set-Cookie")
+                        saveSessionCookie(cookies, context)
+
+                        val responseDataString = try {
+                            response.body?.string()
+                        } catch (e: IOException) {
+                            onFailure(call, e)
+                            e.printStackTrace()
+                            // Go to previous screen or handle the error appropriately
+                            return
+                        }
+                        responseDataString?.let {
+                            val responseData = try {
+                                JSONObject(sanitizeJson(it))
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                null
+                            }
+                            val productsJsonArray =
+                                responseData?.getJSONArray("products") ?: JSONArray()
+                            val productsList = mutableListOf<Product>()
+                            for (i in 0 until productsJsonArray.length()) {
+                                productsList.add(Product(productsJsonArray.getJSONObject(i)))
+                            }
+                            callback(productsList)
+                        }
+                    } else {
+                        println("fetchProductsList response failed with status: ${response.code}\n $response")
+                    }
+                }
+            })
+        }
+        makeRequest()
     }
 
     fun sanitizeJson(jsonString: String): String {

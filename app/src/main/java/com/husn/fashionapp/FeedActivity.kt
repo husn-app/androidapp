@@ -76,6 +76,9 @@ class FeedActivity : ComponentActivity() {
             runOnUiThread {
                 productsState.value = products ?: emptyList()
                 isLoading.value = false
+                if (productsState.value.isEmpty()) {
+                    finish() // Go to previous screen if productsState is empty
+                }
             }
         }
     }

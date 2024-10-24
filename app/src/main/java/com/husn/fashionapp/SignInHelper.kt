@@ -56,7 +56,7 @@ class SignInHelper(
     private val client = OkHttpClient()
     private val baseUrl = activity.getString(R.string.husn_base_url)
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
-    private val googleSignInClient: GoogleSignInClient
+    val googleSignInClient: GoogleSignInClient
     private var onSignInSuccessCallback: (() -> Unit)? = null
     private val fetch_utility = Fetchutilities(context)
 
@@ -145,12 +145,9 @@ class SignInHelper(
                     }
                     else {
                         val intent = Intent(context, FeedActivity::class.java)
-                        println("sing_in: onSignInSuccessCallback: $onSignInSuccessCallback")
                         if (onSignInSuccessCallback != null) {
-                            println("sing_in: running onSuccess")
                             onSignInSuccessCallback?.let { it() }
                         } else {
-                            println("sing_in: running feedactivity")
                             context.startActivity(intent)
                         }
                     }
@@ -171,7 +168,7 @@ class SignInHelper(
         AuthManager.signOut()
         clearSessionCookie(context)
 
-        val intent = Intent(context, FeedActivity::class.java)
+        val intent = Intent(context, LandingActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         context.startActivity(intent)
 
