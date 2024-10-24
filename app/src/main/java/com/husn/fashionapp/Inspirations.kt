@@ -77,9 +77,9 @@ class InspirationsActivity : ComponentActivity() {
 //                // User cancelled the sign-in
 //                finishAffinity()
 //            } else {
-                signInHelper.handleSignInResult(result.data) {
+                signInHelper.handleSignInResult(result.data) //{
 //                    fetchInspirationData()
-                }
+//                }
 //            }
         }
         signInHelper = SignInHelper(this, signInLauncher, this)
@@ -105,14 +105,6 @@ class InspirationsActivity : ComponentActivity() {
                 }
             }
         }
-
-//        onBackPressedDispatcher.addCallback(this) {
-//            if (!AuthManager.isUserSignedIn) {
-//                finishAffinity() // This will close all activities and exit the app
-//            } else {
-//                finish() // Handle normal finish behavior when signed in
-//            }
-//        }
     }
 
     private fun fetchInspirationData() {
@@ -137,7 +129,15 @@ class InspirationsActivity : ComponentActivity() {
 //                    println("fetchInspirationData success. cookies: $cookies\n response: $response")
                     saveSessionCookie(cookies, this@InspirationsActivity)
 
-                    val responseDataString = response.body?.string()
+                    val responseDataString = try {
+                        response.body?.string()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        runOnUiThread {
+                            finish() // Go back to previous screen
+                        }
+                        return
+                    }
 //                    println("fetchInspirationData responseDataString $responseDataString")
                     responseDataString?.let {
                         val responseData = try {

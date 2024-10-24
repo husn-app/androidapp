@@ -66,9 +66,9 @@ class OnboardingActivity : ComponentActivity() {
         val signInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
-            signInHelper.handleSignInResult(result.data) {
+            signInHelper.handleSignInResult(result.data) //{
 
-            }
+            //}
         }
         signInHelper = SignInHelper(this, signInLauncher, this)
 

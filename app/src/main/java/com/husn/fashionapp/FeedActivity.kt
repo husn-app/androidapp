@@ -38,14 +38,16 @@ class FeedActivity : ComponentActivity() {
                 finishAffinity()
             }
             else {
-                signInHelper.handleSignInResult(result.data) {
-                    fetchFeedProducts()
-                }
+                signInHelper.handleSignInResult(result.data)
             }
         }
         signInHelper = SignInHelper(this, signInLauncher, this)
-
-        fetchFeedProducts()
+        if (!AuthManager.isUserSignedIn) {
+            signInHelper.signIn()
+        } else {
+            // Fetch data if already signed in
+            fetchFeedProducts()
+        }
 
         setContent {
             AppTheme {

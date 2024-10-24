@@ -27,7 +27,6 @@ object AuthManager {
     // Observable sign-in state
     var isUserSignedIn by mutableStateOf(firebaseAuth.currentUser != null)
         private set
-    var isSignInInProgress = false
     var gender: String? = null
     var pictureUrl: String? = null
     var onboardingStage: String? = null
@@ -70,26 +69,19 @@ class SignInHelper(
         googleSignInClient = GoogleSignIn.getClient(activity, gso)
     }
 
-    fun signIn(onSignInSuccess: () -> Unit = {}) {
-//        if (AuthManager.isSignInInProgress) {
-//            println("Sign-in already in progress")
-//            return
-//        }
-//        AuthManager.isSignInInProgress = true
+    fun signIn(onSignInSuccess: (() -> Unit)? = null) {
         onSignInSuccessCallback = onSignInSuccess
         val signInIntent = googleSignInClient.signInIntent
         signInLauncher.launch(signInIntent)
     }
 
-    fun handleSignInResult(data: Intent?, onSignInSuccess: () -> Unit = {}) {
+    fun handleSignInResult(data: Intent?) {
         val task = GoogleSignIn.getSignedInAccountFromIntent(data)
         println("sign_in: $task")
         try {
-//            val account = task.result
             val account = task.getResult(ApiException::class.java)
             println("sign_in account: $account \n idToken: ${account?.idToken}")
-            firebaseAuthWithGoogle(account.idToken!!, onSignInSuccess)
-            AuthManager.isSignInInProgress = false
+            firebaseAuthWithGoogle(account.idToken!!)
         } catch (e: Exception) {
             println("sign_in failed: ${e}")
             e.printStackTrace()
@@ -97,24 +89,21 @@ class SignInHelper(
         }
     }
 
-    private fun firebaseAuthWithGoogle(idToken: String, onSignInSuccess: () -> Unit = {}) {
+    private fun firebaseAuthWithGoogle(idToken: String) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         AuthManager.firebaseAuth.signInWithCredential(credential)
             .addOnCompleteListener(activity) { task ->
                 if (task.isSuccessful) {
                     println("Firebase sign-in successful")
-                    sendIdTokenToServer(idToken){
-                        onSignInSuccessCallback?.invoke()
-                        // Reset the callback
-                        onSignInSuccessCallback = null
-                    }
+                    sendIdTokenToServer(idToken)
+
                 } else {
                     println("Firebase sign-in failed: ${task.exception}")
                 }
             }
     }
 
-    private fun sendIdTokenToServer(idToken: String, onSuccess: () -> Unit = {}) {
+    private fun sendIdTokenToServer(idToken: String /*, onSuccess: (() -> Unit)? = null */) {
         val url = "$baseUrl/login_android"
         val requestBodyJson = JSONObject("{\"idToken\": \"$idToken\"}")
         val request = post_url_request(context, url, requestBodyJson)
@@ -156,9 +145,12 @@ class SignInHelper(
                     }
                     else {
                         val intent = Intent(context, FeedActivity::class.java)
-                        if (onSuccess != {}) {
-                            onSuccess()
+                        println("sing_in: onSignInSuccessCallback: $onSignInSuccessCallback")
+                        if (onSignInSuccessCallback != null) {
+                            println("sing_in: running onSuccess")
+                            onSignInSuccessCallback?.let { it() }
                         } else {
+                            println("sing_in: running feedactivity")
                             context.startActivity(intent)
                         }
                     }
