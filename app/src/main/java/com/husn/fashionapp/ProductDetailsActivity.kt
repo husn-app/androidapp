@@ -139,7 +139,7 @@ fun MainProductView(product: Product, modifier: Modifier = Modifier, isWishliste
         Spacer(modifier = Modifier.height(4.dp))
         Row(modifier = Modifier.fillMaxWidth(1f).padding(start = 0.dp, end = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween) {
-            Row (){
+            Row (horizontalArrangement = Arrangement.Start){
                 FavoriteButton(isWishlisted = isWishlisted, onWishlistChange = onWishlistChange, productId = product.index)
                 ShareButton(url = processedUrl)//product.productUrl)
                 Spacer(modifier = Modifier.width(8.dp))
@@ -168,19 +168,19 @@ fun MainProductView(product: Product, modifier: Modifier = Modifier, isWishliste
             Text(text = "Rs ${product.price}", color = Color.Black, fontSize = 20.sp, modifier = Modifier.padding(top = 12.dp))
         }
 
-        Row(modifier = Modifier.fillMaxWidth(1f).padding(start = 12.dp, end = 8.dp),
+        Row(modifier = Modifier.fillMaxWidth(1f).padding(start = 14.dp, end = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween) {
             Text(text = product.brand, color = Color.Black/*MaterialTheme.colorScheme.primary*/, fontSize = 16.sp)
-            Row(
-                modifier = Modifier
-                    .border(
-                        width = 1.dp,
-                        color = Color(0xFFC8BEA1),
-                        shape = RoundedCornerShape(4.dp)
-                    )
-                    .padding(horizontal = 4.dp, vertical = 2.dp)
-            ) {
-                if (product.rating > 0) {
+            if (product.rating > 0) {
+                Row(
+                    modifier = Modifier
+                        .border(
+                            width = 1.dp,
+                            color = Color(0xFFC8BEA1),
+                            shape = RoundedCornerShape(4.dp)
+                        )
+                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                ) {
                     Text(
                         text = "%.2f".format(product.rating),
                         color = Color.Black,
@@ -191,7 +191,7 @@ fun MainProductView(product: Product, modifier: Modifier = Modifier, isWishliste
                         imageVector = Icons.Filled.Star,
                         contentDescription = "Rating",
                         tint = Color(0xFF68827F),  //Burlywood
-                        modifier = Modifier.width(16.dp).padding(top=3.dp)
+                        modifier = Modifier.width(16.dp).padding(top = 3.dp)
                     )
                 }
             }
@@ -199,7 +199,7 @@ fun MainProductView(product: Product, modifier: Modifier = Modifier, isWishliste
         var productName = product.productName.replace(product.brand, "", ignoreCase = true).trimStart()
         Spacer(modifier = Modifier.height(4.dp))
         Text(text = productName, color = Color.Black, fontSize = 12.sp, lineHeight = 14.sp,
-            modifier = Modifier.padding(start = 12.dp))
+            modifier = Modifier.padding(start = 14.dp))
     }
 }
 

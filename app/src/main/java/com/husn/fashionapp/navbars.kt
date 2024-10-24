@@ -3,7 +3,9 @@ package com.husn.fashionapp
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.os.Bundle
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -47,9 +49,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -57,6 +62,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.drawable.toBitmap
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.fashionapp.R
@@ -196,14 +202,12 @@ fun BottomBar(selectedItem: Int = 0) {
     val isUserSignedIn = AuthManager.isUserSignedIn
     val signInHelper = LocalSignInHelper.current
     val iconSize = 28.dp
-//    val selectedItem = remember { mutableStateOf(0) }
     val context = LocalContext.current
+    var currentItem by remember { mutableStateOf(selectedItem) }
+    println("BottomBar: $currentItem")
     Column {
         Divider(
             color = Color(0xFFC8BEA1), // Customize the color as needed
-//            thickness = 1.dp,
-//            modifier = Modifier
-//                .fillMaxWidth()
         )
 
         BottomNavigation(
@@ -213,11 +217,16 @@ fun BottomBar(selectedItem: Int = 0) {
         ) {
 
             BottomNavigationItem(
-                icon = { Icon(imageVector = Icons.Default.Home, contentDescription = "Home",
-                    modifier = Modifier.size(iconSize)) },
-                selected = selectedItem == 1, // Handle selection state if needed with navigation
+                icon = {
+                    Image(
+                        painter = painterResource(id = if (selectedItem == 1) R.drawable.home_filled else R.drawable.home_unfilled),
+                        contentDescription = "Inspiration",
+                        modifier = Modifier.size(iconSize) // Use the same iconSize as other icons
+                    )
+                },
+                selected = currentItem == 1, // Handle selection state if needed with navigation
                 onClick = {
-//                    selectedItem.value = 1
+//                    currentItem = 1
                     val intent = Intent(context, FeedActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                     context.startActivity(intent)
@@ -227,14 +236,15 @@ fun BottomBar(selectedItem: Int = 0) {
             )
             BottomNavigationItem(
                 icon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
+                    Image(
+                        painter = painterResource(id = if (selectedItem == 2) R.drawable.inspiration_filled else R.drawable.inspiration_unfilled),
                         contentDescription = "Inspiration",
-                        modifier = Modifier.size(iconSize)
+                        modifier = Modifier.size(iconSize) // Use the same iconSize as other icons
                     )
                 },
-                selected = true,
+                selected = currentItem == 2,
                 onClick = {
+//                    currentItem = 2
                     val intent = Intent(context, InspirationsActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                     context.startActivity(intent)
@@ -244,14 +254,15 @@ fun BottomBar(selectedItem: Int = 0) {
             )
             BottomNavigationItem(
                 icon = {
-                    Icon(
-                        imageVector = Icons.Default.FavoriteBorder,
-                        contentDescription = "Wishlist",
-                        modifier = Modifier.size(iconSize)
+                    Image(
+                        painter = painterResource(id = if (selectedItem == 3) R.drawable.wishlist_filled else R.drawable.wishlist_empty),
+                        contentDescription = "Inspiration",
+                        modifier = Modifier.size(iconSize) // Use the same iconSize as other icons
                     )
                 },
-                selected = selectedItem == 3,
+                selected = currentItem == 3,
                 onClick = {
+//                    currentItem = 3
                     if (!isUserSignedIn) {
                         signInHelper?.signIn(onSignInSuccess = {
                             val intent = Intent(context, WishlistActivity::class.java)

@@ -79,7 +79,7 @@ fun WishlistScreen(products: List<Product>){
     val context = LocalContext.current
     Scaffold(
         backgroundColor = Color.Transparent,
-        bottomBar = { BottomBar(selectedItem = 2) } // BottomBar placed correctly
+        bottomBar = { BottomBar(selectedItem = 3) } // BottomBar placed correctly
     ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
         if (products.isEmpty()) {
             TopNavBar()

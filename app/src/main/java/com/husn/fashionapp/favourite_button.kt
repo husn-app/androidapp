@@ -1,5 +1,7 @@
 import android.content.Context
 import android.content.Intent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
 import androidx.compose.material.IconToggleButton
 import androidx.compose.material.icons.Icons
@@ -7,8 +9,12 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.unit.dp
 import com.example.fashionapp.R
 import com.husn.fashionapp.AuthManager
 import com.husn.fashionapp.LocalSignInHelper
@@ -62,19 +68,13 @@ fun FavoriteButton(
             }
         }
     ) {
-        if (isWishlisted) {
-            Icon(
-                imageVector = Icons.Filled.Favorite,
-                contentDescription = "Remove from Wishlist",
-                tint = Color.Red
-            )
-        } else {
-            Icon(
-                imageVector = Icons.Outlined.FavoriteBorder,
-                contentDescription = "Add to Wishlist",
-                tint = Color.Black
-            )
-        }
+        Image(
+            painter = painterResource(id = if (isWishlisted) R.drawable.heart_filled else R.drawable.heart_unfilled),
+            contentDescription = "Inspiration",
+            modifier = Modifier
+                .size(size = 28.dp)
+                .clearAndSetSemantics {} // This removes the interactive semantics that cause the grey circle
+        )
     }
 }
 
