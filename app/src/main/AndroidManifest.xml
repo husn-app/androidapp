@@ -29,13 +29,13 @@
         <activity android:name="com.husn.fashionapp.SearchResultsActivity" />
         <activity android:name="com.husn.fashionapp.ProductDetailsActivity"
             android:exported="true">
-            <intent-filter android:autoVerify="true">
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https"
                     android:host="husn.app"
-                    android:pathPrefix="/product/" />
+                    android:pathPrefix="/product/.*" />
             </intent-filter>
         </activity>
         <activity android:name="com.husn.fashionapp.WishlistActivity" />

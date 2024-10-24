@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -176,17 +177,20 @@ fun ProductItemBriefView(
         Column(horizontalAlignment = Alignment.Start, modifier = Modifier.padding(start = 4.dp)) {
             Text(
                 text = product.brand,
-                color = MaterialTheme.colorScheme.primary,
-                fontSize = (12.sp * textScale),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = product.productName.replace(product.brand, ""),
-                color = MaterialTheme.colorScheme.primary,
-                fontSize = (8.sp * textScale),
+//                color = MaterialTheme.colorScheme.primary,
+                color = Color.Black,
+                fontSize = (14.sp * textScale),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                fontFamily = FontFamily.SansSerif
+            )
+            Text(
+                text = product.productName.replace(product.brand, "").trimStart(),
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = (10.sp * textScale),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                fontFamily = FontFamily.SansSerif
             )
         }
     }

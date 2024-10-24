@@ -35,21 +35,22 @@ fun ShareButton(
     )
 }
 
-private fun shareUrl(context: android.content.Context, url: String) {
+private fun shareUrl(context: android.content.Context, url: String, title: String = "Check out this product at Husn!") {
     if (url.isNotBlank()) {
         val formattedUrl = if (url.startsWith("http://") || url.startsWith("https://")) {
             url
         } else {
             "https://$url"
         }
+//        val shareText = "$title\n\n$formattedUrl"
 
         val shareIntent = ShareCompat.IntentBuilder(context)
             .setType("text/plain")
-            .setText(formattedUrl) // Sharing only the URL
+            .setText("$title\n$formattedUrl") // Sharing only the URL
             .intent
 
         if (shareIntent.resolveActivity(context.packageManager) != null) {
-            context.startActivity(Intent.createChooser(shareIntent, "Share via"))
+            context.startActivity(Intent.createChooser(shareIntent, title))
         } else {
             Toast.makeText(context, "No application available to share the URL.", Toast.LENGTH_SHORT).show()
         }
