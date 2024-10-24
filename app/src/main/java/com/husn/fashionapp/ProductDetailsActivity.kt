@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,6 +43,7 @@ import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import coil.decode.SvgDecoder
 import coil.request.ImageRequest
+import com.example.fashionapp.R
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.husn.fashionapp.ui.theme.AppTheme
 
@@ -130,25 +133,25 @@ fun MainProductView(product: Product, modifier: Modifier = Modifier, isWishliste
     val fetch_utility = Fetchutilities(context)
     val firebaseAnalytics = remember { FirebaseAnalytics.getInstance(context) }
     val processedUrl = remember(product) { fetch_utility.makeProductUrl(context, product) }
+    val iconSize = 28.dp
+    val interactionSource = remember { MutableInteractionSource() }
 
     Column(
         modifier = modifier
             .padding(8.dp),
     ) {
         ImageFromUrl(product.primaryImage, clickable = clickable)
-        Spacer(modifier = Modifier.height(4.dp))
-        Row(modifier = Modifier.fillMaxWidth(1f).padding(start = 0.dp, end = 8.dp),
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(modifier = Modifier.fillMaxWidth(1f).padding(horizontal = 0.dp),
             horizontalArrangement = Arrangement.SpaceBetween) {
             Row (horizontalArrangement = Arrangement.Start){
-                FavoriteButton(isWishlisted = isWishlisted, onWishlistChange = onWishlistChange, productId = product.index)
-                ShareButton(url = processedUrl)//product.productUrl)
-                Spacer(modifier = Modifier.width(8.dp))
-                DisplaySvgIconFromAssets(
-                    fileName = "myntra-logo.svg",
-                    modifier = Modifier
-                        .size(36.dp)
-                        .padding(top = 12.dp)
-                        .clickable {
+                FavoriteButton(isWishlisted = isWishlisted, onWishlistChange = onWishlistChange, productId = product.index, iconSize = iconSize)
+                ShareButton(url = processedUrl, iconSize = iconSize)
+                Image(
+                    painter = painterResource(id = R.drawable.myntra_logo1),
+                    contentDescription = "Inspiration",
+                    modifier = Modifier.padding(horizontal = 4.dp).size(size = 36.dp)
+                        .clickable(interactionSource = interactionSource, indication = null) {
                             val bundle = Bundle().apply {
                                 putString(FirebaseAnalytics.Param.ITEM_ID, product.index.toString())
                                 putString(FirebaseAnalytics.Param.ITEM_NAME, product.productName)
@@ -165,10 +168,10 @@ fun MainProductView(product: Product, modifier: Modifier = Modifier, isWishliste
                         }
                 )
             }
-            Text(text = "Rs ${product.price}", color = Color.Black, fontSize = 20.sp, modifier = Modifier.padding(top = 12.dp))
+            Text(text = "Rs ${product.price}", color = Color.Black, fontSize = 20.sp)
         }
 
-        Row(modifier = Modifier.fillMaxWidth(1f).padding(start = 14.dp, end = 8.dp),
+        Row(modifier = Modifier.fillMaxWidth(1f).padding(start = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween) {
             Text(text = product.brand, color = Color.Black/*MaterialTheme.colorScheme.primary*/, fontSize = 16.sp)
             if (product.rating > 0) {
@@ -199,35 +202,6 @@ fun MainProductView(product: Product, modifier: Modifier = Modifier, isWishliste
         var productName = product.productName.replace(product.brand, "", ignoreCase = true).trimStart()
         Spacer(modifier = Modifier.height(4.dp))
         Text(text = productName, color = Color.Black, fontSize = 12.sp, lineHeight = 14.sp,
-            modifier = Modifier.padding(start = 14.dp))
+            modifier = Modifier.padding(start = 8.dp))
     }
-}
-
-@Composable
-fun DisplaySvgIconFromAssets(fileName: String, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-
-    // Create an ImageLoader with SVG support
-    val imageLoader = ImageLoader.Builder(context)
-        .components {
-            add(SvgDecoder.Factory())
-        }
-        .build()
-
-    // Build the asset URI
-    val assetUri = "file:///android_asset/$fileName"
-//    val assetUri = R.drawable.myntra_logo // This also works.
-    val painter = rememberAsyncImagePainter(
-        ImageRequest.Builder(context)
-            .data(assetUri)
-            .build(),
-        imageLoader = imageLoader
-    )
-    // Display the image
-    Image(
-        painter = painter,
-        contentDescription = null,
-        modifier = modifier,
-        contentScale = ContentScale.Fit
-    )
 }

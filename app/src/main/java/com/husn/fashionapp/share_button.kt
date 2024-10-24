@@ -3,15 +3,20 @@ package com.husn.fashionapp
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ShareCompat
 import com.example.fashionapp.R
@@ -20,22 +25,18 @@ import com.example.fashionapp.R
 fun ShareButton(
     url: String,
     modifier: Modifier = Modifier,
-    contentDescription: String = "Share"
+    iconSize: Dp
 ) {
     val context = LocalContext.current
-
-    IconButton(
-        onClick = {
-            shareUrl(context, url)
-        },
-        modifier = modifier
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.insta_share_icon2),
-            contentDescription = "Inspiration",
-            modifier = Modifier.size(size = 28.dp) // Use the same iconSize as other icons
-        )
-    }
+    val interactionSource = remember { MutableInteractionSource() }
+    Image(
+        painter = painterResource(id = R.drawable.insta_share_icon2),
+        contentDescription = "Inspiration",
+        modifier = Modifier.padding(top=4.dp).padding(horizontal=4.dp).size(iconSize)
+            .clickable(interactionSource = interactionSource, indication = null) {
+                shareUrl(context, url)
+            }
+    )
 }
 
 private fun shareUrl(context: android.content.Context, url: String) {

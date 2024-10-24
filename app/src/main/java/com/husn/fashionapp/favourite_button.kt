@@ -1,6 +1,9 @@
 import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
 import androidx.compose.material.IconToggleButton
@@ -8,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,25 +29,43 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import org.json.JSONObject
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 
 @Composable
 fun FavoriteButton(
     isWishlisted: Boolean,
     onWishlistChange: (Boolean) -> Unit,
     productId: Int,
+    iconSize: Dp
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-//    var isWishlisted by remember { mutableStateOf(initialIsWishlisted) }
     val signInHelper = LocalSignInHelper.current
-
-    IconToggleButton(
-        checked = isWishlisted,
-        onCheckedChange = {
-            if (!AuthManager.isUserSignedIn) {
-                // User is not signed in, launch signInHelper
-                signInHelper?.signIn(onSignInSuccess = {
-                    // After successful sign-in, proceed to send the POST request
+    val interactionSource = remember { MutableInteractionSource() }
+    Image(
+        painter = painterResource(id = if (isWishlisted) R.drawable.heart_filled else R.drawable.heart_unfilled),
+        contentDescription = "Inspiration",
+        modifier = Modifier
+            .padding(top=4.dp).padding(horizontal=4.dp).size(iconSize)
+            .clickable(interactionSource = interactionSource, indication = null) {
+                if (!AuthManager.isUserSignedIn) {
+                    // User is not signed in, launch signInHelper
+                    signInHelper?.signIn(onSignInSuccess = {
+                        // After successful sign-in, proceed to send the POST request
+                        coroutineScope.launch {
+                            val newIsWishlisted = sendWishlistRequest(
+                                productId = productId,
+                                context = context
+                            )
+                            onWishlistChange(newIsWishlisted)
+                        }
+                        val intent = Intent(context, WishlistActivity::class.java)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                        context.startActivity(intent)
+                    })
+                } else {
+                    // User is signed in, proceed to send the POST request
                     coroutineScope.launch {
                         val newIsWishlisted = sendWishlistRequest(
                             productId = productId,
@@ -51,31 +73,9 @@ fun FavoriteButton(
                         )
                         onWishlistChange(newIsWishlisted)
                     }
-                    val intent = Intent(context, WishlistActivity::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                    context.startActivity(intent)
-                })
-            } else {
-                // User is signed in, proceed to send the POST request
-                coroutineScope.launch {
-                    val newIsWishlisted = sendWishlistRequest(
-                        productId = productId,
-                        context = context
-                    )
-//                    isWishlisted = newIsWishlisted
-                    onWishlistChange(newIsWishlisted)
                 }
             }
-        }
-    ) {
-        Image(
-            painter = painterResource(id = if (isWishlisted) R.drawable.heart_filled else R.drawable.heart_unfilled),
-            contentDescription = "Inspiration",
-            modifier = Modifier
-                .size(size = 28.dp)
-                .clearAndSetSemantics {} // This removes the interactive semantics that cause the grey circle
-        )
-    }
+    )
 }
 
 suspend fun sendWishlistRequest(

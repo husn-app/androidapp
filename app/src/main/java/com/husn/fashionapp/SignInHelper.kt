@@ -71,11 +71,11 @@ class SignInHelper(
     }
 
     fun signIn(onSignInSuccess: () -> Unit = {}) {
-        if (AuthManager.isSignInInProgress) {
-            println("Sign-in already in progress")
-            return
-        }
-        AuthManager.isSignInInProgress = true
+//        if (AuthManager.isSignInInProgress) {
+//            println("Sign-in already in progress")
+//            return
+//        }
+//        AuthManager.isSignInInProgress = true
         onSignInSuccessCallback = onSignInSuccess
         val signInIntent = googleSignInClient.signInIntent
         signInLauncher.launch(signInIntent)

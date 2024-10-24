@@ -111,7 +111,7 @@ fun TopNavBar(modifier: Modifier = Modifier.statusBarsPadding()){
                         .build(),
                     contentDescription = "Google Sign In",
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(44.dp)
                         .clip(CircleShape)
                         .clickable { signInHelper?.signIn() },
                     contentScale = ContentScale.Crop
