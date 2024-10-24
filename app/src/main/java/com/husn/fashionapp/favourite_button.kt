@@ -1,4 +1,5 @@
 import android.content.Context
+import android.content.Intent
 import androidx.compose.material.Icon
 import androidx.compose.material.IconToggleButton
 import androidx.compose.material.icons.Icons
@@ -11,6 +12,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.example.fashionapp.R
 import com.husn.fashionapp.AuthManager
 import com.husn.fashionapp.LocalSignInHelper
+import com.husn.fashionapp.WishlistActivity
 import com.husn.fashionapp.post_url_request
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -41,9 +43,11 @@ fun FavoriteButton(
                             productId = productId,
                             context = context
                         )
-//                        isWishlisted = newIsWishlisted
                         onWishlistChange(newIsWishlisted)
                     }
+                    val intent = Intent(context, WishlistActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                    context.startActivity(intent)
                 })
             } else {
                 // User is signed in, proceed to send the POST request

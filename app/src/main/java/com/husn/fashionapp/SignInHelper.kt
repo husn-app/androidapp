@@ -164,8 +164,11 @@ class SignInHelper(
                     }
                     else {
                         val intent = Intent(context, FeedActivity::class.java)
-                        context.startActivity(intent)
-//                        onSuccess()
+                        if (onSuccess != {}) {
+                            onSuccess()
+                        } else {
+                            context.startActivity(intent)
+                        }
                     }
                 } else {
                     println("backend error: ${response.code} ${response.body}")
