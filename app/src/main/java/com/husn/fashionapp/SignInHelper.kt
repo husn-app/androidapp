@@ -32,14 +32,6 @@ object AuthManager {
     var pictureUrl: String? = null
     var onboardingStage: String? = null
 
-//    init {
-//        firebaseAuth.addAuthStateListener { auth ->
-//            isUserSignedIn = auth.currentUser != null
-//        }
-//        AuthManager.gender = getSavedKeyValue("gender", context)
-//        AuthManager.onboardingStage = getSavedKeyValue("onboarding_stage", context)
-//        AuthManager.pictureUrl = getSavedKeyValue("picture_url", context)
-//    }
     fun initialize(context: Context) {
         firebaseAuth.addAuthStateListener { auth ->
             isUserSignedIn = auth.currentUser != null

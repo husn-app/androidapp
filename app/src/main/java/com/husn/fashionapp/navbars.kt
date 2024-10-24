@@ -233,7 +233,7 @@ fun BottomBar(selectedItem: Int = 0) {
                         modifier = Modifier.size(iconSize)
                     )
                 },
-                selected = selectedItem == 2,
+                selected = true,
                 onClick = {
                     val intent = Intent(context, InspirationsActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
