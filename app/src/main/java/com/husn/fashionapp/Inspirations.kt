@@ -224,6 +224,7 @@ fun InspirationScreen(
                                     text = product.inspiration_subcategory_name,
                                     textAlign = TextAlign.Center,
                                     style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.padding(top = 4.dp)
                                 )
                             }

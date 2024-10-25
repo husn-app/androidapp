@@ -135,9 +135,9 @@ fun SearchBar(
             onValueChange = { searchText = it },
             placeholder = {
                 if (searchText.text.isEmpty()) {
-                    Text("Search...", color = textColor, style = androidx.compose.material3.MaterialTheme.typography.bodyMedium)
+                    Text("Search...", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
                 } else {
-                    Text(query, color = textColor, style = androidx.compose.material3.MaterialTheme.typography.bodyMedium)
+                    Text(query, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
                 }
             },
             modifier = Modifier
@@ -168,7 +168,7 @@ fun SearchBar(
                 }
             ),
             singleLine = true,  // Ensure it's a single-line search bar
-            textStyle = androidx.compose.material3.MaterialTheme.typography.bodyMedium
+            textStyle = MaterialTheme.typography.bodyMedium
         )
     }
 }

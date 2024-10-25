@@ -177,8 +177,8 @@ fun ProductItemBriefView(
         Column(horizontalAlignment = Alignment.Start, modifier = Modifier.padding(start = 4.dp)) {
             Text(
                 text = product.brand,
-//                color = MaterialTheme.colorScheme.primary,
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.primary,
+//                color = Color.Black,
                 fontSize = (14.sp * textScale),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -186,7 +186,7 @@ fun ProductItemBriefView(
             )
             Text(
                 text = product.productName.replace(product.brand, "").trimStart(),
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.secondary,
                 fontSize = (10.sp * textScale),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
