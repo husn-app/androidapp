@@ -22,6 +22,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -138,7 +139,7 @@ fun SearchBar(
     Box(
         modifier = modifier
             .fillMaxWidth()  // Occupy full width but not full height.
-            .height(50.dp)
+            .height(52.dp)
             .wrapContentHeight(),  // Limit height to the SearchBar's height
         contentAlignment = Alignment.Center
     ) {
@@ -147,9 +148,9 @@ fun SearchBar(
             onValueChange = { searchText = it },
             placeholder = {
                 if (searchText.text.isEmpty()) {
-                    Text("Search...", color = textColor)
+                    Text("Search...", color = textColor, style = androidx.compose.material3.MaterialTheme.typography.bodyMedium)
                 } else {
-                    Text(query, color = textColor)
+                    Text(query, color = textColor, style = androidx.compose.material3.MaterialTheme.typography.bodyMedium)
                 }
             },
             modifier = Modifier
@@ -175,10 +176,12 @@ fun SearchBar(
                     val intent = Intent(context, SearchResultsActivity::class.java).apply {
                         putExtra("query", searchText.text)
                     }
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                     context.startActivity(intent)
                 }
             ),
-            singleLine = true  // Ensure it's a single-line search bar
+            singleLine = true,  // Ensure it's a single-line search bar
+            textStyle = androidx.compose.material3.MaterialTheme.typography.bodyMedium
         )
     }
 }

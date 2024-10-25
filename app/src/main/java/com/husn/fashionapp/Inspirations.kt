@@ -73,35 +73,18 @@ class InspirationsActivity : ComponentActivity() {
         val signInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
-//            if (result.resultCode == Activity.RESULT_CANCELED) {
-//                // User cancelled the sign-in
-//                finishAffinity()
-//            } else {
-                signInHelper.handleSignInResult(result.data) //{
-//                    fetchInspirationData()
-//                }
-//            }
+            signInHelper.handleSignInResult(result.data)
         }
         signInHelper = SignInHelper(this, signInLauncher, this)
-//        if (!AuthManager.isUserSignedIn) {
-//            signInHelper.signIn()
-////            signInHelper?.signIn(onSignInSuccess = {
-////                val intent = Intent(this, WishlistActivity::class.java)
-////                startActivity(intent)
-////            })
-//        } else {
-//            // Fetch data if already signed in
-//            fetchInspirationData()
-//        }
         fetchInspirationData()
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-//                    FullScreenContent {
+                    FullScreenContent {
                         InspirationScreen(
                             inspirations = inspirationsState.value
                         )
-//                    }
+                    }
                 }
             }
         }

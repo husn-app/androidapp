@@ -33,22 +33,9 @@ class FeedActivity : ComponentActivity() {
 
         val signInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
-        ) { result ->
-            if (result.resultCode == Activity.RESULT_CANCELED) {
-                finishAffinity()
-            }
-            else {
-                signInHelper.handleSignInResult(result.data)
-            }
-        }
+        ) {}
         signInHelper = SignInHelper(this, signInLauncher, this)
-        if (!AuthManager.isUserSignedIn) {
-            signInHelper.signIn()
-        } else {
-            // Fetch data if already signed in
-            fetchFeedProducts()
-        }
-
+        fetchFeedProducts()
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
@@ -60,14 +47,6 @@ class FeedActivity : ComponentActivity() {
                         })
                     }
                 }
-            }
-        }
-
-        onBackPressedDispatcher.addCallback(this) {
-            if (!AuthManager.isUserSignedIn) {
-                finishAffinity() // This will close all activities and exit the app
-            } else {
-                finish() // Handle normal finish behavior when signed in
             }
         }
     }
