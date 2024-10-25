@@ -67,9 +67,9 @@ class SearchResultsActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    FullScreenContent {
+//                    FullScreenContent {
                         SearchResultsScreen(query = query, products = productsState.value)
-                    }
+//                    }
                 }
             }
         }
@@ -92,9 +92,8 @@ fun PreviewSearchResultsScreen() {
 
 @Composable
 fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: Product? = null, MainProductView: @Composable ((product: Product) -> Unit)? = null) {
-    val context: Context = LocalContext.current
     Scaffold(
-        backgroundColor = Color.Transparent,
+        backgroundColor = MaterialTheme.colorScheme.background,
         bottomBar = { BottomBar() } // BottomBar placed correctly
     ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
         LazyColumn(
@@ -102,11 +101,12 @@ fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: 
         ) {
             item {
                 TopNavBar()
-            }
-            item {
                 SearchBar(query = query)
-                Spacer(modifier = Modifier.height(8.dp)) // Optional: add spacing after the search bar
             }
+//            item {
+//                SearchBar(query = query)
+////                Spacer(modifier = Modifier.height(8.dp)) // Optional: add spacing after the search bar
+//            }
             if (MainProductView != null && currentProduct != null) {
                 item {
                     MainProductView(currentProduct)

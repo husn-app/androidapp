@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -50,9 +51,9 @@ class MainActivity : ComponentActivity(){
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    FullScreenContent {
+//                    FullScreenContent {
                         StyleSenseApp(context = this)
-                    }
+//                    }
                 }
             }
         }
@@ -70,7 +71,7 @@ fun PreviewStyleSenseApp() {
 fun StyleSenseApp(context: Context) {
     Scaffold(
         topBar = { TopNavBar() },
-        backgroundColor = Color.Transparent,
+        backgroundColor = MaterialTheme.colorScheme.background,
         bottomBar = { BottomBar() } // BottomBar placed correctly
     ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
 

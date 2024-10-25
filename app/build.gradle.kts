@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.husn.fashionapp"
-        minSdk = 24
+        minSdk = 31
         targetSdk = 34
         versionCode = 10
         versionName = "1.8"
@@ -88,7 +88,7 @@ dependencies {
 
     // Compose Runtime for managing state in Compose
     implementation("androidx.compose.runtime:runtime:1.5.0")
-    implementation("androidx.compose.material3:material3:1.1.0")/**/
+    implementation("androidx.compose.material3:material3:1.1.0")
 
     // Testing Dependencies (optional)
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.5.0")

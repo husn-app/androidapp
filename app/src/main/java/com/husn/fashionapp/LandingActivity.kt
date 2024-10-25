@@ -13,6 +13,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.* // ktlint-disable no-wildcard-imports
 import androidx.compose.material.* // ktlint-disable no-wildcard-imports
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -76,7 +77,7 @@ fun LandingPageScreen() {
     val context = LocalContext.current
     Scaffold(
 //        topBar = {TopNavBar()},
-        backgroundColor = Color.Transparent,
+        backgroundColor = MaterialTheme.colorScheme.background,
         bottomBar = { if( isUserSignedIn) BottomBar() else null } // BottomBar placed correctly
     ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
         TopNavBar()

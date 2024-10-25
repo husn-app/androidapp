@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="AppTheme" parent="android:Theme.Material.Light.NoActionBar">
-<!--        <item name="android:windowBackground">@mipmap/husn_grainy_background</item>-->
-        <item name="android:colorBackground">#dedacf</item>
-<!--        <item name="android:windowLayoutInDisplayCutoutMode" tools:ignore="NewApi">shortEdges</item>-->
+<!--        &lt;!&ndash; Common attributes for both light and dark themes &ndash;&gt;-->
+<!--        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="28">shortEdges</item>-->
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
-
 </resources>

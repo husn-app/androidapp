@@ -22,7 +22,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -69,9 +70,9 @@ fun TopNavBar(modifier: Modifier = Modifier.statusBarsPadding()){
             text = "Husn",
             fontSize = 28.sp, // Set a large font size
             fontWeight = FontWeight.Bold, // Bold font weight
-            fontFamily = FontFamily.Serif,
-            color = Color.Black,
-            textAlign = TextAlign.Center
+            color = MaterialTheme.colorScheme.primary,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.headlineSmall
         )
 
         Box{
@@ -89,20 +90,6 @@ fun TopNavBar(modifier: Modifier = Modifier.statusBarsPadding()){
                     contentScale = ContentScale.Crop)
 //                    placeholder = painterResource(R.drawable.profile_placeholder) // Make sure to have a placeholder image
             }
-//            else {
-//                AsyncImage(
-//                    model = ImageRequest.Builder(context)
-//                        .data(R.drawable.google_signin_1)
-//                        .build(),
-//                    contentDescription = "Google Sign In",
-//                    modifier = Modifier
-//                        .size(44.dp)
-//                        .clip(CircleShape)
-//                        .clickable { signInHelper?.signIn() },
-//                    contentScale = ContentScale.Crop
-//                )
-//            }
-
             DropdownMenu(
                 expanded = showDropdown,
                 onDismissRequest = { showDropdown = false },
@@ -127,7 +114,7 @@ fun SearchBar(
     query: String = "",
     context: Context = LocalContext.current,
     modifier: Modifier = Modifier,
-    searchBarFraction: Float = 0.96f
+    searchBarFraction: Float = 0.96f,
 ) {
     var searchText by remember { mutableStateOf(TextFieldValue(query)) }
     val firebaseAnalytics = remember { FirebaseAnalytics.getInstance(context) }
@@ -210,7 +197,8 @@ fun BottomBar(selectedItem: Int = 0) {
                     Image(
                         painter = painterResource(id = if (selectedItem == 1) R.drawable.home_filled else R.drawable.home_unfilled),
                         contentDescription = "Inspiration",
-                        modifier = Modifier.size(iconSize) // Use the same iconSize as other icons
+                        modifier = Modifier.size(iconSize), // Use the same iconSize as other icons
+//                        colorFilter = ColorFilter.tint(if (selectedItem == 1) Color.Black else Color.Gray)
                     )
                 },
                 selected = currentItem == 1, // Handle selection state if needed with navigation

@@ -1,10 +1,8 @@
 package com.husn.fashionapp
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Scaffold
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
@@ -39,13 +38,11 @@ class FeedActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    FullScreenContent {
-                        FeedScreen(
-                            products = productsState.value,
-                            onWishlistChange = { productId, newValue ->
-                                updateProductWishlistStatus(productId, newValue)
-                        })
-                    }
+                    FeedScreen(
+                        products = productsState.value,
+                        onWishlistChange = { productId, newValue ->
+                            updateProductWishlistStatus(productId, newValue)
+                    })
                 }
             }
         }
@@ -77,9 +74,8 @@ class FeedActivity : ComponentActivity() {
 fun FeedScreen(products: List<Product>,
                onWishlistChange: (Int, Boolean) -> Unit){
     var context = LocalContext.current
-//    Thread.sleep(1000)
     Scaffold(
-        backgroundColor = Color.Transparent,
+        backgroundColor = MaterialTheme.colorScheme.background,
         bottomBar = { BottomBar(selectedItem = 1) } // BottomBar placed correctly
     ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
 

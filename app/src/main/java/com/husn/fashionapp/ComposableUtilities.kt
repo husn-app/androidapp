@@ -51,21 +51,3 @@ fun ImageFromUrl(url: String, clickable: () -> Unit = {}, modifier: Modifier = M
             }
     )
 }
-
-@Composable
-fun FullScreenContent(content: @Composable () -> Unit) {
-    val systemUiController = rememberSystemUiController()
-    val useDarkIcons = !isSystemInDarkTheme()
-
-    DisposableEffect(systemUiController, useDarkIcons) {
-        systemUiController.setSystemBarsColor(
-            color = Color.Transparent,
-            darkIcons = useDarkIcons
-        )
-        onDispose {}
-    }
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        content()
-    }
-}

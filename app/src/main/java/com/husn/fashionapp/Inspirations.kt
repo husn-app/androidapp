@@ -80,11 +80,9 @@ class InspirationsActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    FullScreenContent {
-                        InspirationScreen(
-                            inspirations = inspirationsState.value
-                        )
-                    }
+                    InspirationScreen(
+                        inspirations = inspirationsState.value
+                    )
                 }
             }
         }
@@ -177,7 +175,7 @@ fun InspirationScreen(
     }
 
     Scaffold(
-        backgroundColor = Color.Transparent,
+        backgroundColor = MaterialTheme.colorScheme.background,
         bottomBar = { BottomBar(selectedItem = 2) }
     ) { innerPadding ->
         LazyColumn(

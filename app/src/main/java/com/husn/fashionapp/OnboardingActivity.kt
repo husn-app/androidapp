@@ -75,9 +75,9 @@ class OnboardingActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    FullScreenContent {
+//                    FullScreenContent {
                         GenderAgeInputScreen()
-                    }
+//                    }
                 }
             }
         }
@@ -95,7 +95,7 @@ fun GenderAgeInputScreen() {
 
     Scaffold(
         topBar = { TopNavBar() },
-        backgroundColor = Color.Transparent,
+        backgroundColor = MaterialTheme.colorScheme.background,
 //        bottomBar = { BottomBar(context = context) }
     ) { innerPadding ->
         Column(

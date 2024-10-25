@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -72,7 +73,7 @@ class ProductDetailsActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    FullScreenContent {
+//                    FullScreenContent {
                         SearchResultsScreen(
                             query = "",
                             products = productsState.value,
@@ -85,7 +86,7 @@ class ProductDetailsActivity : ComponentActivity() {
                                         // Optionally, handle any side effects here
                                     })  // Call your MainProductView composable here
                             })
-                    }
+//                    }
                 }
             }
         }
@@ -166,25 +167,26 @@ fun MainProductView(product: Product, modifier: Modifier = Modifier, isWishliste
                         }
                 )
             }
-            Text(text = "Rs ${product.price}", color = Color.Black, fontSize = 16.sp)
+            Text(text = "Rs ${product.price}", color = MaterialTheme.colorScheme.primary, fontSize = 16.sp)
         }
 
         Row(modifier = Modifier.fillMaxWidth(1f).padding(start = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(text = product.brand, color = Color.Black/*MaterialTheme.colorScheme.primary*/, fontSize = 16.sp)
+            Text(text = product.brand, color = MaterialTheme.colorScheme.primary, fontSize = 16.sp)
             if (product.rating > 0) {
                 Row(
                     modifier = Modifier
                         .border(
                             width = 1.dp,
-                            color = Color(0xFFC8BEA1),
+                            color = MaterialTheme.colorScheme.outline,
+//                            color = Color(0xFFC8BEA1),
                             shape = RoundedCornerShape(4.dp)
                         )
                         .padding(horizontal = 4.dp, vertical = 2.dp)
                 ) {
                     Text(
                         text = "%.2f".format(product.rating),
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 12.sp
                     )
                     Spacer(modifier = Modifier.width(2.dp))
@@ -199,7 +201,7 @@ fun MainProductView(product: Product, modifier: Modifier = Modifier, isWishliste
         }
         var productName = product.productName.replace(product.brand, "", ignoreCase = true).trimStart()
 //        Spacer(modifier = Modifier.height(4.dp))
-        Text(text = productName, color = Color.Black, fontSize = 12.sp, lineHeight = 14.sp,
+        Text(text = productName, color = MaterialTheme.colorScheme.primary, fontSize = 12.sp, lineHeight = 14.sp,
             modifier = Modifier.padding(start = 8.dp))
     }
 }
