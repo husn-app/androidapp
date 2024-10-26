@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -75,23 +76,23 @@ class ProductDetailsActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-//                    FullScreenContent {
-                    if(isLoading.value){
-                        ProductLoadingScreen()
-                    }
-                    else{
-                        SearchResultsScreen(
-                            query = "",
-                            products = productsState.value,
-                            currentProduct = currentProductstate.value,
-                            MainProductView = { product ->  // Passing the MainProductView as a lambda
-                                MainProductView(product = product,
-                                    isWishlisted = isWishlistedState.value,
-                                    onWishlistChange = { newValue ->
-                                        isWishlistedState.value = newValue
-                                        // Optionally, handle any side effects here
-                                    })  // Call your MainProductView composable here
-                            })
+                    Crossfade(targetState = isLoading.value) { loading ->
+                        if (loading) {
+                            ProductLoadingScreen()
+                        } else {
+                            SearchResultsScreen(
+                                query = "",
+                                products = productsState.value,
+                                currentProduct = currentProductstate.value,
+                                MainProductView = { product ->  // Passing the MainProductView as a lambda
+                                    MainProductView(product = product,
+                                        isWishlisted = isWishlistedState.value,
+                                        onWishlistChange = { newValue ->
+                                            isWishlistedState.value = newValue
+                                            // Optionally, handle any side effects here
+                                        })  // Call your MainProductView composable here
+                                })
+                        }
                     }
                 }
             }

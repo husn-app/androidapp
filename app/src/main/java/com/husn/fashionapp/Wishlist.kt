@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,11 +57,12 @@ class WishlistActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    if(isLoading.value){
-                        WishlistLoadingScreen()
-                    }
-                    else {
-                        WishlistScreen(products = productsState.value)
+                    Crossfade(targetState = isLoading.value) { loading ->
+                        if (loading) {
+                            WishlistLoadingScreen()
+                        } else {
+                            WishlistScreen(products = productsState.value)
+                        }
                     }
                 }
             }

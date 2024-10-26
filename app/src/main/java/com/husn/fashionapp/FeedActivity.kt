@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -52,15 +53,16 @@ class FeedActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    if(isLoading.value){
-                        FeedLoadingScreen()
-                    }
-                    else {
-                        FeedScreen(
-                            products = productsState.value,
-                            onWishlistChange = { productId, newValue ->
-                                updateProductWishlistStatus(productId, newValue)
-                            })
+                    Crossfade(targetState = isLoading.value) { loading ->
+                        if (loading) {
+                            FeedLoadingScreen()
+                        } else {
+                            FeedScreen(
+                                products = productsState.value,
+                                onWishlistChange = { productId, newValue ->
+                                    updateProductWishlistStatus(productId, newValue)
+                                })
+                        }
                     }
                 }
             }

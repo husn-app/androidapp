@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -81,13 +82,14 @@ class InspirationsActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    if(isLoading.value){
-                        InspirationLoadingScreen()
-                    }
-                    else {
-                        InspirationScreen(
-                            inspirations = inspirationsState.value
-                        )
+                    Crossfade(targetState = isLoading.value) { loading ->
+                        if (loading) {
+                            InspirationLoadingScreen()
+                        } else {
+                            InspirationScreen(
+                                inspirations = inspirationsState.value
+                            )
+                        }
                     }
                 }
             }
