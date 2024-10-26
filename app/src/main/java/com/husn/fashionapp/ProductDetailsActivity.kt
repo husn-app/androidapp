@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -32,19 +31,12 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowCompat
-import coil.ImageLoader
-import coil.compose.rememberAsyncImagePainter
-import coil.decode.SvgDecoder
-import coil.request.ImageRequest
 import com.example.fashionapp.R
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.husn.fashionapp.ui.theme.AppTheme
@@ -124,13 +116,20 @@ class ProductDetailsActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewProductDetailsScreen() {
-    SearchResultsScreen(
-        query = "",
-        products = getDummyProductsList(),
-        currentProduct = getDummyProduct(),
-        MainProductView = { product ->  // Passing the MainProductView as a lambda
-            MainProductView(product = product)  // Call your MainProductView composable here
-        })
+    AppTheme {
+        CompositionLocalProvider(
+            LocalSignInHelper provides null, // Provide null or a mock SignInHelper if needed
+            LocalContext provides LocalContext.current
+        ) {
+            SearchResultsScreen(
+                query = "",
+                products = getDummyProductsList(),
+                currentProduct = getDummyProduct(),
+                MainProductView = { product ->  // Passing the MainProductView as a lambda
+                    MainProductView(product = product)  // Call your MainProductView composable here
+                })
+        }
+    }
 }
 
 
@@ -138,7 +137,13 @@ fun PreviewProductDetailsScreen() {
 fun MainProductView(product: Product, modifier: Modifier = Modifier, isWishlisted: Boolean = false, onWishlistChange: (Boolean) -> Unit = {}, clickable: () -> Unit = {}) {
     val context = LocalContext.current
     val fetch_utility = Fetchutilities(context)
-    val firebaseAnalytics = remember { FirebaseAnalytics.getInstance(context) }
+    val firebaseAnalytics = remember {
+        try {
+            FirebaseAnalytics.getInstance(context)
+        } catch (e: Exception) {
+            null
+        }
+    }
     val processedUrl = remember(product) { fetch_utility.makeProductUrl(context, product) }
     val iconSize = 28.dp
     val interactionSource = remember { MutableInteractionSource() }
@@ -164,7 +169,7 @@ fun MainProductView(product: Product, modifier: Modifier = Modifier, isWishliste
                                 putString(FirebaseAnalytics.Param.ITEM_NAME, product.productName)
                                 putString(FirebaseAnalytics.Param.CONTENT_TYPE, "logo")
                             }
-                            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.BEGIN_CHECKOUT, bundle)
+                            firebaseAnalytics?.logEvent(FirebaseAnalytics.Event.BEGIN_CHECKOUT, bundle)
 
                             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(product.productUrl))
                             context.startActivity(intent)

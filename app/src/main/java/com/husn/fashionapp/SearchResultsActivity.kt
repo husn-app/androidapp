@@ -1,21 +1,17 @@
 package com.husn.fashionapp
 
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Scaffold
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -33,16 +28,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowCompat
-import coil.compose.rememberAsyncImagePainter
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.husn.fashionapp.ui.theme.AppTheme
 import org.json.JSONObject
@@ -94,7 +85,14 @@ class SearchResultsActivity : ComponentActivity() {
 @Composable
 @Preview(showBackground = true)
 fun PreviewSearchResultsScreen() {
-    SearchResultsScreen(query = "Sample Query", products = getDummyProductsList())
+    AppTheme {
+        CompositionLocalProvider(
+            LocalSignInHelper provides null, // Provide null or a mock SignInHelper if needed
+            LocalContext provides LocalContext.current
+        ) {
+            SearchResultsScreen(query = "Sample Query", products = getDummyProductsList())
+        }
+    }
 }
 
 @Composable
@@ -159,7 +157,13 @@ fun ProductItemBriefView(
     textScale: Float = 1f  // Default scale factor
 ) {
     val context = LocalContext.current
-    val firebaseAnalytics = remember { FirebaseAnalytics.getInstance(context) }
+    val firebaseAnalytics = remember {
+        try {
+            FirebaseAnalytics.getInstance(context)
+        } catch (e: Exception) {
+            null
+        }
+    }
     Column(
         modifier = modifier.fillMaxWidth()
     ) {
@@ -169,7 +173,7 @@ fun ProductItemBriefView(
                 putString(FirebaseAnalytics.Param.ITEM_NAME, product.brand)
                 putString(FirebaseAnalytics.Param.CONTENT_TYPE, "product")
             }
-            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle)
+            firebaseAnalytics?.logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle)
 
             val intent = Intent(context, ProductDetailsActivity::class.java).apply {
                 putExtra("product_index", product.index)

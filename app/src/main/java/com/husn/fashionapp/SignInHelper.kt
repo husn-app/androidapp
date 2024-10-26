@@ -23,16 +23,20 @@ import okio.IOException
 import org.json.JSONObject
 
 object AuthManager {
-    val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+    val firebaseAuth: FirebaseAuth? = try {
+        FirebaseAuth.getInstance()
+    } catch (e: Exception) {
+        null
+    }
     // Observable sign-in state
-    var isUserSignedIn by mutableStateOf(firebaseAuth.currentUser != null)
+    var isUserSignedIn by mutableStateOf(firebaseAuth?.currentUser != null)
 //        private set
     var gender: String? = null
     var pictureUrl: String? = null
     var onboardingStage: String? = null
 
     fun initialize(context: Context) {
-        firebaseAuth.addAuthStateListener { auth ->
+        firebaseAuth?.addAuthStateListener { auth ->
             isUserSignedIn = auth.currentUser != null
         }
         gender = getSavedKeyValue("gender", context)
@@ -41,7 +45,7 @@ object AuthManager {
     }
 
     fun signOut() {
-        firebaseAuth.signOut()
+        firebaseAuth?.signOut()
         gender = null
         pictureUrl = null
         onboardingStage = null
@@ -91,8 +95,8 @@ class SignInHelper(
 
     private fun firebaseAuthWithGoogle(idToken: String) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
-        AuthManager.firebaseAuth.signInWithCredential(credential)
-            .addOnCompleteListener(activity) { task ->
+        AuthManager.firebaseAuth?.signInWithCredential(credential)
+            ?.addOnCompleteListener(activity) { task ->
                 if (task.isSuccessful) {
                     println("Firebase sign-in successful")
                     sendIdTokenToServer(idToken)
