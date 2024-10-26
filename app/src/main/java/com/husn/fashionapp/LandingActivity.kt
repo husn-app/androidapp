@@ -18,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -38,8 +39,7 @@ class LandingActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        println("LandingActivity: 1")
+        //WindowCompat.setDecorFitsSystemWindows(window, false)
         val signInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
@@ -47,7 +47,12 @@ class LandingActivity : ComponentActivity() {
             //}
         }
         signInHelper = SignInHelper(this, signInLauncher, this)
-
+        if(AuthManager.isUserSignedIn){
+            val intent = Intent(this, FeedActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+            startActivity(intent)
+            finish()
+        }
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
@@ -57,12 +62,9 @@ class LandingActivity : ComponentActivity() {
         }
 
         onBackPressedDispatcher.addCallback(this) {
-            println("LandingActivity: 3")
             if (!AuthManager.isUserSignedIn) {
-                println("LandingActivity: 4")
                 finishAffinity() // This will close all activities and exit the app
             } else {
-                println("LandingActivity: 5")
                 finish() // Handle normal finish behavior when signed in
             }
         }
@@ -71,14 +73,13 @@ class LandingActivity : ComponentActivity() {
 
 @Composable
 fun LandingPageScreen() {
-    println("LandingActivity: 2")
     val isUserSignedIn = AuthManager.isUserSignedIn
     val signInHelper = LocalSignInHelper.current
     val context = LocalContext.current
     Scaffold(
 //        topBar = {TopNavBar()},
         backgroundColor = MaterialTheme.colorScheme.background,
-        bottomBar = { if( isUserSignedIn) BottomBar() else null } // BottomBar placed correctly
+        bottomBar = { if( isUserSignedIn) BottomBar()} // BottomBar placed correctly
     ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
         TopNavBar()
         if (!isUserSignedIn) {
@@ -86,27 +87,20 @@ fun LandingPageScreen() {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(bottom = 16.dp), // Add some gap from the bottom of the screen
-                    contentAlignment = Alignment.BottomCenter
+                    .padding(bottom = 24.dp), // Add some gap from the bottom of the screen
+                contentAlignment = Alignment.BottomCenter
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.android_neutral_sq_si),
+                    painter = painterResource(id = R.drawable.android_neutral_rd_3x),
                     contentDescription = "Google sign in",
+                    contentScale = ContentScale.FillWidth,
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(0.6f)
                         .clickable {
                             signInHelper?.signIn()
                         }
                 )
             }
-                        //signInHelper?.signIn()
-//                    } else {
-//                        val intent = Intent(context, WishlistActivity::class.java)
-//                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-//                        context.startActivity(intent)
-//                    }
-                    }
-//            )
-//        }
+        }
     }
 }

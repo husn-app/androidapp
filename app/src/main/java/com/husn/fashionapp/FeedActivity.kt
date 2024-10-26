@@ -28,13 +28,27 @@ class FeedActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+//        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val signInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) {}
         signInHelper = SignInHelper(this, signInLauncher, this)
-        fetchFeedProducts()
+        if (!AuthManager.isUserSignedIn) {
+            signInHelper.signIn()
+        } else {
+            fetchFeedProducts()
+        }
+
+        if (AuthManager.onboardingStage == null || AuthManager.onboardingStage != "COMPLETE") {
+            println("launching OnboardingActivity from feedactivity")
+            val intent = Intent(this, OnboardingActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            startActivity(intent)
+            finish() // Finish FeedActivity to clean up the back stack
+            return
+        }
+
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
@@ -42,7 +56,7 @@ class FeedActivity : ComponentActivity() {
                         products = productsState.value,
                         onWishlistChange = { productId, newValue ->
                             updateProductWishlistStatus(productId, newValue)
-                    })
+                        })
                 }
             }
         }

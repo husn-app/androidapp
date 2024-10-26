@@ -26,7 +26,7 @@ object AuthManager {
     val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
     // Observable sign-in state
     var isUserSignedIn by mutableStateOf(firebaseAuth.currentUser != null)
-        private set
+//        private set
     var gender: String? = null
     var pictureUrl: String? = null
     var onboardingStage: String? = null
@@ -137,19 +137,27 @@ class SignInHelper(
 //                    AuthManager.gender = getSavedKeyValue("gender", context)
                     AuthManager.onboardingStage = getSavedKeyValue("onboarding_stage", context)
                     AuthManager.pictureUrl = getSavedKeyValue("picture_url", context)
-
+                    val intent = if (AuthManager.onboardingStage == null || AuthManager.onboardingStage != "COMPLETE") {
+                        println("launching OnboardingActivity from signinhelper.kt")
+                        Intent(context, OnboardingActivity::class.java)
+                    } else {
+                        println("launching Feedactivity from signinhelper.kt")
+                        Intent(context, FeedActivity::class.java)
+                    }
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
 //                    println("Inside signinhelper: gender=${AuthManager.gender}\tonboardingStage=${AuthManager.onboardingStage}\tpictureUrl=${AuthManager.pictureUrl}")
                     if(AuthManager.onboardingStage == null || AuthManager.onboardingStage != "COMPLETE"){
-                        val intent = Intent(context, OnboardingActivity::class.java)
                         context.startActivity(intent)
                     }
                     else {
-                        val intent = Intent(context, FeedActivity::class.java)
                         if (onSignInSuccessCallback != null) {
                             onSignInSuccessCallback?.let { it() }
                         } else {
                             context.startActivity(intent)
                         }
+                    }
+                    if (context is Activity) {
+                        context.finish()
                     }
                 } else {
                     println("backend error: ${response.code} ${response.body}")

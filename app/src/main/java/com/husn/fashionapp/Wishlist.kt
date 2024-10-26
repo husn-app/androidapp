@@ -43,7 +43,7 @@ class WishlistActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        //WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val signInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -56,12 +56,12 @@ class WishlistActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    if(isLoading.value){
-                        LoadingScreen()
-                    }
-                    else {
-                        WishlistScreen(products = productsState.value)
-                    }
+//                    if(isLoading.value){
+//                        LoadingScreen()
+//                    }
+//                    else {
+                    WishlistScreen(products = productsState.value)
+//                    }
                 }
             }
         }
@@ -99,7 +99,7 @@ fun WishlistScreen(products: List<Product>){
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
                     text = "Your wishlist is empty. Browse products to add to your wishlist.",
-                    color = Color.DarkGray,
+                    color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodyLarge
                 )
             }

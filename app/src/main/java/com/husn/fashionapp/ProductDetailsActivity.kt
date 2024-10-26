@@ -57,7 +57,7 @@ class ProductDetailsActivity : ComponentActivity() {
     private val isWishlistedState = mutableStateOf<Boolean>(false)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        //WindowCompat.setDecorFitsSystemWindows(window, false)
 
 //        val productIndex = intent.getIntExtra("product_index", 0)
         val productIndex = extractProductIndexFromIntent(intent)

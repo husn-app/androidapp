@@ -37,7 +37,7 @@ fun saveSessionCookie(cookies: List<String>, context: Context) {
         )
 //        println("key: $key, value: $value")
     }
-    editor.apply()  // Apply changes asynchronously
+    editor.commit()  // Apply changes asynchronously
 }
 
 fun getSessionCookieFromStorage(context: Context): Map<String, String> {
@@ -65,7 +65,7 @@ fun clearSessionCookie(context: Context) {
 
     // Remove all key-value pairs stored in the SharedPreferences under "SessionPref"
     editor.clear()  // Clear all data in the shared preferences
-    editor.apply()  // Apply changes asynchronously
+    editor.commit()  // Apply changes asynchronously
 
 //    println("All session cookies have been cleared.")
 }
@@ -83,5 +83,5 @@ fun putKeyValue(key: String, value: String, context: Context){
         value
     )
 //    println("putKeyValue: key: $key, value: $value")
-    editor.apply()  // Apply changes asynchronously
+    editor.commit()  // Apply changes asynchronously
 }

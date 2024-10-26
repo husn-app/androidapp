@@ -53,7 +53,7 @@ class SearchResultsActivity : ComponentActivity() {
     private val productsState = mutableStateOf<List<Product>>(emptyList())
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        //WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val signInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -103,17 +103,13 @@ fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: 
                 TopNavBar()
                 SearchBar(query = query)
             }
-//            item {
-//                SearchBar(query = query)
-////                Spacer(modifier = Modifier.height(8.dp)) // Optional: add spacing after the search bar
-//            }
             if (MainProductView != null && currentProduct != null) {
                 item {
                     MainProductView(currentProduct)
                 }
             }
 
-            itemsIndexed(products.chunked(2)) { index, productPair ->
+            itemsIndexed(products.chunked(2)) { _, productPair ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -146,7 +142,7 @@ fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: 
                 }
             }
         }
-        }
+    }
 }
 
 @Composable

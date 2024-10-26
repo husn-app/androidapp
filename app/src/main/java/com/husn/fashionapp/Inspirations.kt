@@ -68,12 +68,12 @@ class InspirationsActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        //WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val signInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
-        ) { result ->
-            signInHelper.handleSignInResult(result.data)
+        ) { //result ->
+//            signInHelper.handleSignInResult(result.data)
         }
         signInHelper = SignInHelper(this, signInLauncher, this)
         fetchInspirationData()

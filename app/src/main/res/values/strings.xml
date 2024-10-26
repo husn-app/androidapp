@@ -2,7 +2,7 @@
     <string name="app_name">Husn</string>
 <!--    <string name="husn_base_url">https://husn.app</string>-->
 <!--    <string name="husn_base_url">https://008d-2401-4900-1cb8-a54f-3040-798c-94cb-faed.ngrok-free.app</string>-->
-<!--    <string name="husn_base_url">http://10.0.2.2:50\00/</string>-->
+<!--    <string name="husn_base_url">http://10.0.2.2:50\00</string>-->
     <string name="husn_base_url">https://husn-dev.azurewebsites.net</string>
     <string name="server_client_id">307272477895-98db7q5sgt4irvpukjg1l21gl4m1lvbh.apps.googleusercontent.com</string>
 </resources>

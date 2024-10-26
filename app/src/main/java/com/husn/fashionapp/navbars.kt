@@ -90,6 +90,19 @@ fun TopNavBar(modifier: Modifier = Modifier.statusBarsPadding()){
                     contentScale = ContentScale.Crop)
 //                    placeholder = painterResource(R.drawable.profile_placeholder) // Make sure to have a placeholder image
             }
+            else {
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(R.drawable.google_signin_1)
+                        .build(),
+                    contentDescription = "Google Sign In",
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(CircleShape)
+                        .clickable { signInHelper?.signIn() },
+                    contentScale = ContentScale.Crop
+                )
+            }
             DropdownMenu(
                 expanded = showDropdown,
                 onDismissRequest = { showDropdown = false },
@@ -106,70 +119,6 @@ fun TopNavBar(modifier: Modifier = Modifier.statusBarsPadding()){
                 )
             }
         }
-    }
-}
-
-@Composable
-fun SearchBar(
-    query: String = "",
-    context: Context = LocalContext.current,
-    modifier: Modifier = Modifier,
-    searchBarFraction: Float = 0.96f,
-) {
-    var searchText by remember { mutableStateOf(TextFieldValue(query)) }
-    val firebaseAnalytics = remember { FirebaseAnalytics.getInstance(context) }
-
-    val textColor = Color.Black
-    val backgroundColor = Color.White
-    val focusedBorderColor = Color(0xffc8bea1)
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()  // Occupy full width but not full height.
-            .height(52.dp)
-            .wrapContentHeight(),  // Limit height to the SearchBar's height
-        contentAlignment = Alignment.Center
-    ) {
-        OutlinedTextField(
-            value = searchText,
-            onValueChange = { searchText = it },
-            placeholder = {
-                if (searchText.text.isEmpty()) {
-                    Text("Search...", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
-                } else {
-                    Text(query, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth(searchBarFraction),
-//                .clip(RoundedCornerShape(16.dp)),  // Apply rounded corners
-            shape = RoundedCornerShape(25.dp),  // Shape for the OutlinedTextField
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = backgroundColor,
-                unfocusedContainerColor = backgroundColor,
-                disabledContainerColor = backgroundColor,
-                focusedTextColor = textColor, // Text color when focused
-                unfocusedTextColor = textColor,
-                focusedBorderColor = focusedBorderColor
-            ),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-            keyboardActions = KeyboardActions(
-                onSearch = {
-                    val bundle = Bundle().apply {
-                        putString(FirebaseAnalytics.Param.SEARCH_TERM, searchText.text)
-                    }
-                    firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SEARCH, bundle)
-
-                    val intent = Intent(context, SearchResultsActivity::class.java).apply {
-                        putExtra("query", searchText.text)
-                    }
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                    context.startActivity(intent)
-                }
-            ),
-            singleLine = true,  // Ensure it's a single-line search bar
-            textStyle = MaterialTheme.typography.bodyMedium
-        )
     }
 }
 
@@ -208,8 +157,6 @@ fun BottomBar(selectedItem: Int = 0) {
                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                     context.startActivity(intent)
                 },
-                selectedContentColor = Color.Black, // Customize selected icon color
-                unselectedContentColor = Color.Red // Customize unselected icon color
             )
             BottomNavigationItem(
                 icon = {
@@ -226,8 +173,6 @@ fun BottomBar(selectedItem: Int = 0) {
                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                     context.startActivity(intent)
                 },
-                selectedContentColor = Color.Black,
-                unselectedContentColor = Color.Gray
             )
             BottomNavigationItem(
                 icon = {
@@ -252,8 +197,6 @@ fun BottomBar(selectedItem: Int = 0) {
                         context.startActivity(intent)
                     }
                 },
-                selectedContentColor = Color.Black,
-                unselectedContentColor = Color.Gray
             )
         }
     }

@@ -8,9 +8,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Scaffold
 import androidx.compose.material3.Button
@@ -40,14 +43,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import com.example.fashionapp.R
 import com.husn.fashionapp.ui.theme.AppTheme
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.Call
@@ -61,7 +67,7 @@ class OnboardingActivity : ComponentActivity() {
     private lateinit var signInHelper: SignInHelper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        //WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val signInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -109,7 +115,8 @@ fun GenderAgeInputScreen() {
             Spacer(modifier = Modifier.height(24.dp))
             Text(
                 text = "Select Your Gender",
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(16.dp))
             Row(
@@ -117,26 +124,27 @@ fun GenderAgeInputScreen() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 GenderOption(
-                    drawableRes = R.drawable.boy, // Your custom drawable
+                    drawableRes = R.drawable.boy_bg2, // Your custom drawable
                     label = "Man",
                     isSelected = selectedGender == "MAN",
                     onClick = { selectedGender = "MAN" }
                 )
                 Spacer(modifier = Modifier.width(24.dp))
                 GenderOption(
-                    drawableRes = R.drawable.girl, // Your custom drawable
+                    drawableRes = R.drawable.girl_bg, // Your custom drawable
                     label = "Woman",
                     isSelected = selectedGender == "WOMAN",
                     onClick = { selectedGender = "WOMAN" }
                 )
             }
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             Text(
                 text = "Enter Your Age",
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             OutlinedTextField(
                 value = age,
                 onValueChange = { input ->
@@ -147,7 +155,13 @@ fun GenderAgeInputScreen() {
                 },
                 label = { Text("Age") },
                 keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
+                    keyboardType = androidx.compose.ui.text.input.KeyboardType.Number,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        handleSubmission(selectedGender, age, context, coroutineScope)
+                    }
                 ),
                 singleLine = true,
                 modifier = Modifier
@@ -156,30 +170,39 @@ fun GenderAgeInputScreen() {
                 shape = RoundedCornerShape(25.dp)
             )
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             // Show Submit button only if gender is selected and age is not empty
             if (selectedGender != null && age.isNotBlank()) {
                 Button(
                     onClick = {
-                        // Perform POST request
-                        coroutineScope.launch(Dispatchers.IO) {
-                            sendPostRequest(
-                                gender = selectedGender!!,
-                                age = age,
-                                context = context
-                            )
-                        }
+                        handleSubmission(selectedGender, age, context, coroutineScope)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 32.dp),
                     shape = RoundedCornerShape(25.dp),
-                    colors = ButtonDefaults.buttonColors(Color(0xFFC8BEA1))
                 ) {
-                    Text(text = "Let's go!", color = MaterialTheme.colorScheme.primary, fontSize = 16.sp)
+                    Text(text = "Let's go!", color = MaterialTheme.colorScheme.onPrimary, fontSize = 16.sp)
                 }
             }
+        }
+    }
+}
+
+fun handleSubmission(
+    selectedGender: String?,
+    age: String,
+    context: Context,
+    coroutineScope: CoroutineScope
+) {
+    if (selectedGender != null && age.isNotBlank()) {
+        coroutineScope.launch(Dispatchers.IO) {
+            sendPostRequest(
+                gender = selectedGender,
+                age = age,
+                context = context
+            )
         }
     }
 }
@@ -209,14 +232,15 @@ fun GenderOption(
                 .border(
                     BorderStroke(
                         width = if (isSelected) 4.dp else 2.dp,
-                        color = if (isSelected) Color.Black else Color.Gray
+                        color = MaterialTheme.colorScheme.outline
                     ),
                     shape = CircleShape
-                )
-                .padding(8.dp)
+                ),
+//                .padding(8.dp),
+            contentScale = ContentScale.FillWidth
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = label)
+        Text(text = label, color = MaterialTheme.colorScheme.primary)
     }
 }
 
