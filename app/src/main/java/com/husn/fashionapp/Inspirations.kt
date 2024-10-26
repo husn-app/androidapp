@@ -65,6 +65,7 @@ class InspirationsActivity : ComponentActivity() {
     )
 //    private val genderState = mutableStateOf<String>("WOMAN")
     private val fetch_utility = Fetchutilities(this)
+    private val isLoading = mutableStateOf<Boolean>(true)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,9 +81,14 @@ class InspirationsActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    InspirationScreen(
-                        inspirations = inspirationsState.value
-                    )
+                    if(isLoading.value){
+                        InspirationLoadingScreen()
+                    }
+                    else {
+                        InspirationScreen(
+                            inspirations = inspirationsState.value
+                        )
+                    }
                 }
             }
         }
@@ -152,6 +158,7 @@ class InspirationsActivity : ComponentActivity() {
                         // Update the inspirations state on the main thread
                         runOnUiThread {
                             inspirationsState.value = inspirationsList
+                            isLoading.value = false
                         }
                     }
                 } else {

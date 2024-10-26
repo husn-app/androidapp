@@ -52,11 +52,16 @@ class FeedActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-                    FeedScreen(
-                        products = productsState.value,
-                        onWishlistChange = { productId, newValue ->
-                            updateProductWishlistStatus(productId, newValue)
-                        })
+                    if(isLoading.value){
+                        FeedLoadingScreen()
+                    }
+                    else {
+                        FeedScreen(
+                            products = productsState.value,
+                            onWishlistChange = { productId, newValue ->
+                                updateProductWishlistStatus(productId, newValue)
+                            })
+                    }
                 }
             }
         }

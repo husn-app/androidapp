@@ -55,6 +55,8 @@ class ProductDetailsActivity : ComponentActivity() {
     private val productsState = mutableStateOf<List<Product>>(emptyList())
     private val currentProductstate = mutableStateOf<Product>(Product())
     private val isWishlistedState = mutableStateOf<Boolean>(false)
+    private val isLoading = mutableStateOf(true)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -74,6 +76,10 @@ class ProductDetailsActivity : ComponentActivity() {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
 //                    FullScreenContent {
+                    if(isLoading.value){
+                        ProductLoadingScreen()
+                    }
+                    else{
                         SearchResultsScreen(
                             query = "",
                             products = productsState.value,
@@ -86,7 +92,7 @@ class ProductDetailsActivity : ComponentActivity() {
                                         // Optionally, handle any side effects here
                                     })  // Call your MainProductView composable here
                             })
-//                    }
+                    }
                 }
             }
         }
@@ -97,6 +103,7 @@ class ProductDetailsActivity : ComponentActivity() {
                     productsState.value = products
                 }
                 isWishlistedState.value = currentProduct.isWishlisted
+                isLoading.value = false
             }
         }
     }

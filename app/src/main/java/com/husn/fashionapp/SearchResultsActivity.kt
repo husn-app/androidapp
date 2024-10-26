@@ -51,6 +51,7 @@ class SearchResultsActivity : ComponentActivity() {
     private lateinit var signInHelper: SignInHelper
     private val fetch_utility = Fetchutilities(this)
     private val productsState = mutableStateOf<List<Product>>(emptyList())
+    private val isLoading = mutableStateOf<Boolean>(true)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -67,9 +68,12 @@ class SearchResultsActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-//                    FullScreenContent {
+                    if(isLoading.value){
+                        WishlistLoadingScreen(showSearchBar = true)
+                    }
+                    else {
                         SearchResultsScreen(query = query, products = productsState.value)
-//                    }
+                    }
                 }
             }
         }
@@ -79,6 +83,7 @@ class SearchResultsActivity : ComponentActivity() {
         { products ->
             runOnUiThread {
                 productsState.value = products ?: emptyList()
+                isLoading.value = false
             }
         }
     }
@@ -117,7 +122,7 @@ fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: 
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     // Display the first product in the row
-                    ProductItemBriefView(/**/
+                    ProductItemBriefView(
                         product = productPair[0],
                         modifier = Modifier
                             .weight(1f)

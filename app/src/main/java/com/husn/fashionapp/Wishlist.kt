@@ -56,12 +56,12 @@ class WishlistActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-//                    if(isLoading.value){
-//                        LoadingScreen()
-//                    }
-//                    else {
-                    WishlistScreen(products = productsState.value)
-//                    }
+                    if(isLoading.value){
+                        WishlistLoadingScreen()
+                    }
+                    else {
+                        WishlistScreen(products = productsState.value)
+                    }
                 }
             }
         }
