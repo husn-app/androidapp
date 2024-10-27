@@ -81,10 +81,10 @@ class SignInHelper(
 
     fun handleSignInResult(data: Intent?) {
         val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-        println("sign_in: $task")
+//        println("sign_in: $task")
         try {
             val account = task.getResult(ApiException::class.java)
-            println("sign_in account: $account \n idToken: ${account?.idToken}")
+//            println("sign_in account: $account \n idToken: ${account?.idToken}")
             firebaseAuthWithGoogle(account.idToken!!)
         } catch (e: Exception) {
             println("sign_in failed: ${e}")

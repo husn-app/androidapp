@@ -5,9 +5,7 @@ Android frontend
 ## OkHttp request headers
 ### Headers
 
-- **Cookie**
-
-- **platform**: Assign to "android". Used to Identify request made from web or android.
+- **referrer**: Currently assigned to android.
 
 ### Response
 - Call saveSessionCookie on every response from backend.

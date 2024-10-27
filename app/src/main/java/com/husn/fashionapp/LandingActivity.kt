@@ -33,7 +33,6 @@ class LandingActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        FirebaseApp.initializeApp(this)
         //WindowCompat.setDecorFitsSystemWindows(window, false)
         val signInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -56,13 +55,13 @@ class LandingActivity : ComponentActivity() {
             }
         }
 
-        onBackPressedDispatcher.addCallback(this) {
-            if (!AuthManager.isUserSignedIn) {
-                finishAffinity() // This will close all activities and exit the app
-            } else {
-                finish() // Handle normal finish behavior when signed in
-            }
-        }
+//        onBackPressedDispatcher.addCallback(this) {
+//            if (!AuthManager.isUserSignedIn) {
+//                finishAffinity() // This will close all activities and exit the app
+//            } else {
+//                finish() // Handle normal finish behavior when signed in
+//            }
+//        }
     }
 }
 

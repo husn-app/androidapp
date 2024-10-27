@@ -151,11 +151,13 @@ fun GenderAgeInputScreen() {
                 keyboardActions = KeyboardActions(
                     onDone = {
                         val ageInt = age.toIntOrNull() ?: 0
-                        if (ageInt < 0) {
-                            Toast.makeText(context, "Age cannot be negative", Toast.LENGTH_SHORT).show()
-                        } else if (ageInt > 72) {
-                            Toast.makeText(context, "Age cannot be greater than 72", Toast.LENGTH_SHORT).show()
-                        } else {
+                        if (ageInt < 12 || ageInt > 72) {
+                            Toast.makeText(
+                                context,
+                                "Please enter age between 12 and 72",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }else{
                             handleSubmission(selectedGender, age, context, coroutineScope)
                         }
                     }
@@ -269,7 +271,7 @@ suspend fun sendPostRequest(
                 val cookies = headers.values("Set-Cookie")
                 saveSessionCookie(cookies, context)
                 val responseBody = response.body?.string()
-                println("onboardingactivity response: $responseBody")
+//                println("onboardingactivity response: $responseBody")
 
                 val intent = Intent(context, FeedActivity::class.java)
                 context.startActivity(intent)

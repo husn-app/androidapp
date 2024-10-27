@@ -57,7 +57,7 @@ fun TopNavBar(modifier: Modifier = Modifier.statusBarsPadding()){
             text = "Husn",
             fontSize = 28.sp, // Set a large font size
             fontWeight = FontWeight.Bold, // Bold font weight
-            color = MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.headlineSmall
         )
@@ -118,7 +118,6 @@ fun BottomBar(selectedItem: Int = 0) {
     val iconSize = 28.dp
     val context = LocalContext.current
     var currentItem by remember { mutableStateOf(selectedItem) }
-    println("BottomBar: $currentItem")
     Column {
         Divider()
 

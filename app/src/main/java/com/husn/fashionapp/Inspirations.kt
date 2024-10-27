@@ -84,7 +84,7 @@ class InspirationsActivity : ComponentActivity() {
         AuthManager.gender?.let{
             url = "$url/${AuthManager.gender}"
         }
-        println("fetchInspirationData: sending request to url: $url")
+//        println("fetchInspirationData: sending request to url: $url")
         val request = post_url_request(this, url)
 
         client.newCall(request).enqueue(object : Callback {

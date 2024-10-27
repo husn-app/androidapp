@@ -33,7 +33,7 @@ class Fetchutilities(private val context: Context, private val client: OkHttpCli
                         println("fetchProductsList request failed. Retrying (attempt ${retryCount + 1}). Error: ${e.message}")
                         // Introduce a short delay before retrying
                         CoroutineScope(Dispatchers.IO).launch {
-                            delay(200) // Delay for 500ms
+                            delay(200)
                             makeRequest()
                         }
 
