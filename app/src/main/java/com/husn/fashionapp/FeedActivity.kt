@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Scaffold
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -17,6 +18,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import com.google.android.gms.auth.api.Auth
 import com.husn.fashionapp.ui.theme.AppTheme
 
 class FeedActivity : ComponentActivity() {
@@ -40,7 +42,6 @@ class FeedActivity : ComponentActivity() {
         }
 
         if (AuthManager.onboardingStage == null || AuthManager.onboardingStage != "COMPLETE") {
-            println("launching OnboardingActivity from feedactivity")
             val intent = Intent(this, OnboardingActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             startActivity(intent)
@@ -103,9 +104,9 @@ fun FeedScreen(products: List<Product>,
         ) {
             item {
                 TopNavBar()
-                SearchBar()
+                SearchBar(referrer = "feed")
             }
-            items(products) { product ->
+            itemsIndexed(products) { index, product ->
                 MainProductView(product,
                     isWishlisted = product.isWishlisted,
                     onWishlistChange = { newValue ->
@@ -114,6 +115,7 @@ fun FeedScreen(products: List<Product>,
                     clickable = {
                     val intent = Intent(context, ProductDetailsActivity::class.java).apply {
                         putExtra("product_index", product.index)
+                        putExtra("referrer", "feed/rank=$index")
                     }
                     context.startActivity(intent)
                 })

@@ -57,6 +57,7 @@ class SearchResultsActivity : ComponentActivity() {
         signInHelper = SignInHelper(this, signInLauncher, this)
 
         val query = intent.getStringExtra("query") ?: ""
+        val referrer = intent.getStringExtra("referrer") ?: ""
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
@@ -64,13 +65,13 @@ class SearchResultsActivity : ComponentActivity() {
                         if (loading) {
                             WishlistLoadingScreen(showSearchBar = true, query = query)
                         } else {
-                            SearchResultsScreen(query = query, products = productsState.value)
+                            SearchResultsScreen(query = query, products = productsState.value, referrer = "search/query=$query")
                         }
                     }
                 }
             }
         }
-        fetch_utility.fetchProductsList(relative_url = "/api/query", requestBodyJson = JSONObject().apply {
+        fetch_utility.fetchProductsList(relative_url = "/api/query", referrer=referrer, requestBodyJson = JSONObject().apply {
             put("query", query)
         })
         { products ->
@@ -96,7 +97,7 @@ fun PreviewSearchResultsScreen() {
 }
 
 @Composable
-fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: Product? = null, MainProductView: @Composable ((product: Product) -> Unit)? = null) {
+fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: Product? = null, referrer: String = "", MainProductView: @Composable ((product: Product) -> Unit)? = null) {
     Scaffold(
         backgroundColor = MaterialTheme.colorScheme.background,
         bottomBar = { BottomBar() } // BottomBar placed correctly
@@ -106,7 +107,7 @@ fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: 
         ) {
             item {
                 TopNavBar()
-                SearchBar(query = query)
+                SearchBar(query = query, referrer = referrer)
             }
             if (MainProductView != null && currentProduct != null) {
                 item {
@@ -114,7 +115,7 @@ fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: 
                 }
             }
 
-            itemsIndexed(products.chunked(2)) { _, productPair ->
+            itemsIndexed(products.chunked(2)) { index, productPair ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -125,7 +126,8 @@ fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: 
                     ProductItemBriefView(
                         product = productPair[0],
                         modifier = Modifier
-                            .weight(1f)
+                            .weight(1f),
+                        referrer = "$referrer/rank=${2*index}"
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     // Display the second product in the row if available
@@ -133,8 +135,9 @@ fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: 
                         ProductItemBriefView(
                             product = productPair[1],
                             modifier = Modifier
-                                .weight(1f) // Ensure the second product takes up half the space
+                                .weight(1f), // Ensure the second product takes up half the space
 //                            .padding(end = 8.dp) // Add spacing between the two products
+                            referrer = "$referrer/rank=${2*index + 1}"
                         )
                     } else {
                         // Add an empty Box to take up the second half of the row
@@ -154,7 +157,8 @@ fun SearchResultsScreen(query: String, products: List<Product>, currentProduct: 
 fun ProductItemBriefView(
     product: Product,
     modifier: Modifier = Modifier,
-    textScale: Float = 1f  // Default scale factor
+    textScale: Float = 1f,  // Default scale factor
+    referrer: String = ""
 ) {
     val context = LocalContext.current
     val firebaseAnalytics = remember {
@@ -177,6 +181,7 @@ fun ProductItemBriefView(
 
             val intent = Intent(context, ProductDetailsActivity::class.java).apply {
                 putExtra("product_index", product.index)
+                putExtra("referrer", referrer)
             }
             context.startActivity(intent)
         })

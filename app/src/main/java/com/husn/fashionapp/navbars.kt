@@ -120,7 +120,6 @@ fun BottomBar(selectedItem: Int = 0) {
     var currentItem by remember { mutableStateOf(selectedItem) }
     Column {
         Divider()
-
         BottomNavigation(
             modifier = Modifier.fillMaxWidth(),
             backgroundColor = Color.Transparent, // Or your desired background color

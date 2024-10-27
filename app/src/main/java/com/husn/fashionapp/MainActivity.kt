@@ -49,9 +49,7 @@ class MainActivity : ComponentActivity(){
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-//                    FullScreenContent {
-                        StyleSenseApp(context = this)
-//                    }
+                    StyleSenseApp(context = this)
                 }
             }
         }

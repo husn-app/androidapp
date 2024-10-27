@@ -56,6 +56,7 @@ class ProductDetailsActivity : ComponentActivity() {
 
 //        val productIndex = intent.getIntExtra("product_index", 0)
         val productIndex = extractProductIndexFromIntent(intent)
+        val referrer = intent.getStringExtra("referrer") ?: ""
 
         val signInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -76,6 +77,7 @@ class ProductDetailsActivity : ComponentActivity() {
                                 query = "",
                                 products = productsState.value,
                                 currentProduct = currentProductstate.value,
+                                referrer = "product/product_id=${currentProductstate.value.index}",
                                 MainProductView = { product ->  // Passing the MainProductView as a lambda
                                     MainProductView(product = product,
                                         isWishlisted = isWishlistedState.value,
@@ -89,7 +91,7 @@ class ProductDetailsActivity : ComponentActivity() {
                 }
             }
         }
-        fetch_utility.fetchProductData(index = productIndex) { currentProduct, products ->
+        fetch_utility.fetchProductData(index = productIndex, referrer = referrer) { currentProduct, products ->
             runOnUiThread {
                 currentProductstate.value = currentProduct
                 if (products != null) {

@@ -159,11 +159,6 @@ fun InspirationScreen(
 ) {
     val context = LocalContext.current
     val firebaseAnalytics = remember { FirebaseAnalytics.getInstance(context) }
-    val randomizedInspirations = remember(inspirations) {
-        inspirations.map { (category, products) ->
-            category to products.shuffled()
-        }.shuffled()
-    }
 
     Scaffold(
         backgroundColor = MaterialTheme.colorScheme.background,
@@ -174,9 +169,9 @@ fun InspirationScreen(
         ) {
             item {
                 TopNavBar()
-                SearchBar()
+                SearchBar(referrer = "inspiration")
             }
-            items(randomizedInspirations) { (categoryName, productsList) ->
+            items(inspirations) { (categoryName, productsList) ->
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -208,6 +203,7 @@ fun InspirationScreen(
 
                                     val intent = Intent(context, SearchResultsActivity::class.java).apply {
                                         putExtra("query", product.inspiration_subcategory_query)
+                                        putExtra("referrer", "inspiration/${product.inspiration_subcategory_name}")
                                     }
                                     context.startActivity(intent)
                                 })

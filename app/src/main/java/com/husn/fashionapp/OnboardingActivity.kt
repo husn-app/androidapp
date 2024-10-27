@@ -77,9 +77,7 @@ class OnboardingActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
-//                    FullScreenContent {
-                        GenderAgeInputScreen()
-//                    }
+                    GenderAgeInputScreen()
                 }
             }
         }

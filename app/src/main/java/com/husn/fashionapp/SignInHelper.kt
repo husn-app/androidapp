@@ -108,7 +108,7 @@ class SignInHelper(
     }
 
     private fun sendIdTokenToServer(idToken: String /*, onSuccess: (() -> Unit)? = null */) {
-        val url = "$baseUrl/login_android"
+        val url = "$baseUrl/api/applogin"
         val requestBodyJson = JSONObject("{\"idToken\": \"$idToken\"}")
         val request = post_url_request(context, url, requestBodyJson)
 
@@ -117,39 +117,25 @@ class SignInHelper(
                 val response = client.newCall(request).execute()
                 if (response.isSuccessful) {
                     val responseBody = response.body?.string()
-//                    println("backend response: $responseBody")
-                    responseBody?.let{
-                        var responseData =
-                            JSONObject(fetch_utility.sanitizeJson(it))
-                        if (responseData.has("gender") && !responseData.isNull("gender")) {
-                            AuthManager.gender = responseData.getString("gender")
-                            AuthManager.gender?.let { genderValue ->
-                                putKeyValue("gender", genderValue, context)
-                            }
-                        }
-                        else{
-                            AuthManager.gender = null
-                        }
-                    }
+//                    println("backend response in login: $responseBody")
 
                     val headers = response.headers
                     val cookies = headers.values("Set-Cookie")
 //                    println("cookies: $cookies")
                     saveSessionCookie(cookies, context)
-                    val onboarding_stage = getSavedKeyValue("onboarding_stage", context)
 
 //                    AuthManager.gender = getSavedKeyValue("gender", context)
                     AuthManager.onboardingStage = getSavedKeyValue("onboarding_stage", context)
                     AuthManager.pictureUrl = getSavedKeyValue("picture_url", context)
                     val intent = if (AuthManager.onboardingStage == null || AuthManager.onboardingStage != "COMPLETE") {
-                        println("launching OnboardingActivity from signinhelper.kt")
+//                        println("launching OnboardingActivity from signinhelper.kt")
                         Intent(context, OnboardingActivity::class.java)
                     } else {
-                        println("launching Feedactivity from signinhelper.kt")
+//                        println("launching Feedactivity from signinhelper.kt")
                         Intent(context, FeedActivity::class.java)
                     }
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-//                    println("Inside signinhelper: gender=${AuthManager.gender}\tonboardingStage=${AuthManager.onboardingStage}\tpictureUrl=${AuthManager.pictureUrl}")
+//                    println("Inside signinhelper: gender=${getSavedKeyValue("gender", context)}\tonboardingStage=${AuthManager.onboardingStage}\tpictureUrl=${AuthManager.pictureUrl}")
                     if(AuthManager.onboardingStage == null || AuthManager.onboardingStage != "COMPLETE"){
                         context.startActivity(intent)
                     }

@@ -17,10 +17,10 @@ import java.net.URLDecoder
 
 
 class Fetchutilities(private val context: Context, private val client: OkHttpClient = OkHttpClient()) {
-    fun fetchProductsList(relative_url: String, requestBodyJson: JSONObject = JSONObject(), callback: (List<Product>?) -> Unit = { products: List<Product>? -> }) {
+    fun fetchProductsList(relative_url: String, referrer: String = "", requestBodyJson: JSONObject = JSONObject(), callback: (List<Product>?) -> Unit = { products: List<Product>? -> }) {
         val baseUrl = context.getString(R.string.husn_base_url)
         val url = "$baseUrl/$relative_url"
-        val request = post_url_request(context, url, requestBodyJson)
+        val request = post_url_request(context, url, requestBodyJson, requestReferrer = referrer)
 
         var retryCount = 0
         val maxRetries = 1
@@ -87,11 +87,12 @@ class Fetchutilities(private val context: Context, private val client: OkHttpCli
 
     fun fetchProductData(
         index: Int,
+        referrer: String = "",
         callback: (currentProduct: Product, products: List<Product>?) -> Unit
     ) {
         val baseUrl = context.getString(R.string.husn_base_url)
         val url = "$baseUrl/api/product/${index}"
-        val request = post_url_request(context, url)
+        val request = post_url_request(context, url, requestReferrer = referrer)
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()

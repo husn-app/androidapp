@@ -68,6 +68,7 @@ fun ImageFromUrl(url: String, clickable: () -> Unit = {}, modifier: Modifier = M
 @Composable
 fun SearchBar(
     query: String = "",
+    referrer: String = "",
     context: Context = LocalContext.current,
     modifier: Modifier = Modifier,
     searchBarFraction: Float = 0.96f,
@@ -124,6 +125,7 @@ fun SearchBar(
 
                     val intent = Intent(context, SearchResultsActivity::class.java).apply {
                         putExtra("query", searchText.text)
+                        putExtra("referrer", referrer)
                     }
                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                     context.startActivity(intent)
