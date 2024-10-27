@@ -62,7 +62,7 @@ class SearchResultsActivity : ComponentActivity() {
                 CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
                     Crossfade(targetState = isLoading.value) { loading ->
                         if (loading) {
-                            WishlistLoadingScreen(showSearchBar = true)
+                            WishlistLoadingScreen(showSearchBar = true, query = query)
                         } else {
                             SearchResultsScreen(query = query, products = productsState.value)
                         }

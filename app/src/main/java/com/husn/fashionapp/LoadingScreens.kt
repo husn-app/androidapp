@@ -26,10 +26,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun WishlistLoadingScreen(showSearchBar: Boolean = false) {
+fun WishlistLoadingScreen(showSearchBar: Boolean = false, query: String = "") {
     Scaffold(
         backgroundColor = MaterialTheme.colorScheme.background,
-        bottomBar = { BottomBar(selectedItem = 3) } // BottomBar placed correctly
+        bottomBar = { BottomBar() } // BottomBar placed correctly
     ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(innerPadding)
@@ -37,7 +37,7 @@ fun WishlistLoadingScreen(showSearchBar: Boolean = false) {
             item {
                 TopNavBar()
                 if(showSearchBar){
-                    SearchBar()
+                    SearchBar(query = query)
                 }
             }
             items(5) { // Show 5 rows of placeholders
@@ -185,8 +185,8 @@ fun InspirationLoadingScreen() {
                     // Category title placeholder
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth(0.7f)
-                            .height(15.dp)
+                            .fillMaxWidth(0.5f)
+                            .height(28.dp)
                             .clip(RoundedCornerShape(4.dp))
                             .background(placeholderColor)
                     )

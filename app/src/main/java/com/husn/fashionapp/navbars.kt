@@ -93,11 +93,11 @@ fun TopNavBar(modifier: Modifier = Modifier.statusBarsPadding()){
             DropdownMenu(
                 expanded = showDropdown,
                 onDismissRequest = { showDropdown = false },
-                modifier = Modifier.background(color = Color.White)
+                modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)
 //                    offset = DpOffset(x = (-40).dp, y = 4.dp)
             ) {
                 DropdownMenuItem(
-                    text = { Text("Sign out", color = Color.Black, fontSize = 16.sp, fontFamily = FontFamily.Serif,
+                    text = { Text("Sign out", color = MaterialTheme.colorScheme.onSurface, fontSize = 16.sp, fontFamily = FontFamily.Serif,
                         textAlign = TextAlign.Center) },
                     onClick = {
                         signInHelper?.signOut(context)
@@ -120,9 +120,7 @@ fun BottomBar(selectedItem: Int = 0) {
     var currentItem by remember { mutableStateOf(selectedItem) }
     println("BottomBar: $currentItem")
     Column {
-        Divider(
-            color = Color(0xFFC8BEA1), // Customize the color as needed
-        )
+        Divider()
 
         BottomNavigation(
             modifier = Modifier.fillMaxWidth(),

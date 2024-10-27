@@ -3,6 +3,7 @@ package com.husn.fashionapp
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -108,12 +109,6 @@ fun GenderAgeInputScreen() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                text = "Select Your Gender",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.height(16.dp))
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
@@ -135,7 +130,7 @@ fun GenderAgeInputScreen() {
 
             Spacer(modifier = Modifier.height(20.dp))
             Text(
-                text = "Enter Your Age",
+                text = "What's your age",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -155,7 +150,14 @@ fun GenderAgeInputScreen() {
                 ),
                 keyboardActions = KeyboardActions(
                     onDone = {
-                        handleSubmission(selectedGender, age, context, coroutineScope)
+                        val ageInt = age.toIntOrNull() ?: 0
+                        if (ageInt < 0) {
+                            Toast.makeText(context, "Age cannot be negative", Toast.LENGTH_SHORT).show()
+                        } else if (ageInt > 72) {
+                            Toast.makeText(context, "Age cannot be greater than 72", Toast.LENGTH_SHORT).show()
+                        } else {
+                            handleSubmission(selectedGender, age, context, coroutineScope)
+                        }
                     }
                 ),
                 singleLine = true,
@@ -169,16 +171,19 @@ fun GenderAgeInputScreen() {
 
             // Show Submit button only if gender is selected and age is not empty
             if (selectedGender != null && age.isNotBlank()) {
-                Button(
-                    onClick = {
-                        handleSubmission(selectedGender, age, context, coroutineScope)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp),
-                    shape = RoundedCornerShape(25.dp),
-                ) {
-                    Text(text = "Let's go!", color = MaterialTheme.colorScheme.onPrimary, fontSize = 16.sp)
+                val ageInt = age.toIntOrNull() ?: 0
+                if (ageInt >= 0 && ageInt <= 72) {
+                    Button(
+                        onClick = {
+                            handleSubmission(selectedGender, age, context, coroutineScope)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 32.dp),
+                        shape = RoundedCornerShape(25.dp),
+                    ) {
+                        Text(text = "Let's go!", color = MaterialTheme.colorScheme.onPrimary, fontSize = 16.sp)
+                    }
                 }
             }
         }

@@ -277,7 +277,7 @@ private val DarkColorScheme = darkColorScheme(
     background = Color(0xFF1E1E1E),
 //    background = Color.Black,
     onBackground = Color.White,
-    surface = Color(0xFF121212), // Almost black
+    surface = Color(0xFF212121), // Almost black
     onSurface = Color.White,
 )
 @Composable
