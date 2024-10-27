@@ -34,7 +34,7 @@ class FeedActivity : ComponentActivity() {
         val signInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) {}
-        signInHelper = SignInHelper(this, signInLauncher, this)
+        signInHelper = SignInHelper(this, signInLauncher, this) //This initialization initializes AuthManager from internal storage. Imp as it is launched immediately after onboarding
         if (!AuthManager.isUserSignedIn) {
             signInHelper.signIn()
         } else {

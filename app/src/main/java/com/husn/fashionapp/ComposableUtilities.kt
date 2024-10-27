@@ -74,7 +74,7 @@ fun SearchBar(
     searchBarFraction: Float = 0.96f,
 ) {
     var searchText by remember { mutableStateOf(TextFieldValue(query)) }
-    val firebaseAnalytics = remember {
+    val firebaseAnalytics = remember(context) {
         try {
             FirebaseAnalytics.getInstance(context)
         } catch (e: Exception) {
@@ -129,67 +129,6 @@ fun SearchBar(
                     }
                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                     context.startActivity(intent)
-                }
-            ),
-            singleLine = true,  // Ensure it's a single-line search bar
-            textStyle = MaterialTheme.typography.bodyMedium
-        )
-    }
-}
-
-@Composable
-fun InPlaceSearchBar(
-    query: String = "",
-    context: Context = LocalContext.current,
-    modifier: Modifier = Modifier,
-    searchBarFraction: Float = 0.96f,
-    onSearch: (String) -> Unit
-) {
-    var searchText by remember { mutableStateOf(TextFieldValue(query)) }
-    val firebaseAnalytics = remember { FirebaseAnalytics.getInstance(context) }
-
-    val textColor = Color.Black
-    val backgroundColor = Color.White
-    val focusedBorderColor = Color(0xffc8bea1)
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()  // Occupy full width but not full height.
-            .height(52.dp)
-            .wrapContentHeight(),  // Limit height to the SearchBar's height
-        contentAlignment = Alignment.Center
-    ) {
-        OutlinedTextField(
-            value = searchText,
-            onValueChange = { searchText = it },
-            placeholder = {
-                if (searchText.text.isEmpty()) {
-                    Text("Search...", color = textColor, style = MaterialTheme.typography.bodyMedium)
-                } else {
-                    Text(query, color = textColor, style = MaterialTheme.typography.bodyMedium)
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth(searchBarFraction),
-//                .clip(RoundedCornerShape(16.dp)),  // Apply rounded corners
-            shape = RoundedCornerShape(25.dp),  // Shape for the OutlinedTextField
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = backgroundColor,
-                unfocusedContainerColor = backgroundColor,
-                disabledContainerColor = backgroundColor,
-                focusedTextColor = textColor, // Text color when focused
-                unfocusedTextColor = textColor,
-                focusedBorderColor = focusedBorderColor
-            ),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-            keyboardActions = KeyboardActions(
-                onSearch = {
-                    val bundle = Bundle().apply {
-                        putString(FirebaseAnalytics.Param.SEARCH_TERM, searchText.text)
-                    }
-                    firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SEARCH, bundle)
-
-                    onSearch(searchText.text)
                 }
             ),
             singleLine = true,  // Ensure it's a single-line search bar

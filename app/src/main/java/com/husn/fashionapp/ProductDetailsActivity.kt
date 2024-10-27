@@ -139,7 +139,7 @@ fun PreviewProductDetailsScreen() {
 fun MainProductView(product: Product, modifier: Modifier = Modifier, isWishlisted: Boolean = false, onWishlistChange: (Boolean) -> Unit = {}, clickable: () -> Unit = {}) {
     val context = LocalContext.current
     val fetch_utility = Fetchutilities(context)
-    val firebaseAnalytics = remember {
+    val firebaseAnalytics = remember(context) {
         try {
             FirebaseAnalytics.getInstance(context)
         } catch (e: Exception) {

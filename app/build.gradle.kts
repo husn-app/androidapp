@@ -14,8 +14,8 @@ android {
         applicationId = "com.husn.fashionapp"
         minSdk = 24
         targetSdk = 34
-        versionCode = 13
-        versionName = "1.11"
+        versionCode = 14
+        versionName = "1.12"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

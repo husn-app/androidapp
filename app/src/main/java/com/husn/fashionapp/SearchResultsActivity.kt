@@ -161,7 +161,7 @@ fun ProductItemBriefView(
     referrer: String = ""
 ) {
     val context = LocalContext.current
-    val firebaseAnalytics = remember {
+    val firebaseAnalytics = remember(context) {
         try {
             FirebaseAnalytics.getInstance(context)
         } catch (e: Exception) {
