@@ -103,6 +103,7 @@ class ProductDetailsActivity : ComponentActivity() {
     }
 
     private fun extractProductIndexFromIntent(intent: Intent): Int {
+        println("Inside productdetailsactivity: extractProductIndexFromIntent")
         if (Intent.ACTION_VIEW == intent.action) {
             intent.data?.let { uri ->
                 val segments = uri.pathSegments

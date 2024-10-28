@@ -104,7 +104,7 @@ fun StaticProductItem(
 fun ProductLoadingScreen() {
     Scaffold(
         backgroundColor = MaterialTheme.colorScheme.background,
-        bottomBar = { BottomBar(selectedItem = 3) } // BottomBar placed correctly
+        bottomBar = { BottomBar() } // BottomBar placed correctly
     ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(innerPadding)
