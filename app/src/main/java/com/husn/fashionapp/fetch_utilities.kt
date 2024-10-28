@@ -1,7 +1,7 @@
 package com.husn.fashionapp
 
 import android.content.Context
-import com.example.fashionapp.R
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

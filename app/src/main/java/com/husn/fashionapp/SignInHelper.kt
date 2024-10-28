@@ -8,7 +8,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.example.fashionapp.R
+
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -151,9 +151,11 @@ class SignInHelper(
                     }
                 } else {
                     println("backend error: ${response.code} ${response.body}")
+                    signOut(context)
                 }
             } catch (e: IOException) {
-                println("Network error: ${e.message}")
+                println("signinhelper Network error: ${e.message}")
+                signOut(context)
             }
         }
     }

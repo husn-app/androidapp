@@ -13,9 +13,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.example.fashionapp.R
+
 import com.husn.fashionapp.AuthManager
 import com.husn.fashionapp.LocalSignInHelper
+import com.husn.fashionapp.R
 import com.husn.fashionapp.WishlistActivity
 import com.husn.fashionapp.post_url_request
 import kotlinx.coroutines.Dispatchers

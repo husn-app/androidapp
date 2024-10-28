@@ -34,7 +34,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
-import com.example.fashionapp.R
+import com.husn.fashionapp.R
 import com.google.firebase.analytics.FirebaseAnalytics
 
 @Composable

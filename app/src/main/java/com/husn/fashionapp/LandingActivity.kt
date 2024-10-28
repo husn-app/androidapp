@@ -36,7 +36,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
-import com.example.fashionapp.R
 import com.husn.fashionapp.ui.theme.AppTheme
 
 class LandingActivity : ComponentActivity() {
@@ -81,7 +80,7 @@ class LandingActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun StylishTextBoxPreview() {
-    AppTheme {
+    AppTheme(darkTheme = true) {
         LandingPageScreen()
     }
 }
@@ -108,22 +107,14 @@ fun LandingPageScreen() {
     val context = LocalContext.current
     Scaffold(
         backgroundColor = Color.Transparent,
-        bottomBar = { if (isUserSignedIn) BottomBar() } // BottomBar placed correctly
+//        bottomBar = { if (isUserSignedIn) BottomBar() } // BottomBar placed correctly
     ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
         ) {
-            // Place StylishTextBox at the top center
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(top = 40.dp), // Optional padding to adjust position
-//                contentAlignment = Alignment.TopCenter
-//            ) {
-                StylishTextBox()
-//            }
+            StylishTextBox()
 
             // Sign-in button logic
             if (!isUserSignedIn) {
@@ -137,7 +128,7 @@ fun LandingPageScreen() {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
-                        .padding(bottom = 320.dp),
+                        .padding(bottom = 280.dp),
                     contentAlignment = Alignment.BottomCenter
                 ) {
                     Image(

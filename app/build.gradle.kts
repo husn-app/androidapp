@@ -7,15 +7,15 @@ plugins {
 }
 
 android {
-    namespace = "com.example.fashionapp"
+    namespace = "com.husn.fashionapp"
     compileSdk = 34
 
     defaultConfig {
         applicationId = "com.husn.fashionapp"
         minSdk = 24
         targetSdk = 34
-        versionCode = 14
-        versionName = "1.12"
+        versionCode = 15
+        versionName = "1.13"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -115,6 +115,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:20.6.0")
     implementation(platform("com.google.firebase:firebase-bom:32.2.3"))
     implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 //    implementation("androidx.activity:activity-compose:1.7.2")
 //    implementation("androidx.compose.ui:ui:1.4.3")
 //    implementation("androidx.compose.material:material:1.4.3")
