@@ -26,6 +26,7 @@ class FeedActivity : ComponentActivity() {
     private val productsState = mutableStateOf<List<Product>>(emptyList())
     private val isLoading = mutableStateOf(true)
     private val fetch_utility = Fetchutilities(this)
+    private var retryCount = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,33 +69,22 @@ class FeedActivity : ComponentActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        println("FeedActivity onNewIntent() called")
-
-        // Check onboarding status (important!)
-        if (AuthManager.onboardingStage == null || AuthManager.onboardingStage != "COMPLETE") {
-            // Navigate to onboarding and finish
-            val onboardingIntent = Intent(this, OnboardingActivity::class.java)
-            onboardingIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(onboardingIntent)
-            finish()
-            return // Crucial to prevent further execution
-        }
-
-        // Refresh feed data
-        productsState.value = emptyList() // Clear existing data
-        isLoading.value = true // Show loading
-        fetchFeedProducts()
-    }
-
     private fun fetchFeedProducts() {
         fetch_utility.fetchProductsList(relative_url = "/api/feed") { products ->
             runOnUiThread {
-                productsState.value = products ?: emptyList()
-                isLoading.value = false
-                if (productsState.value.isEmpty()) {
-                    finish() // Go to previous screen if productsState is empty
+                if (products != null) {
+                    productsState.value = products
+                    isLoading.value = false
+                    retryCount = 0 // Reset retry count on success
+                    if (productsState.value.isEmpty()) {
+                        finish()
+                    }
+                } else if (retryCount < 1) {  // Retry only once
+                    retryCount++
+                    fetchFeedProducts() // Retry the fetch
+                } else {
+                    isLoading.value = false // Hide loading even on failure after retry
+                    finish() // Or navigate to another screen
                 }
             }
         }

@@ -78,16 +78,15 @@ class InspirationsActivity : ComponentActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        println("InspirationsActivity onNewIntent() called")
-
-        // Clear existing data (if needed)
-        inspirationsState.value = emptyList()
-        isLoading.value = true // Show loading indicator
-        // Fetch new data
-        fetchInspirationData()
-    }
+//    override fun onNewIntent(intent: Intent?) {
+//        super.onNewIntent(intent)
+//
+//        // Clear existing data (if needed)
+//        inspirationsState.value = emptyList()
+//        isLoading.value = true // Show loading indicator
+//        // Fetch new data
+//        fetchInspirationData()
+//    }
 
     private fun fetchInspirationData() {
         val baseUrl = getString(R.string.husn_base_url)

@@ -48,13 +48,13 @@ fun getSessionCookieFromStorage(context: Context): Map<String, String> {
         .mapValues { it.value as String }
 
     // Print the retrieved cookies
-    if (cookies.isNotEmpty()) {
-        for ((key, value) in cookies) {
+//    if (cookies.isNotEmpty()) {
+//        for ((key, value) in cookies) {
 //            println("Retrieved key: $key, value: $value")
-        }
-    } else {
-        println("No cookies found in storage.")
-    }
+//        }
+//    } else {
+//        println("No cookies found in storage.")
+//    }
 
     return cookies
 }

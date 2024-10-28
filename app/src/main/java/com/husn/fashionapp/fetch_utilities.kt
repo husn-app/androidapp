@@ -28,19 +28,6 @@ class Fetchutilities(private val context: Context, private val client: OkHttpCli
         fun makeRequest() {
             client.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    if (retryCount < maxRetries) {
-                        retryCount++
-                        println("fetchProductsList request failed. Retrying (attempt ${retryCount + 1}). Error: ${e.message}")
-                        // Introduce a short delay before retrying
-                        CoroutineScope(Dispatchers.IO).launch {
-                            delay(300)
-                            makeRequest()
-                        }
-
-                    } else {
-                        println("fetchProductsList request failed after multiple retries. Error: ${e.message}")
-                        callback(null) // Indicate failure to the caller
-                    }
                 }
 
                 override fun onResponse(call: Call, response: Response) {
@@ -54,6 +41,7 @@ class Fetchutilities(private val context: Context, private val client: OkHttpCli
                         } catch (e: IOException) {
                             onFailure(call, e)
                             e.printStackTrace()
+                            callback(null)
                             // Go to previous screen or handle the error appropriately
                             return
                         }
@@ -74,6 +62,19 @@ class Fetchutilities(private val context: Context, private val client: OkHttpCli
                         }
                     } else {
                         println("fetchProductsList response failed with status: ${response.code}\n $response")
+                        if (retryCount < maxRetries) {
+                            retryCount++
+                            println("fetchProductsList request failed. Retrying (attempt ${retryCount + 1}).")
+                            // Introduce a short delay before retrying
+                            CoroutineScope(Dispatchers.IO).launch {
+                                delay(300)
+                                makeRequest()
+                            }
+
+                        } else {
+                            println("fetchProductsList request failed after multiple retries.")
+                            callback(null) // Indicate failure to the caller
+                        }
                     }
                 }
             })
@@ -135,6 +136,7 @@ class Fetchutilities(private val context: Context, private val client: OkHttpCli
                     }
                 } else {
                     println("fetchProductData: fetching product with $index failed with status: ${response.code}\n${response}")
+                    //callback(Product(), null)
                 }
             }
         })

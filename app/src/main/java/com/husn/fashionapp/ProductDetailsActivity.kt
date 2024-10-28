@@ -56,7 +56,6 @@ class ProductDetailsActivity : ComponentActivity() {
         val appLinkIntent: Intent = intent
         val appLinkAction: String? = appLinkIntent.action
         val appLinkData: Uri? = appLinkIntent.data
-        println("productdetailsactivity: $appLinkIntent\n$appLinkAction\n$appLinkData")
 //        val productIndex = intent.getIntExtra("product_index", 0)
         val productIndex = extractProductIndexFromIntent(intent)
         val referrer = intent.getStringExtra("referrer") ?: ""
@@ -108,9 +107,7 @@ class ProductDetailsActivity : ComponentActivity() {
     }
 
     private fun extractProductIndexFromIntent(intent: Intent): Int {
-        println("Inside productdetailsactivity: extractProductIndexFromIntent")
         if (Intent.ACTION_VIEW == intent.action) {
-            println("Inside productdetailsactivity: intent action_view")
             intent.data?.let { uri ->
                 val segments = uri.pathSegments
                 if (segments.size >= 3) {

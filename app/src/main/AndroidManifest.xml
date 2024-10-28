@@ -45,10 +45,10 @@
         </activity>
         <activity android:name="com.husn.fashionapp.WishlistActivity" />
         <activity android:name="com.husn.fashionapp.MainActivity" />
-        <activity android:name="com.husn.fashionapp.InspirationsActivity" android:launchMode="singleTask" />
+        <activity android:name="com.husn.fashionapp.InspirationsActivity"/>
         <activity android:name="com.husn.fashionapp.OnboardingActivity" />
         <activity android:name="com.husn.fashionapp.WebViewActivity" />
-        <activity android:name="com.husn.fashionapp.FeedActivity" android:launchMode="singleTask" />
+        <activity android:name="com.husn.fashionapp.FeedActivity"/>
 
         <meta-data
             android:name="com.google.firebase.analytics.FirebaseAnalytics"
