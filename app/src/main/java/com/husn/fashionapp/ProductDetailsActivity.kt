@@ -37,7 +37,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.fashionapp.R
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.husn.fashionapp.ui.theme.AppTheme
 

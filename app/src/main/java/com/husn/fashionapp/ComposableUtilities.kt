@@ -32,10 +32,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.husn.fashionapp.R
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.husn.fashionapp.ui.theme.AppTheme
 
 @Composable
 fun LoadingScreen() {
@@ -65,6 +67,13 @@ fun ImageFromUrl(url: String, clickable: () -> Unit = {}, modifier: Modifier = M
     )
 }
 
+@Preview(showBackground = true)
+@Composable
+fun SearchBarPreview() {
+    AppTheme(darkTheme = true) {
+        SearchBar()
+    }
+}
 @Composable
 fun SearchBar(
     query: String = "",
@@ -72,6 +81,8 @@ fun SearchBar(
     context: Context = LocalContext.current,
     modifier: Modifier = Modifier,
     searchBarFraction: Float = 0.96f,
+    backgroundColor: Color = MaterialTheme.colorScheme.background,
+    textColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
     var searchText by remember { mutableStateOf(TextFieldValue(query)) }
     val firebaseAnalytics = remember(context) {
@@ -82,8 +93,8 @@ fun SearchBar(
         }
     }
 
-    val textColor = Color.Black
-    val backgroundColor = Color.White
+    //val textColor = Color.Black
+    //val backgroundColor = Color.White
     val focusedBorderColor = Color(0xffc8bea1)
 
     Box(
