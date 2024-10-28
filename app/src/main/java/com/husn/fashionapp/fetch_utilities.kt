@@ -33,7 +33,7 @@ class Fetchutilities(private val context: Context, private val client: OkHttpCli
                         println("fetchProductsList request failed. Retrying (attempt ${retryCount + 1}). Error: ${e.message}")
                         // Introduce a short delay before retrying
                         CoroutineScope(Dispatchers.IO).launch {
-                            delay(200)
+                            delay(300)
                             makeRequest()
                         }
 
@@ -150,8 +150,6 @@ class Fetchutilities(private val context: Context, private val client: OkHttpCli
         }
 
         val allUrl = "$baseUrl/product/${pathSegments[pathSegments.size - 3]}/${product.index}"
-//        println("productUrl: $allUrl")
         return allUrl
-//        return baseUrl
     }
 }

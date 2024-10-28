@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -18,8 +19,7 @@
             android:name="com.husn.fashionapp.LandingActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="true"
-            android:theme="@style/LandingActivityTheme">
-        </activity>
+            android:theme="@style/LandingActivityTheme" />
         <activity
             android:name="com.husn.fashionapp.SplashActivity"
             android:theme="@style/SplashTheme"
@@ -30,26 +30,29 @@
             </intent-filter>
         </activity>
         <activity android:name="com.husn.fashionapp.SearchResultsActivity" />
-        <activity android:name="com.husn.fashionapp.ProductDetailsActivity"
+        <activity
+            android:name="com.husn.fashionapp.ProductDetailsActivity"
             android:exported="true">
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https"
-                    android:host="husn.app"
-                    android:pathPrefix="/product/.*" />
+
+                <data android:scheme="https" />
+                <data android:host="husn.app" />
+                <data android:pathPrefix="/product" />
             </intent-filter>
         </activity>
         <activity android:name="com.husn.fashionapp.WishlistActivity" />
         <activity android:name="com.husn.fashionapp.MainActivity" />
-        <activity android:name="com.husn.fashionapp.InspirationsActivity" />
+        <activity android:name="com.husn.fashionapp.InspirationsActivity" android:launchMode="singleTask" />
         <activity android:name="com.husn.fashionapp.OnboardingActivity" />
         <activity android:name="com.husn.fashionapp.WebViewActivity" />
-        <activity android:name="com.husn.fashionapp.FeedActivity" />
+        <activity android:name="com.husn.fashionapp.FeedActivity" android:launchMode="singleTask" />
+
         <meta-data
-        android:name="com.google.firebase.analytics.FirebaseAnalytics"
-        android:value="true" />
+            android:name="com.google.firebase.analytics.FirebaseAnalytics"
+            android:value="true" />
     </application>
 
 </manifest>

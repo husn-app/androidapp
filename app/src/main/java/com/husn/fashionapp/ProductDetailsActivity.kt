@@ -1,4 +1,5 @@
 package com.husn.fashionapp
+
 import FavoriteButton
 import android.content.Intent
 import android.net.Uri
@@ -52,7 +53,10 @@ class ProductDetailsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //WindowCompat.setDecorFitsSystemWindows(window, false)
-
+        val appLinkIntent: Intent = intent
+        val appLinkAction: String? = appLinkIntent.action
+        val appLinkData: Uri? = appLinkIntent.data
+        println("productdetailsactivity: $appLinkIntent\n$appLinkAction\n$appLinkData")
 //        val productIndex = intent.getIntExtra("product_index", 0)
         val productIndex = extractProductIndexFromIntent(intent)
         val referrer = intent.getStringExtra("referrer") ?: ""
@@ -100,11 +104,13 @@ class ProductDetailsActivity : ComponentActivity() {
                 isLoading.value = false
             }
         }
+        // ATTENTION: This was auto-generated to handle app links.
     }
 
     private fun extractProductIndexFromIntent(intent: Intent): Int {
         println("Inside productdetailsactivity: extractProductIndexFromIntent")
         if (Intent.ACTION_VIEW == intent.action) {
+            println("Inside productdetailsactivity: intent action_view")
             intent.data?.let { uri ->
                 val segments = uri.pathSegments
                 if (segments.size >= 3) {

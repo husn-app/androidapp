@@ -3,6 +3,8 @@ package com.husn.fashionapp
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -48,7 +50,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
 import com.husn.fashionapp.ui.theme.AppTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -97,6 +98,7 @@ fun GenderAgeInputScreenPreview() {
 fun GenderAgeInputScreen() {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val signInHelper = LocalSignInHelper.current
 
     // State variables
     var selectedGender by remember { mutableStateOf<String?>(null) }
@@ -165,7 +167,7 @@ fun GenderAgeInputScreen() {
                                 Toast.LENGTH_SHORT
                             ).show()
                         }else{
-                            handleSubmission(selectedGender, age, context, coroutineScope)
+                            handleSubmission(selectedGender, age, context, coroutineScope, signInHelper)
                         }
                     }
                 ),
@@ -184,7 +186,7 @@ fun GenderAgeInputScreen() {
                 if (ageInt >= 0 && ageInt <= 72) {
                     Button(
                         onClick = {
-                            handleSubmission(selectedGender, age, context, coroutineScope)
+                            handleSubmission(selectedGender, age, context, coroutineScope, signInHelper)
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -203,14 +205,16 @@ fun handleSubmission(
     selectedGender: String?,
     age: String,
     context: Context,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
+    signInHelper: SignInHelper?
 ) {
     if (selectedGender != null && age.isNotBlank()) {
         coroutineScope.launch(Dispatchers.IO) {
             sendPostRequest(
                 gender = selectedGender,
                 age = age,
-                context = context
+                context = context,
+                signInHelper
             )
         }
     }
@@ -257,6 +261,7 @@ suspend fun sendPostRequest(
     gender: String,
     age: String,
     context: Context,
+    signInHelper: SignInHelper?
 ) {
     val client = OkHttpClient()
     val baseUrl = context.getString(R.string.husn_base_url)
@@ -265,7 +270,7 @@ suspend fun sendPostRequest(
     val json = JSONObject().apply {
         put("gender", gender)
         put("age", age.toIntOrNull() ?: 0)
-    } //.toString()
+    }
     val request = post_url_request(context, url, json)
 
     client.newCall(request).enqueue(object : Callback {
@@ -277,11 +282,13 @@ suspend fun sendPostRequest(
                 val headers = response.headers
                 val cookies = headers.values("Set-Cookie")
                 saveSessionCookie(cookies, context)
-                val responseBody = response.body?.string()
-//                println("onboardingactivity response: $responseBody")
-
                 val intent = Intent(context, FeedActivity::class.java)
                 context.startActivity(intent)
+            } else {
+                Handler(Looper.getMainLooper()).post {
+                    Toast.makeText(context, "Please login again.", Toast.LENGTH_LONG).show()
+                }
+                signInHelper?.signOut(context)
             }
         }
     })

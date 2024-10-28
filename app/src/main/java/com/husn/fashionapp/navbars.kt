@@ -94,7 +94,6 @@ fun TopNavBar(modifier: Modifier = Modifier.statusBarsPadding()){
                 expanded = showDropdown,
                 onDismissRequest = { showDropdown = false },
                 modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)
-//                    offset = DpOffset(x = (-40).dp, y = 4.dp)
             ) {
                 DropdownMenuItem(
                     text = { Text("Sign out", color = MaterialTheme.colorScheme.onSurface, fontSize = 16.sp, fontFamily = FontFamily.Serif,

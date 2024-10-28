@@ -78,6 +78,17 @@ class InspirationsActivity : ComponentActivity() {
         }
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        println("InspirationsActivity onNewIntent() called")
+
+        // Clear existing data (if needed)
+        inspirationsState.value = emptyList()
+        isLoading.value = true // Show loading indicator
+        // Fetch new data
+        fetchInspirationData()
+    }
+
     private fun fetchInspirationData() {
         val baseUrl = getString(R.string.husn_base_url)
         var url = "$baseUrl/api/inspiration"
@@ -104,9 +115,9 @@ class InspirationsActivity : ComponentActivity() {
                         response.body?.string()
                     } catch (e: Exception) {
                         e.printStackTrace()
-                        runOnUiThread {
-                            finish() // Go back to previous screen
-                        }
+//                        runOnUiThread {
+//                            finish() // Go back to previous screen
+//                        }
                         return
                     }
 //                    println("fetchInspirationData responseDataString $responseDataString")
@@ -147,6 +158,9 @@ class InspirationsActivity : ComponentActivity() {
                     }
                 } else {
                     println("Inspiration response failed with status: ${response.code}")
+                    runOnUiThread {
+                        finish() // Go back to previous screen
+                    }
                 }
             }
         })

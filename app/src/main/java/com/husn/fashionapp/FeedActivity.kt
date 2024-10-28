@@ -67,6 +67,27 @@ class FeedActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        println("FeedActivity onNewIntent() called")
+
+        // Check onboarding status (important!)
+        if (AuthManager.onboardingStage == null || AuthManager.onboardingStage != "COMPLETE") {
+            // Navigate to onboarding and finish
+            val onboardingIntent = Intent(this, OnboardingActivity::class.java)
+            onboardingIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(onboardingIntent)
+            finish()
+            return // Crucial to prevent further execution
+        }
+
+        // Refresh feed data
+        productsState.value = emptyList() // Clear existing data
+        isLoading.value = true // Show loading
+        fetchFeedProducts()
+    }
+
     private fun fetchFeedProducts() {
         fetch_utility.fetchProductsList(relative_url = "/api/feed") { products ->
             runOnUiThread {
