@@ -15,6 +15,7 @@ data class Product(
     val gender: String = "",
     val price: Int = 0,
     val index: Int = 0,
+    val isWishlisted: Boolean = false
 ) {
     constructor(json: JSONObject) : this(
         originalWebsite = json.optString("original_website", ""),
@@ -29,5 +30,18 @@ data class Product(
         gender = json.optString("gender", ""),
         price = json.optInt("price", 0),
         index = json.optInt("index", 0),
+        isWishlisted = json.optBoolean("is_wishlisted", false)
+    )
+}
+
+data class InspirationProduct(
+    val primary_image: String = "",
+    val inspiration_subcategory_name: String = "",
+    val inspiration_subcategory_query: String = "",
+) {
+    constructor(json: JSONObject) : this(
+        primary_image = json.optString("primary_image", ""),
+        inspiration_subcategory_name = json.optJSONObject("inspiration_subcategory")?.optString("name", "") ?: "",
+        inspiration_subcategory_query = json.optJSONObject("inspiration_subcategory")?.optString("query", "") ?: ""
     )
 }

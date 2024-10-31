@@ -7,15 +7,15 @@ plugins {
 }
 
 android {
-    namespace = "com.example.fashionapp"
+    namespace = "com.husn.fashionapp"
     compileSdk = 34
 
     defaultConfig {
         applicationId = "com.husn.fashionapp"
         minSdk = 24
         targetSdk = 34
-        versionCode = 7
-        versionName = "1.5"
+        versionCode = 19
+        versionName = "1.17"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -64,6 +64,9 @@ dependencies {
     implementation("androidx.compose.material:material:1.5.0")
     implementation(libs.play.services.measurement.api)
     implementation(libs.firebase.crashlytics)
+    implementation(libs.androidx.browser)
+    implementation(libs.androidx.preference.ktx)
+    implementation(libs.androidx.navigation.runtime.ktx)
     debugImplementation("androidx.compose.ui:ui-tooling:1.5.0")
     implementation("androidx.compose.ui:ui-tooling-preview:1.5.0")
     implementation("androidx.activity:activity-compose:1.7.2")
@@ -85,7 +88,7 @@ dependencies {
 
     // Compose Runtime for managing state in Compose
     implementation("androidx.compose.runtime:runtime:1.5.0")
-    implementation("androidx.compose.material3:material3:1.1.0")/**/
+    implementation("androidx.compose.material3:material3:1.1.0")
 
     // Testing Dependencies (optional)
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.5.0")
@@ -109,4 +112,16 @@ dependencies {
     implementation("org.openjsse:openjsse:1.1.7")
 
     implementation("org.conscrypt:conscrypt-android:2.5.2")
+    implementation("com.google.android.gms:play-services-auth:20.6.0")
+    implementation(platform("com.google.firebase:firebase-bom:32.2.3"))
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+//    implementation("androidx.activity:activity-compose:1.7.2")
+//    implementation("androidx.compose.ui:ui:1.4.3")
+//    implementation("androidx.compose.material:material:1.4.3")
+//    implementation("androidx.compose.ui:ui-tooling-preview:1.4.3")
+////    implementation "io.coil-kt:coil-compose:2.4.0" // For image loading
+////    implementation "com.squareup.okhttp3:okhttp:4.11.0" // For network requests
+////    implementation "org.json:json:20230227" // For JSON manipulation
+//    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.2")
 }

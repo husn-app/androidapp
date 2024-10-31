@@ -1,18 +1,21 @@
 package com.husn.fashionapp
+
+import FavoriteButton
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-//import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -25,187 +28,198 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.ImageLoader
-import coil.compose.rememberAsyncImagePainter
-import coil.decode.SvgDecoder
-import coil.request.ImageRequest
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.husn.fashionapp.ui.theme.AppTheme
-import org.json.JSONArray
-import org.json.JSONObject
 
 
 class ProductDetailsActivity : ComponentActivity() {
+    private lateinit var signInHelper: SignInHelper
+    private val fetch_utility = Fetchutilities(this)
+    private val productsState = mutableStateOf<List<Product>>(emptyList())
+    private val currentProductstate = mutableStateOf<Product>(Product())
+    private val isWishlistedState = mutableStateOf<Boolean>(false)
+    private val isLoading = mutableStateOf(true)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //WindowCompat.setDecorFitsSystemWindows(window, false)
+        val appLinkIntent: Intent = intent
+        val appLinkAction: String? = appLinkIntent.action
+        val appLinkData: Uri? = appLinkIntent.data
+//        val productIndex = intent.getIntExtra("product_index", 0)
+        val productIndex = extractProductIndexFromIntent(intent)
+        val referrer = intent.getStringExtra("referrer") ?: ""
 
-        // Retrieve the product data from the intent
-        val productDataString = intent.getStringExtra("productData") ?: ""
-
-        // Parse the response data
-        var currentProductJson: JSONObject = JSONObject()
-        var productsJsonArray: JSONArray = JSONArray()
-        try {
-            var responseData = JSONObject(productDataString)
-            currentProductJson = responseData.getJSONObject("current_product")
-            productsJsonArray = responseData.getJSONArray("products")
-        } catch (e: Exception) {
-            // Log the exception if needed
-            onBackPressedDispatcher.onBackPressed()
+        val signInLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            signInHelper.handleSignInResult(result.data)
         }
 
-        // Convert current product and products JSON array to Product objects
-        val currentProduct = Product(currentProductJson)
-
-        val products = mutableListOf<Product>()
-        for (i in 1 until productsJsonArray.length()) {  // Start loop from 1 to skip the first product
-            val productJson = productsJsonArray.getJSONObject(i)
-            val product = Product(productJson)
-            products.add(product)
-        }
+        signInHelper = SignInHelper(this, signInLauncher, this)
 
         setContent {
             AppTheme {
-//                ProductDetailsScreen(currentProduct = currentProduct, relatedProducts = products)
-                SearchResultsScreen(query = "", products = products, currentProduct = currentProduct, ProductItemView = { product ->  // Passing the ProductItemView as a lambda
-                    ProductItemView(product = product)  // Call your ProductItemView composable here
-                })
+                CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
+                    Crossfade(targetState = isLoading.value) { loading ->
+                        if (loading) {
+                            ProductLoadingScreen()
+                        } else {
+                            SearchResultsScreen(
+                                query = "",
+                                products = productsState.value,
+                                currentProduct = currentProductstate.value,
+                                referrer = "product/product_id=${currentProductstate.value.index}",
+                                MainProductView = { product ->  // Passing the MainProductView as a lambda
+                                    MainProductView(product = product,
+                                        isWishlisted = isWishlistedState.value,
+                                        onWishlistChange = { newValue ->
+                                            isWishlistedState.value = newValue
+                                            // Optionally, handle any side effects here
+                                        })  // Call your MainProductView composable here
+                                })
+                        }
+                    }
+                }
             }
         }
+        fetch_utility.fetchProductData(index = productIndex, referrer = referrer) { currentProduct, products ->
+            runOnUiThread {
+                currentProductstate.value = currentProduct
+                if (products != null) {
+                    productsState.value = products
+                }
+                isWishlistedState.value = currentProduct.isWishlisted
+                isLoading.value = false
+            }
+        }
+        // ATTENTION: This was auto-generated to handle app links.
+    }
+
+    private fun extractProductIndexFromIntent(intent: Intent): Int {
+        if (Intent.ACTION_VIEW == intent.action) {
+            intent.data?.let { uri ->
+                val segments = uri.pathSegments
+                if (segments.size >= 3) {
+                    return segments[2].toIntOrNull() ?: 0
+                }
+            }
+        }
+        return intent.getIntExtra("product_index", 0)
     }
 }
 @Preview(showBackground = true)
 @Composable
 fun PreviewProductDetailsScreen() {
-//    ProductDetailsScreen(currentProduct = dummyCurrentProduct, relatedProducts = dummyRelatedProducts)
-    SearchResultsScreen(query = "", products = getDummyProductsList(), currentProduct = getDummyProduct(), ProductItemView = { product ->  // Passing the ProductItemView as a lambda
-        ProductItemView(product = product)  // Call your ProductItemView composable here
-    })
-}
-
-@Composable
-fun ProductDetailsScreen(currentProduct: Product, relatedProducts: List<Product>) {
-    Column(modifier = Modifier.fillMaxSize().padding(12.dp),
-        verticalArrangement = Arrangement.SpaceEvenly
+    AppTheme {
+        CompositionLocalProvider(
+            LocalSignInHelper provides null, // Provide null or a mock SignInHelper if needed
+            LocalContext provides LocalContext.current
         ) {
-            SearchBar()  // Call SearchBar here
-        // Display current product
-        ProductItemView(product = currentProduct)
-
-        Spacer(modifier = Modifier.height(12.dp))
-        ProductsListView(relatedProducts)
+            SearchResultsScreen(
+                query = "",
+                products = getDummyProductsList(),
+                currentProduct = getDummyProduct(),
+                MainProductView = { product ->  // Passing the MainProductView as a lambda
+                    MainProductView(product = product)  // Call your MainProductView composable here
+                })
+        }
     }
 }
 
+
 @Composable
-fun ProductItemView(product: Product, modifier: Modifier = Modifier) {
+fun MainProductView(product: Product, modifier: Modifier = Modifier, isWishlisted: Boolean = false, onWishlistChange: (Boolean) -> Unit = {}, clickable: () -> Unit = {}) {
+    val context = LocalContext.current
+    val fetch_utility = Fetchutilities(context)
+    val firebaseAnalytics = remember(context) {
+        try {
+            FirebaseAnalytics.getInstance(context)
+        } catch (e: Exception) {
+            null
+        }
+    }
+    val processedUrl = remember(product) { fetch_utility.makeProductUrl(context, product) }
+    val iconSize = 28.dp
+    val interactionSource = remember { MutableInteractionSource() }
+
     Column(
         modifier = modifier
             .padding(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(
-            painter = rememberAsyncImagePainter(product.primaryImage),
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(0.75f) // Maintain aspect ratio
-                .clip(RoundedCornerShape(16.dp))
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(1f)
-                .padding(horizontal = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        )
-            // verticalAlignment = Alignment.CenterVertically
-        {
-            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.Start) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-//                    horizontalArrangement = Arrangement.Start
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (product.rating > 0) {
-                        Text(text = "%.2f".format(product.rating), color = Color.Black, fontSize = 8.sp)
-                        Spacer(modifier = Modifier.width(2.dp))
-                        Icon(
-                            imageVector = Icons.Filled.Star,
-                            contentDescription = "Rating",
-                            tint = Color(0xFFDEB887),  //Burlywood
-                            modifier = Modifier.width(14.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                    }
-                    Text(text = "Rs ${product.price}", color = Color.Black, fontSize = 8.sp)
-                }
-                Text(text = product.brand, color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)
-                Text(text = product.productName.replace(product.brand, ""), color = MaterialTheme.colorScheme.primary, fontSize = 8.sp)
-            }
-            // Right-aligned clickable SVG icon that redirects to myntra.com/${product.productUrl}
-            val context = LocalContext.current
-            val firebaseAnalytics = remember { FirebaseAnalytics.getInstance(context) }
-            DisplaySvgIconFromAssets(
-                fileName = "myntra-logo.svg",
-                modifier = Modifier
-                    .size(40.dp)
-                    .clickable {
-                        val bundle = Bundle().apply {
-                            putString(FirebaseAnalytics.Param.ITEM_ID, product.index.toString())
-                            putString(FirebaseAnalytics.Param.ITEM_NAME, product.productName)
-                            putString(FirebaseAnalytics.Param.CONTENT_TYPE, "logo")
+        ImageFromUrl(product.primaryImage, clickable = clickable)
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(modifier = Modifier.fillMaxWidth(1f).padding(horizontal = 0.dp),
+            horizontalArrangement = Arrangement.SpaceBetween) {
+            Row (horizontalArrangement = Arrangement.Start){
+                FavoriteButton(isWishlisted = isWishlisted, onWishlistChange = onWishlistChange, productId = product.index, iconSize = iconSize)
+                ShareButton(url = processedUrl, iconSize = iconSize)
+                Image(
+                    painter = painterResource(id = R.drawable.myntra_logo1),
+                    contentDescription = "Inspiration",
+                    modifier = Modifier.padding(horizontal = 4.dp).size(size = 36.dp)
+                        .clickable(interactionSource = interactionSource, indication = null) {
+                            val bundle = Bundle().apply {
+                                putString(FirebaseAnalytics.Param.ITEM_ID, product.index.toString())
+                                putString(FirebaseAnalytics.Param.ITEM_NAME, product.productName)
+                                putString(FirebaseAnalytics.Param.CONTENT_TYPE, "logo")
+                            }
+                            firebaseAnalytics?.logEvent(FirebaseAnalytics.Event.BEGIN_CHECKOUT, bundle)
+
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(product.productUrl))
+                            context.startActivity(intent)
+                            //Load myntra in webview
+//                            val intent = Intent(context, WebViewActivity::class.java)
+//                            intent.putExtra("URL", product.productUrl) // Put the URL you want to open
+//                            context.startActivity(intent)
                         }
-                        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, bundle)
-
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(product.productUrl))
-                        context.startActivity(intent)
-                    }
-            )
-            // DisplaySvgIconFromAssets(fileName = "myntra-logo.svg", modifier = Modifier.weight(0.2f).aspectRatio(1.0f))
+                )
+            }
+            Text(text = "Rs ${product.price}", color = MaterialTheme.colorScheme.primary, fontSize = 16.sp)
         }
+
+        Row(modifier = Modifier.fillMaxWidth(1f).padding(start = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(text = product.brand, color = MaterialTheme.colorScheme.primary, fontSize = 16.sp)
+            if (product.rating > 0) {
+                Row(
+                    modifier = Modifier
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outline,
+//                            color = Color(0xFFC8BEA1),
+                            shape = RoundedCornerShape(4.dp)
+                        )
+                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        text = "%.2f".format(product.rating),
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 12.sp
+                    )
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Icon(
+                        imageVector = Icons.Filled.Star,
+                        contentDescription = "Rating",
+                        tint = Color(0xFF68827F),
+                        modifier = Modifier.width(16.dp)
+                    )
+                }
+            }
+        }
+        var productName = product.productName.replace(product.brand, "", ignoreCase = true).trimStart()
+//        Spacer(modifier = Modifier.height(4.dp))
+        Text(text = productName, color = MaterialTheme.colorScheme.primary, fontSize = 12.sp, lineHeight = 14.sp,
+            modifier = Modifier.padding(start = 8.dp))
     }
-}
-
-@Composable
-fun DisplaySvgIconFromAssets(fileName: String, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-
-    // Create an ImageLoader with SVG support
-    val imageLoader = ImageLoader.Builder(context)
-        .components {
-            add(SvgDecoder.Factory())
-        }
-        .build()
-
-    // Build the asset URI
-    val assetUri = "file:///android_asset/$fileName"
-//    val assetUri = R.drawable.myntra_logo // This also works.
-
-    // Load the SVG file as a drawable into Coil
-    val painter = rememberAsyncImagePainter(
-        ImageRequest.Builder(context)
-            .data(assetUri)
-            .build(),
-        imageLoader = imageLoader
-    )
-
-    // Display the image
-    Image(
-        painter = painter,
-        contentDescription = null,
-        modifier = modifier,
-        contentScale = ContentScale.Fit
-    )
 }

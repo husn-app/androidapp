@@ -1,0 +1,136 @@
+package com.husn.fashionapp
+
+import android.content.Intent
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.Scaffold
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import com.google.android.gms.auth.api.Auth
+import com.husn.fashionapp.ui.theme.AppTheme
+
+class FeedActivity : ComponentActivity() {
+    private lateinit var signInHelper: SignInHelper
+    private val productsState = mutableStateOf<List<Product>>(emptyList())
+    private val isLoading = mutableStateOf(true)
+    private val fetch_utility = Fetchutilities(this)
+    private var retryCount = 0
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+//        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        val signInLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) {}
+        signInHelper = SignInHelper(this, signInLauncher, this) //This initialization initializes AuthManager from internal storage. Imp as it is launched immediately after onboarding
+        if (!AuthManager.isUserSignedIn) {
+            signInHelper.signIn()
+        } else {
+            fetchFeedProducts()
+        }
+
+        if (AuthManager.onboardingStage == null || AuthManager.onboardingStage != "COMPLETE") {
+            val intent = Intent(this, OnboardingActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            startActivity(intent)
+            finish() // Finish FeedActivity to clean up the back stack
+            return
+        }
+
+        setContent {
+            AppTheme {
+                CompositionLocalProvider(LocalSignInHelper provides signInHelper) {
+                    Crossfade(targetState = isLoading.value) { loading ->
+                        if (loading) {
+                            FeedLoadingScreen()
+                        } else {
+                            FeedScreen(
+                                products = productsState.value,
+                                onWishlistChange = { productId, newValue ->
+                                    updateProductWishlistStatus(productId, newValue)
+                                })
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun fetchFeedProducts() {
+        fetch_utility.fetchProductsList(relative_url = "/api/feed") { products ->
+            runOnUiThread {
+                if (products != null) {
+                    productsState.value = products
+                    isLoading.value = false
+                    retryCount = 0 // Reset retry count on success
+                    if (productsState.value.isEmpty()) {
+                        finish()
+                    }
+                } else if (retryCount < 1) {  // Retry only once
+                    retryCount++
+                    fetchFeedProducts() // Retry the fetch
+                } else {
+                    isLoading.value = false // Hide loading even on failure after retry
+                    finish() // Or navigate to another screen
+                }
+            }
+        }
+    }
+
+    private fun updateProductWishlistStatus(productId: Int, newValue: Boolean) {
+        productsState.value = productsState.value.map { product ->
+            if (product.index == productId) {
+                product.copy(isWishlisted = newValue)
+            } else {
+                product
+            }
+        }
+    }
+}
+
+@Composable
+fun FeedScreen(products: List<Product>,
+               onWishlistChange: (Int, Boolean) -> Unit){
+    var context = LocalContext.current
+    Scaffold(
+        backgroundColor = MaterialTheme.colorScheme.background,
+        bottomBar = { BottomBar(selectedItem = 1) } // BottomBar placed correctly
+    ) { innerPadding -> // Use innerPadding to avoid content overlapping the BottomBar
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(innerPadding)
+        ) {
+            item {
+                TopNavBar()
+                SearchBar(referrer = "feed")
+            }
+            itemsIndexed(products) { index, product ->
+                MainProductView(product,
+                    isWishlisted = product.isWishlisted,
+                    onWishlistChange = { newValue ->
+                        onWishlistChange(product.index, newValue)
+                    },
+                    clickable = {
+                    val intent = Intent(context, ProductDetailsActivity::class.java).apply {
+                        putExtra("product_index", product.index)
+                        putExtra("referrer", "feed/rank=$index")
+                    }
+                    context.startActivity(intent)
+                })
+            }
+        }
+    }
+}
