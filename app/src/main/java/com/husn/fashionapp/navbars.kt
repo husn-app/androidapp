@@ -137,9 +137,14 @@ fun BottomBar(selectedItem: Int = 0) {
                 selected = currentItem == 1, // Handle selection state if needed with navigation
                 onClick = {
 //                    currentItem = 1
-                    val intent = Intent(context, FeedActivity::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                    context.startActivity(intent)
+                    if (!isUserSignedIn) {
+                        signInHelper?.signIn()
+                    }
+                    else {
+                        val intent = Intent(context, FeedActivity::class.java)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                        context.startActivity(intent)
+                    }
                 },
             )
             BottomNavigationItem(

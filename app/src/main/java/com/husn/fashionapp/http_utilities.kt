@@ -1,6 +1,7 @@
 package com.husn.fashionapp
 
 import android.content.Context
+import android.webkit.WebView
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -21,9 +22,11 @@ fun post_url_request(context: Context, url: String, requestBodyJson: JSONObject 
         put("referrer", "android/$requestReferrer")
     }.toString()
     val requestBody = requestBodyString.toRequestBody(mediaType)
+    val userAgent = WebView(context).settings.userAgentString
     var request = Request.Builder()
         .url(url)
         .addHeader("platform", "android")
+        .addHeader("User-Agent", userAgent)
         .post(requestBody)
     request = addCookiesToRequest(request, context)
     return request.build()
