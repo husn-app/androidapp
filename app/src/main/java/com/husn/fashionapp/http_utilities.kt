@@ -22,11 +22,11 @@ fun post_url_request(context: Context, url: String, requestBodyJson: JSONObject 
         put("referrer", "android/$requestReferrer")
     }.toString()
     val requestBody = requestBodyString.toRequestBody(mediaType)
-    val userAgent = WebView(context).settings.userAgentString
+    val defaultUserAgent = System.getProperty("http.agent") ?: "android_okhttp"
     var request = Request.Builder()
         .url(url)
         .addHeader("platform", "android")
-        .addHeader("User-Agent", userAgent)
+        .addHeader("User-Agent", defaultUserAgent)
         .post(requestBody)
     request = addCookiesToRequest(request, context)
     return request.build()
